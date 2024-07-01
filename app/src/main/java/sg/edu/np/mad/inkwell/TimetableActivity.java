@@ -120,8 +120,6 @@ public class TimetableActivity extends AppCompatActivity implements NavigationVi
         endDate = findViewById(R.id.endDate);
         tvDate = findViewById(R.id.tvDate);
         TextView btnClear = findViewById(R.id.btnClear);
-        tvStartDate = findViewById(R.id.tvStartDate);
-        tvEndDate = findViewById(R.id.tvEndDate);
         etToDo = findViewById(R.id.etToDo);
         etLocation = findViewById(R.id.etLocation);
         tvStartDate = findViewById(R.id.tvStartDate);
@@ -231,6 +229,38 @@ public class TimetableActivity extends AppCompatActivity implements NavigationVi
 
             // show endDatePicker dialog
             endDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDatePickerDialog(false);
+                }
+            });
+
+            updateStartTime.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showTimePickerDialog(true);
+                }
+            });
+
+            // show startDatePicker dialog
+            updateStartDate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showDatePickerDialog(true);
+                }
+            });
+
+            // show endTimePicker dialog
+            updateEndTime.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    showTimePickerDialog(false);
+                }
+            });
+
+            // show endDatePicker dialog
+            updateEndDate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showDatePickerDialog(false);
@@ -351,6 +381,20 @@ public class TimetableActivity extends AppCompatActivity implements NavigationVi
 
             // get selected item from spinner onCLick
             updateCategorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selectedCategory = parent.getItemAtPosition(position).toString();
+                    if (selectedCategory.equals("Add New Option")) {
+                        showAddOptionPopup();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
+            categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String selectedCategory = parent.getItemAtPosition(position).toString();
@@ -659,11 +703,13 @@ public class TimetableActivity extends AppCompatActivity implements NavigationVi
                     startHour = selectedHour;
                     startMinute = selectedMinute;
                     tvStartTime.setText(String.format("%02d:%02d", startHour, startMinute));
+                    updateStartTime.setText(String.format("%02d:%02d", startHour, startMinute));
                 } // if false, change endTime text
                 else {
                     endHour = selectedHour;
                     endMinute = selectedMinute;
                     tvEndTime.setText(String.format("%02d:%02d", endHour, endMinute));
+                    updateEndTime.setText(String.format("%02d:%02d", endHour, endMinute));
                 }
             }
         }, hour, minute, true);
@@ -686,12 +732,14 @@ public class TimetableActivity extends AppCompatActivity implements NavigationVi
                             startMonth = monthOfYear;
                             startDayOfMonth = dayOfMonth;
                             tvStartDate.setText(formatDate(startYear, startMonth, startDayOfMonth));
+                            updateStartDate.setText(formatDate(startYear, startMonth, startDayOfMonth));
                         } // if false, change tvEndDate
                         else {
                             endYear = year;
                             endMonth = monthOfYear;
                             endDayOfMonth = dayOfMonth;
                             tvEndDate.setText(formatDate(endYear, endMonth, endDayOfMonth));
+                            updateEndDate.setText(formatDate(endYear, endMonth, endDayOfMonth));
                         }
                     }
                 }, year, month, dayOfMonth);
