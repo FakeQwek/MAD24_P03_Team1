@@ -60,6 +60,8 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
     public static int selectedFriendId;
 
+    public static String selectedFriendUid;
+
     public static String selectedFriendEmail;
 
     private void recyclerView(ArrayList<Friend> friendList) {

@@ -1,6 +1,7 @@
 package sg.edu.np.mad.inkwell;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
         if (message.type.equals("sent")) {
             holder.relativeLayout.setGravity(Gravity.END);
+        } else if (message.type.equals("received")) {
+            holder.message.setTextColor(Color.parseColor("#FFFFFF"));
+            holder.cardView.setCardBackgroundColor(Color.parseColor("#009C2C"));
         }
     }
 

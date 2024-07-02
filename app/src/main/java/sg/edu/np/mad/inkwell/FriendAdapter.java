@@ -39,6 +39,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendViewHolder> {
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FriendsActivity.selectedFriendUid = friend.uid;
                 FriendsActivity.selectedFriendEmail = friend.email;
 
                 FriendsActivity.selectedFriendId = friend.getId();
