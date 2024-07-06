@@ -77,10 +77,7 @@ Productivity
 - Time Zone Support - Jun Kai
 
 *New Concepts:* 
--
--
--
-_
+
   
 *Other* 
 - Publishing App - Tsun Yang
