@@ -44,6 +44,13 @@ import java.util.Map;
 
 public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     // Declaration of variables
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    // Get id of current user
+    String currentFirebaseUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+    String currentFirebaseUserEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
     private ArrayList<Object> allNotes;
 
     private NotesActivity notesActivity;
@@ -183,6 +190,22 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                             TextView dateUpdated = view.findViewById(R.id.dateUpdated);
                             dateUpdated.setText(simpleDateFormat.format(file.dateUpdated));
+                        }
+                    });
+
+                    Button shareButton = view.findViewById(R.id.shareButton);
+                    shareButton.setText("Share With Community");
+
+                    shareButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Map<String, Object> communityNoteData = new HashMap<>();
+                            communityNoteData.put("title", file.getTitle());
+                            communityNoteData.put("body", file.getBody());
+                            communityNoteData.put("email", currentFirebaseUserEmail);
+                            communityNoteData.put("uid", currentFirebaseUserUid);
+
+                            db.collection("community").document().set(communityNoteData);
                         }
                     });
                     return false;

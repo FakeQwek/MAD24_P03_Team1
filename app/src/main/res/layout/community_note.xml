@@ -17,27 +17,40 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="70dp">
+            android:layout_height="wrap_content">
 
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/friendProfileImage"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:id="@+id/profileImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="20dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="20dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/circleImageView" />
 
             <TextView
-                android:id="@+id/friendEmail"
+                android:id="@+id/email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="email"
-                app:layout_constraintBottom_toBottomOf="@+id/friendProfileImage"
-                app:layout_constraintStart_toEndOf="@+id/friendProfileImage"
-                app:layout_constraintTop_toTopOf="@+id/friendProfileImage"
+                app:layout_constraintBottom_toBottomOf="@+id/profileImage"
+                app:layout_constraintStart_toEndOf="@+id/profileImage"
+                app:layout_constraintTop_toTopOf="@+id/profileImage"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter_regular" />
+
+            <TextView
+                android:id="@+id/communityNoteTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:text="Title"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/profileImage"
+                app:layout_constraintTop_toBottomOf="@+id/profileImage"
                 android:textSize="20sp"
                 android:fontFamily="@font/inter_regular" />
 
