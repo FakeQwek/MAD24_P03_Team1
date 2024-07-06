@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -26,10 +27,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +46,19 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 
 public class NotesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -65,6 +84,57 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
     public static int fileOrderIndex;
 
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+
+    OkHttpClient client = new OkHttpClient();
+
+    MediaType JSON = MediaType.get("application/json; charset=utf-8");
+
+    void callAPI(String prompt) {
+        TextView promptAnswer = findViewById(R.id.promptAnswer);
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("model", "gpt-3.5-turbo");
+            jsonBody.put("prompt", prompt);
+            jsonBody.put("max_tokens", 4000);
+            jsonBody.put("temperature", 0);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(jsonBody.toString(), JSON);
+        Request request = new Request.Builder()
+            .url("https://api.openai.com/v1/completions")
+            .header("Authorization", "Bearer API KEY")
+            .post(body)
+            .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.d("apple", "Failed to load response due to " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response.body().string());
+                        JSONArray jsonArray = jsonObject.getJSONArray("choices");
+                        String result = jsonArray.getJSONObject(0).getString("text");
+                        Log.d("apple", result.trim());
+                        promptAnswer.setText(result.trim());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                } else {
+                    Log.d("apple", "Failed to load response due to " + response.body().string());
+                }
+            }
+        });
+    }
 
     // Method to set items in the recycler view
     private void recyclerView(ArrayList<Object> allNotes) {
@@ -396,6 +466,27 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                 }
             }
         });
+
+        ViewAnimator viewAnimator = findViewById(R.id.viewAnimator);
+        ImageButton aiButton = findViewById(R.id.aiButton);
+
+        aiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewAnimator.setDisplayedChild(1);
+            }
+        });
+
+        TextInputEditText promptEditText = findViewById(R.id.promptEditText);
+        ImageButton sendButton = findViewById(R.id.sendButton);
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callAPI(promptEditText.getText().toString().trim());
+            }
+        });
+
     }
 
     //Allows movement between activities upon clicking

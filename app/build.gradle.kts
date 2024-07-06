@@ -59,4 +59,5 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation ("com.google.firebase:firebase-auth:20.0.4")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }
