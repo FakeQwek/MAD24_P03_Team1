@@ -217,6 +217,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
         menu.findItem(R.id.nav_settings).setVisible(false);
         menu.findItem(R.id.nav_profile).setVisible(false);
         menu.findItem(R.id.nav_logout).setVisible(false);
+        menu.findItem(R.id.nav_friends).setVisible(false);
+        menu.findItem(R.id.nav_community).setVisible(false);
 
         ImageButton swapButton = findViewById(R.id.swapButton);
 
@@ -226,6 +228,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
             swapButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d("apple", "WTF IS CLICKED");
                     if (menu.hasVisibleItems()) {
                         menu.findItem(R.id.nav_home).setVisible(false);
                         menu.findItem(R.id.nav_notes).setVisible(false);
@@ -236,6 +239,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                         menu.findItem(R.id.nav_settings).setVisible(false);
                         menu.findItem(R.id.nav_profile).setVisible(false);
                         menu.findItem(R.id.nav_logout).setVisible(false);
+                        menu.findItem(R.id.nav_friends).setVisible(false);
+                        menu.findItem(R.id.nav_community).setVisible(false);
                         searchView.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.VISIBLE);
                     } else {
@@ -248,6 +253,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                         menu.findItem(R.id.nav_settings).setVisible(true);
                         menu.findItem(R.id.nav_profile).setVisible(true);
                         menu.findItem(R.id.nav_logout).setVisible(true);
+                        menu.findItem(R.id.nav_friends).setVisible(true);
+                        menu.findItem(R.id.nav_community).setVisible(true);
                         searchView.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.GONE);
                     }

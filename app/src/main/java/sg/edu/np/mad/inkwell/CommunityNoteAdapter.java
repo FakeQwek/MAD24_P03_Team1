@@ -30,6 +30,7 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
 
     public void onBindViewHolder(CommunityNoteViewHolder holder, int position) {
         CommunityNote communityNote = communityNoteList.get(position);
+        holder.communityNoteTitle.setText(communityNote.getTitle());
         holder.email.setText(communityNote.getEmail());
         holder.profileImage.setImageBitmap(communityNote.getBitmap());
 
