@@ -62,6 +62,21 @@ public class Navbar {
             Log.d("Alert", "Opening timetable");
             return newActivity;
         }
+        else if (id == R.id.nav_profile) {
+            Intent newActivity = new Intent(CurrentActivity, ProfileActivity.class);
+            Log.d("Alert", "Opening profile");
+            return newActivity;
+        }
+        else if (id == R.id.nav_friends) {
+            Intent newActivity = new Intent(CurrentActivity, FriendsActivity.class);
+            Log.d("Alert", "Opening profile");
+            return newActivity;
+        }
+        else if (id == R.id.nav_community) {
+            Intent newActivity = new Intent(CurrentActivity, CommunityActivity.class);
+            Log.d("Alert", "Opening profile");
+            return newActivity;
+        }
         else if (id == R.id.nav_settings) {
             Intent newActivity = new Intent(CurrentActivity, SettingsActivity.class);
             Log.d("Alert", "Opening settings");

@@ -30,6 +30,16 @@
             android:maxWidth="230dp"/>
 
         <ImageView
+            android:id="@+id/bookmark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/folderButton"
+            app:layout_constraintStart_toEndOf="@+id/folderButton"
+            app:layout_constraintTop_toTopOf="@+id/folderButton"
+            app:srcCompat="@drawable/bookmark"
+            android:visibility="gone" />
+
+        <ImageView
             android:id="@+id/chevron"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

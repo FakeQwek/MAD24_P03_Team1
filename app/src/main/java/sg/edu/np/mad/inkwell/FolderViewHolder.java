@@ -17,6 +17,8 @@ public class FolderViewHolder extends RecyclerView.ViewHolder {
 
     ConstraintLayout constraintLayout;
 
+    ImageView bookmark;
+
     public FolderViewHolder(View view) {
         super(view);
 
@@ -27,5 +29,7 @@ public class FolderViewHolder extends RecyclerView.ViewHolder {
         recyclerView = view.findViewById(R.id.recyclerView);
 
         constraintLayout = view.findViewById(R.id.constraintLayout);
+
+        bookmark = view.findViewById(R.id.bookmark);
     }
 }

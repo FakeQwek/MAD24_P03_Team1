@@ -9,6 +9,26 @@
         android:layout_height="wrap_content" />
 
     <Button
+        android:id="@+id/fileInformationButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:backgroundTint="@color/white"
+        android:textAlignment="viewStart"
+        android:textColor="@color/black"
+        style="?android:attr/borderlessButtonStyle" />
+
+    <Button
+        android:id="@+id/shareButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:backgroundTint="@color/white"
+        android:textAlignment="viewStart"
+        android:textColor="@color/black"
+        style="?android:attr/borderlessButtonStyle" />
+
+    <Button
         android:id="@+id/bottomSheetDeleteButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
