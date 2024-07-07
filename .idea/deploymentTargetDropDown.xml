@@ -5,6 +5,12 @@
       <entry key="LoginActivity">
         <State />
       </entry>
+      <entry key="MindMap">
+        <State />
+      </entry>
+      <entry key="NotesActivity">
+        <State />
+      </entry>
     </value>
   </component>
 </project>
