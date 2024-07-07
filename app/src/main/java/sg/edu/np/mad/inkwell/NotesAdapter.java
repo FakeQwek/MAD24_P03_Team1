@@ -152,6 +152,8 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     if (NotesActivity.fileOrder.isEmpty()) {
                         NotesActivity.fileOrder.add(file);
                         fileViewHolder.fileButton.setEnabled(true);
+                    } else if (NotesActivity.fileOrder.size() == 1 && NotesActivity.fileOrder.get(0) == file) {
+
                     } else if (NotesActivity.fileOrder.get(NotesActivity.fileOrderIndex - 1) != file) {
                         if (NotesActivity.fileOrderIndex != NotesActivity.fileOrder.size()) {
                             int count = NotesActivity.fileOrder.size() - NotesActivity.fileOrderIndex;
