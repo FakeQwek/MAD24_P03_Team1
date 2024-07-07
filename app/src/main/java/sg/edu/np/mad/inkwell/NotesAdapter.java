@@ -37,6 +37,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -106,13 +107,37 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             fileViewHolder.fileButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    notesActivity.selectedFile = file;
+
+                    notesActivity.messageList.clear();
+
+                    db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(file.getId())).collection("messages")
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            if (Integer.parseInt(document.getId()) > notesActivity.currentMessageId) {
+                                                notesActivity.currentMessageId = Integer.parseInt(document.getId());
+                                            }
+                                            Message message = new Message(Integer.parseInt(document.getId()), document.getData().get("message").toString(), document.getData().get("type").toString());
+                                            notesActivity.messageList.add(message);
+                                            notesActivity.messageList.sort(Comparator.comparingInt(i -> i.id));
+                                            notesActivity.messageRecyclerView(notesActivity.messageList);
+                                        }
+                                    } else {
+                                        Log.d("testing", "Error getting documents: ", task.getException());
+                                    }
+                                }
+                            });
+
                     if (noteTitle.getVisibility() == View.GONE) {
                         noteTitle.setVisibility(View.VISIBLE);
                         noteBody.setVisibility(View.VISIBLE);
                     }
 
                     NotesActivity.selectedNoteId = file.getId();
-                    Log.d("tester11", String.valueOf(NotesActivity.fileOrderIndex));
 
                     if (NotesActivity.fileOrderIndex == -1) {
                         NotesActivity.fileOrderIndex++;
@@ -120,8 +145,6 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     else if (NotesActivity.fileOrder.get(NotesActivity.fileOrderIndex) != file) {
                         NotesActivity.fileOrderIndex++;
                     }
-
-                    Log.d("tester11", String.valueOf(NotesActivity.fileOrderIndex));
 
                     noteTitle.setText(file.getTitle());
                     noteBody.setText(file.getBody());

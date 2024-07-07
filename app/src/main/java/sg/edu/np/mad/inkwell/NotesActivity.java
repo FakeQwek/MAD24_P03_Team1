@@ -41,23 +41,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 
 public class NotesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -75,6 +74,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
     // selectedNoteId keeps track of the note that has been selected
     public static int selectedNoteId = 1;
 
+    public static File selectedFile;
+
     public static ArrayList<File> files = new ArrayList<>();
 
     public static ArrayList<Integer> fileIds = new ArrayList<>();
@@ -85,55 +86,94 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
 
-    OkHttpClient client = new OkHttpClient();
+    private String stringURLEndPoint = "https://api.openai.com/v1/chat/completions";
 
-    MediaType JSON = MediaType.get("application/json; charset=utf-8");
+    private String stringAPIKey = "API KEY";
 
-    void callAPI(String prompt) {
-        TextView promptAnswer = findViewById(R.id.promptAnswer);
-        JSONObject jsonBody = new JSONObject();
+    private String promptResponse = "";
+
+    public static int currentMessageId;
+
+    public static ArrayList<Message> messageList = new ArrayList<>();
+
+
+    public void callAPI(String prompt){
+        JSONObject jsonObject = new JSONObject();
+
         try {
-            jsonBody.put("model", "gpt-3.5-turbo");
-            jsonBody.put("prompt", prompt);
-            jsonBody.put("max_tokens", 4000);
-            jsonBody.put("temperature", 0);
+            jsonObject.put("model", "gpt-3.5-turbo");
+
+            JSONArray jsonArrayMessage = new JSONArray();
+            JSONObject jsonObjectMessage = new JSONObject();
+            jsonObjectMessage.put("role", "user");
+            jsonObjectMessage.put("content", prompt);
+            jsonArrayMessage.put(jsonObjectMessage);
+
+            jsonObject.put("messages", jsonArrayMessage);
+
         } catch (JSONException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        RequestBody body = RequestBody.create(jsonBody.toString(), JSON);
-        Request request = new Request.Builder()
-            .url("https://api.openai.com/v1/completions")
-            .header("Authorization", "Bearer API KEY")
-            .post(body)
-            .build();
-
-        client.newCall(request).enqueue(new Callback() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
+                stringURLEndPoint, jsonObject, new Response.Listener<JSONObject>() {
             @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.d("apple", "Failed to load response due to " + e.getMessage());
-            }
+            public void onResponse(JSONObject response) {
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    JSONObject jsonObject = null;
-                    try {
-                        jsonObject = new JSONObject(response.body().string());
-                        JSONArray jsonArray = jsonObject.getJSONArray("choices");
-                        String result = jsonArray.getJSONObject(0).getString("text");
-                        Log.d("apple", result.trim());
-                        promptAnswer.setText(result.trim());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
-                } else {
-                    Log.d("apple", "Failed to load response due to " + response.body().string());
+                String content = null;
+                try {
+                    content = response.getJSONArray("choices")
+                            .getJSONObject(0)
+                            .getJSONObject("message")
+                            .getString("content");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
                 }
+
+                promptResponse = promptResponse + content;
+
+                currentMessageId += 1;
+
+                Map<String, Object> newMessage = new HashMap<>();
+                newMessage.put("message", promptResponse);
+                newMessage.put("uid", currentFirebaseUserUid);
+                newMessage.put("type", "received");
+
+                db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(selectedFile.getId())).collection("messages").document(String.valueOf(currentMessageId)).set(newMessage);
+
+                Message message = new Message(currentMessageId, promptResponse, "received");
+
+                messageList.add(message);
+                messageList.sort(Comparator.comparingInt(i -> i.id));
+                messageRecyclerView(messageList);
             }
-        });
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> mapHeader = new HashMap<>();
+                mapHeader.put("Authorization", "Bearer " + stringAPIKey);
+                mapHeader.put("Content-Type", "application/json");
+
+                return mapHeader;
+            }
+
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                return super.parseNetworkResponse(response);
+            }
+        };
+
+        int intTimeoutPeriod = 60000; // 60 seconds timeout duration defined
+        RetryPolicy retryPolicy = new DefaultRetryPolicy(intTimeoutPeriod,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(retryPolicy);
+        Volley.newRequestQueue(getApplicationContext()).add(jsonObjectRequest);
     }
 
     // Method to set items in the recycler view
@@ -148,6 +188,16 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
             recyclerView.setAdapter(adapter);
             recyclerView.getAdapter().notifyDataSetChanged();
         }
+    }
+
+    public void messageRecyclerView(ArrayList<Message> messageList) {
+        RecyclerView recyclerView = findViewById(R.id.messageRecyclerView2);
+        MessageAdapter adapter = new MessageAdapter(messageList, null);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+        recyclerView.getAdapter().notifyDataSetChanged();
     }
 
     // Method to filter items already in the recycler view
@@ -228,7 +278,6 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
             swapButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("apple", "WTF IS CLICKED");
                     if (menu.hasVisibleItems()) {
                         menu.findItem(R.id.nav_home).setVisible(false);
                         menu.findItem(R.id.nav_notes).setVisible(false);
@@ -480,7 +529,11 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
         aiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewAnimator.setDisplayedChild(1);
+                if (viewAnimator.getDisplayedChild() == 0) {
+                    viewAnimator.setDisplayedChild(1);
+                } else {
+                    viewAnimator.setDisplayedChild(0);
+                }
             }
         });
 
@@ -490,7 +543,24 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callAPI(promptEditText.getText().toString().trim());
+                String prompt = noteBody.getText().toString().trim() + " " + promptEditText.getText().toString().trim();
+
+                currentMessageId += 1;
+
+                Map<String, Object> newMessage = new HashMap<>();
+                newMessage.put("message", promptEditText.getText().toString());
+                newMessage.put("uid", currentFirebaseUserUid);
+                newMessage.put("type", "sent");
+
+                db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(selectedFile.getId())).collection("messages").document(String.valueOf(currentMessageId)).set(newMessage);
+
+                Message message = new Message(currentMessageId, promptEditText.getText().toString(), "sent");
+
+                messageList.add(message);
+                messageList.sort(Comparator.comparingInt(i -> i.id));
+                messageRecyclerView(messageList);
+
+                callAPI(prompt);
             }
         });
 

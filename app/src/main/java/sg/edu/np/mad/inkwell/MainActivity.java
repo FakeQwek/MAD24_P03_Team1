@@ -159,11 +159,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userData.put("email", currentFirebaseUserEmail);
         userData.put("type", "");
 
-        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document("0").set(userData2);
+        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document("0").set(userData);
         db.collection("users").document(currentFirebaseUserUid).collection("notes").document("0").set(userData);
-        db.collection("users").document(currentFirebaseUserUid).collection("todos").document("0").set(userData2);
-        db.collection("users").document(currentFirebaseUserUid).collection("profile").document("0").set(userData2);
-        db.collection("users").document(currentFirebaseUserUid).collection("friends").document("0").set(userData2);
+        db.collection("users").document(currentFirebaseUserUid).collection("todos").document("0").set(userData);
+        db.collection("users").document(currentFirebaseUserUid).collection("profile").document("0").set(userData);
+        db.collection("users").document(currentFirebaseUserUid).collection("friends").document("0").set(userData);
     }
 
     @Override
