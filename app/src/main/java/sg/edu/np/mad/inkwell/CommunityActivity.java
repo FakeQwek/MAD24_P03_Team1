@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
@@ -60,6 +61,8 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
     public static boolean selectedNote = false;
 
+    private ArrayList<CommunityNote> communityNotes;
+
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
 
     private void recyclerView(ArrayList<CommunityNote> communityNoteList) {
@@ -70,6 +73,17 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
         recyclerView.getAdapter().notifyDataSetChanged();
+    }
+
+    private void filter(ArrayList<CommunityNote> communityNoteList, String query) {
+        ArrayList<CommunityNote> filterList = new ArrayList<>();
+        for (CommunityNote communityNote : communityNoteList){
+            if(communityNote.getTitle().toLowerCase().contains(query)) {
+                filterList.add(communityNote);
+            }
+        }
+        communityNotes = filterList;
+        recyclerView(communityNotes);
     }
 
     @Override
@@ -203,6 +217,23 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
                     db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(noteCount)).set(newNoteData);
                 }
+            }
+        });
+
+        SearchView searchView = findViewById(R.id.searchView);
+
+        // Search the items in recycler view
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filter(communityNoteList, query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(communityNoteList, newText);
+                return false;
             }
         });
     }

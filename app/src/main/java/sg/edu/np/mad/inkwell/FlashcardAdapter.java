@@ -64,8 +64,6 @@ public class FlashcardAdapter extends RecyclerView.Adapter<FlashcardViewHolder> 
                 holder.deleteButton.setEnabled(false);
                 allFlashcards.remove(flashcard);
                 flashcardList.remove(flashcard);
-                Log.d("tester11", String.valueOf(allFlashcards.size()));
-                Log.d("tester11", String.valueOf(flashcardList.size()));
                 recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
 
                 db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document(String.valueOf(FlashcardActivity.selectedFlashcardCollectionId)).collection("flashcards").document(String.valueOf(flashcard.getId())).delete();
