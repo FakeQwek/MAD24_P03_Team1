@@ -67,9 +67,9 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
     public static boolean manageNotes = false;
 
-    private void recyclerView(ArrayList<CommunityNote> communityNoteList) {
+    private void recyclerView(ArrayList<CommunityNote> communityNoteList, ArrayList<CommunityNote> communityNotes) {
         RecyclerView recyclerView = findViewById(R.id.communityRecyclerView);
-        CommunityNoteAdapter adapter = new CommunityNoteAdapter(communityNoteList, this);
+        CommunityNoteAdapter adapter = new CommunityNoteAdapter(communityNoteList, communityNotes, this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -85,7 +85,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
             }
         }
         communityNotes = filterList;
-        recyclerView(communityNotes);
+        recyclerView(communityNoteList, filterList);
     }
 
     @Override
@@ -147,14 +147,14 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                                         CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
                                         communityNoteList.add(communityNote);
-                                        recyclerView(communityNoteList);
+                                        filter(communityNoteList, "");
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception exception) {
                                         CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null, dc.getDocument().getData().get("dateCreated").toString());
                                         communityNoteList.add(communityNote);
-                                        recyclerView(communityNoteList);
+                                        filter(communityNoteList, "");
                                     }
                                 });
                             }
@@ -278,14 +278,14 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                                                     Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                                                     CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
                                                     communityNoteList.add(communityNote);
-                                                    recyclerView(communityNoteList);
+                                                    filter(communityNoteList, "");
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
                                                 public void onFailure(@NonNull Exception exception) {
                                                     CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null, dc.getDocument().getData().get("dateCreated").toString());
                                                     communityNoteList.add(communityNote);
-                                                    recyclerView(communityNoteList);
+                                                    filter(communityNoteList, "");
                                                 }
                                             });
                                         }
@@ -327,14 +327,14 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                                                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                                                         CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
                                                         communityNoteList.add(communityNote);
-                                                        recyclerView(communityNoteList);
+                                                        filter(communityNoteList, "");
                                                     }
                                                 }).addOnFailureListener(new OnFailureListener() {
                                                     @Override
                                                     public void onFailure(@NonNull Exception exception) {
                                                         CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null, dc.getDocument().getData().get("dateCreated").toString());
                                                         communityNoteList.add(communityNote);
-                                                        recyclerView(communityNoteList);
+                                                        filter(communityNoteList, "");
                                                     }
                                                 });
                                             }

@@ -21,10 +21,13 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
 
     private ArrayList<CommunityNote> communityNoteList;
 
+    private ArrayList<CommunityNote> communityNotes;
+
     private CommunityActivity communityActivity;
 
-    public CommunityNoteAdapter(ArrayList<CommunityNote> communityNoteList, CommunityActivity communityActivity) {
+    public CommunityNoteAdapter(ArrayList<CommunityNote> communityNoteList, ArrayList<CommunityNote> communityNotes, CommunityActivity communityActivity) {
         this.communityNoteList = communityNoteList;
+        this.communityNotes = communityNotes;
         this.communityActivity = communityActivity;
     }
 
@@ -35,7 +38,7 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
     }
 
     public void onBindViewHolder(CommunityNoteViewHolder holder, int position) {
-        CommunityNote communityNote = communityNoteList.get(position);
+        CommunityNote communityNote = communityNotes.get(position);
         holder.communityNoteTitle.setText(communityNote.getTitle());
         holder.email.setText(communityNote.getEmail());
         holder.profileImage.setImageBitmap(communityNote.getBitmap());
@@ -67,13 +70,14 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
         holder.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                communityNoteList.remove(communityNote);
-                recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
-
                 db.collection("community").document(communityNote.getId()).delete();
+
+                communityNoteList.remove(communityNote);
+                communityNotes.remove(communityNote);
+                recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
             }
         });
     }
 
-    public int getItemCount() { return communityNoteList.size(); }
+    public int getItemCount() { return communityNotes.size(); }
 }

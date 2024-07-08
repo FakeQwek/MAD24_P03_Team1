@@ -84,7 +84,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
     public static int fileOrderIndex;
 
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     private String stringURLEndPoint = "https://api.openai.com/v1/chat/completions";
 
