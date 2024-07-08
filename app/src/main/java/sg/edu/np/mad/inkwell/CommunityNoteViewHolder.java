@@ -16,6 +16,8 @@ public class CommunityNoteViewHolder extends RecyclerView.ViewHolder {
 
     CardView cardView;
 
+    TextView dateCreated;
+
     public CommunityNoteViewHolder(View view) {
         super(view);
 
@@ -26,5 +28,7 @@ public class CommunityNoteViewHolder extends RecyclerView.ViewHolder {
         communityNoteTitle = view.findViewById(R.id.communityNoteTitle);
 
         cardView = view.findViewById(R.id.cardView);
+
+        dateCreated = view.findViewById(R.id.dateCreated);
     }
 }

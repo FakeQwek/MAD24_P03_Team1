@@ -15,6 +15,8 @@ public class CommunityNote {
 
     public Bitmap bitmap;
 
+    public String dateCreated;
+
     public String getId() { return this.id; }
 
     public String getTitle() { return this.title; }
@@ -27,12 +29,15 @@ public class CommunityNote {
 
     public Bitmap getBitmap() { return this.bitmap; }
 
-    public CommunityNote(String id, String title, String body, String email, String uid, Bitmap bitmap) {
+    public String getDateCreated() { return this.dateCreated; }
+
+    public CommunityNote(String id, String title, String body, String email, String uid, Bitmap bitmap, String dateCreated) {
         this.id = id;
         this.title = title;
         this.body = body;
         this.email = email;
         this.uid = uid;
         this.bitmap = bitmap;
+        this.dateCreated = dateCreated;
     }
 }

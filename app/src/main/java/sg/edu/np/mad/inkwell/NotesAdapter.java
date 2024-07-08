@@ -102,7 +102,7 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             EditText noteBody = notesActivity.findViewById(R.id.noteBody);
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
             fileViewHolder.fileButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -229,6 +229,7 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                             communityNoteData.put("body", file.getBody());
                             communityNoteData.put("email", currentFirebaseUserEmail);
                             communityNoteData.put("uid", currentFirebaseUserUid);
+                            communityNoteData.put("dateCreated", simpleDateFormat.format(Calendar.getInstance().getTime()));
 
                             db.collection("community").document().set(communityNoteData);
                         }

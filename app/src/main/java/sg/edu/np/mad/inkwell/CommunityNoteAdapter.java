@@ -33,6 +33,7 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
         holder.communityNoteTitle.setText(communityNote.getTitle());
         holder.email.setText(communityNote.getEmail());
         holder.profileImage.setImageBitmap(communityNote.getBitmap());
+        holder.dateCreated.setText(communityNote.getDateCreated());
 
         ViewAnimator viewAnimator = communityActivity.findViewById(R.id.viewAnimator);
 
