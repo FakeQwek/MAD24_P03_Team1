@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
@@ -29,17 +28,16 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
     private NodeView selectedNode;
     private boolean isMovingNode;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mind_map);
 
-        //Sets toolbar
+        // Sets toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //Finds drawer and nav view before setting listener
+        // Finds drawer and nav view before setting listener
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -62,6 +60,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
         addNodeButton.setOnClickListener(v -> addNode());
 
+        // get nodes at position and move if dragged
         mindMapContainer.setOnTouchListener((v, event) -> {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
@@ -85,8 +84,9 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         });
     }
 
+    // create new node
     private void addNode() {
-        // Create a new NodeView at the touch position
+        // create a new NodeView at the touch position
         NodeView node = new NodeView(this, "Node " + (nodes.size() + 1), touchX, touchY);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -98,19 +98,16 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         nodes.add(node);
     }
 
-
+    // move node around by dragging
     private void moveNode(float x, float y) {
         if (selectedNode != null) {
-            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) selectedNode.getLayoutParams();
-            params.leftMargin = (int) x;
-            params.topMargin = (int) y;
-            selectedNode.setLayoutParams(params);
             selectedNode.setPosX(x);
             selectedNode.setPosY(y);
             drawConnections();
         }
     }
 
+    // get the node by position
     private NodeView getNodeAtPosition(float x, float y) {
         for (NodeView node : nodes) {
             float nodeLeft = node.getPosX();
@@ -125,19 +122,15 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         return null;
     }
 
+    // connect nodes
     private void drawConnections() {
         mindMapContainer.removeAllViews();
         for (NodeView node : nodes) {
             mindMapContainer.addView(node);
         }
-        for (int i = 0; i < nodes.size() - 1; i++) {
-            NodeView node1 = nodes.get(i);
-            NodeView node2 = nodes.get(i + 1);
-            LineView line = new LineView(this, node1.getPosX(), node1.getPosY(), node2.getPosX(), node2.getPosY());
-            mindMapContainer.addView(line);
-        }
     }
 
+    // navigation
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
@@ -148,6 +141,4 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
         return true;
     }
-
 }
-

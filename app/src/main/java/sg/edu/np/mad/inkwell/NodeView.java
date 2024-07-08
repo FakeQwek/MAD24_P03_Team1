@@ -1,4 +1,5 @@
 package sg.edu.np.mad.inkwell;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -31,7 +32,7 @@ public class NodeView extends View {
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setTextSize(40);
 
-        // Set up GestureDetector for double-click detection
+        // set up GestureDetector for double-click detection
         gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
@@ -41,20 +42,21 @@ public class NodeView extends View {
         });
     }
 
+    // create and display editTextDialog
     private void showEditDialog() {
         final EditText editText = new EditText(getContext());
         editText.setText(text);
 
-        editDialog = new AlertDialog.Builder(getContext())
-                .setTitle("Edit Text")
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Edit Text")
                 .setView(editText)
                 .setPositiveButton("OK", (dialog, which) -> {
                     text = editText.getText().toString();
                     invalidate(); // Redraw view with updated text
                 })
-                .setNegativeButton("Cancel", null)
-                .create();
+                .setNegativeButton("Cancel", null);
 
+        editDialog = builder.create();
         editDialog.show();
     }
 
@@ -64,6 +66,7 @@ public class NodeView extends View {
 
     public void setPosX(float posX) {
         this.posX = posX;
+        updateRect(); // Update rect bounds when posX changes
     }
 
     public float getPosY() {
@@ -72,11 +75,20 @@ public class NodeView extends View {
 
     public void setPosY(float posY) {
         this.posY = posY;
+        updateRect();
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String editedText) {
+        this.text = editedText;
+        invalidate();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Handle touch events for double-click detection and dragging
         gestureDetector.onTouchEvent(event);
 
         float touchX = event.getX();
@@ -84,12 +96,13 @@ public class NodeView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                // Check if the touch is within the bounds of the NodeView
-                if (touchX >= posX && touchX <= posX + rect.width() &&
-                        touchY >= posY && touchY <= posY + rect.height()) {
+                // check if the touch is within the bounds of the NodeView
+                if (touchX >= rect.left && touchX <= rect.right &&
+                        touchY >= rect.top && touchY <= rect.bottom) {
                     lastTouchX = touchX;
                     lastTouchY = touchY;
                     isMoving = true;
+                    return true;
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -100,6 +113,7 @@ public class NodeView extends View {
                     posY += dy;
                     lastTouchX = touchX;
                     lastTouchY = touchY;
+                    updateRect(); //
                     invalidate();
                 }
                 break;
@@ -108,13 +122,18 @@ public class NodeView extends View {
                 break;
         }
 
-        return true;
+        return super.onTouchEvent(event);
     }
 
+    // if size rectangle changes, update
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        // Calculate the rect bounds including padding
+        updateRect();
+    }
+
+    // ensure text fits within node no matter the length
+    private void updateRect() {
         int padding = 40;
         rect = new RectF(posX, posY, posX + getTextWidth() + 2 * padding, posY + getTextHeight() + 2 * padding);
     }
@@ -127,20 +146,21 @@ public class NodeView extends View {
         return paint.descent() - paint.ascent();
     }
 
+    // set up + create nodes
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
         int padding = 40;
-        int cornerRadius = 20; // Adjust corner radius as needed
+        int cornerRadius = 20;
 
-        // Calculate the position of the rounded rectangle based on text position
+        // calc position of the rounded rectangle based on text position
         float rectLeft = posX;
         float rectTop = posY;
         float rectRight = posX + getTextWidth() + 2 * padding;
         float rectBottom = posY + getTextHeight() + 2 * padding;
 
-        // Draw rounded rectangle
+        // make node rounded
         paint.setColor(Color.BLUE);
         canvas.drawRoundRect(rectLeft, rectTop, rectRight, rectBottom, cornerRadius, cornerRadius, paint);
 
@@ -148,5 +168,4 @@ public class NodeView extends View {
         paint.setColor(Color.WHITE);
         canvas.drawText(text, posX + padding, posY + padding + getTextHeight(), paint);
     }
-
 }
