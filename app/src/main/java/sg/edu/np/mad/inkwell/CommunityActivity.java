@@ -61,9 +61,11 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
     public static boolean selectedNote = false;
 
-    private ArrayList<CommunityNote> communityNotes;
+    private ArrayList<CommunityNote> communityNotes = new ArrayList<>();
 
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+
+    public static boolean manageNotes = false;
 
     private void recyclerView(ArrayList<CommunityNote> communityNoteList) {
         RecyclerView recyclerView = findViewById(R.id.communityRecyclerView);
@@ -118,6 +120,10 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         ArrayList<CommunityNote> communityNoteList = new ArrayList<>();
 
+        RecyclerView recyclerView = findViewById(R.id.communityRecyclerView);
+
+        manageNotes = false;
+
         db.collection("community")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -139,7 +145,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                                     @Override
                                     public void onSuccess(byte[] bytes) {
                                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(),  dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
+                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
                                         communityNoteList.add(communityNote);
                                         recyclerView(communityNoteList);
                                     }
@@ -242,8 +248,104 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
         manageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent newActivity = new Intent(CommunityActivity.this, FriendsActivity.class);
-                startActivity(newActivity);
+                if (manageNotes) {
+                    manageNotes = false;
+
+                    communityNoteList.clear();
+                    communityNotes.clear();
+                    recyclerView.getAdapter().notifyDataSetChanged();
+
+                    db.collection("community")
+                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable QuerySnapshot snapshots,
+                                                    @Nullable FirebaseFirestoreException e) {
+                                    if (e != null) {
+                                        Log.w("testing", "listen:error", e);
+                                        return;
+                                    }
+
+                                    // Adds items to recycler view on create and everytime new data is added to firebase
+                                    for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                                        if (dc.getType() == DocumentChange.Type.ADDED) {
+                                            StorageReference imageRef = storageRef.child("users/" + dc.getDocument().getData().get("uid").toString() + "/profile.jpg");
+
+                                            long ONE_MEGABYTE = 1024 * 1024;
+
+                                            imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                                @Override
+                                                public void onSuccess(byte[] bytes) {
+                                                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                    CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
+                                                    communityNoteList.add(communityNote);
+                                                    recyclerView(communityNoteList);
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception exception) {
+                                                    CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null, dc.getDocument().getData().get("dateCreated").toString());
+                                                    communityNoteList.add(communityNote);
+                                                    recyclerView(communityNoteList);
+                                                }
+                                            });
+                                        }
+                                        else if (dc.getType() == DocumentChange.Type.REMOVED) {
+
+                                        }
+                                    }
+                                }
+                            });
+                } else {
+                    manageNotes = true;
+
+                    communityNoteList.clear();
+                    communityNotes.clear();
+                    recyclerView.getAdapter().notifyDataSetChanged();
+
+
+                    db.collection("community")
+                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable QuerySnapshot snapshots,
+                                                    @Nullable FirebaseFirestoreException e) {
+                                    if (e != null) {
+                                        Log.w("testing", "listen:error", e);
+                                        return;
+                                    }
+
+                                    // Adds items to recycler view on create and everytime new data is added to firebase
+                                    for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                                        if (dc.getType() == DocumentChange.Type.ADDED) {
+                                            if (dc.getDocument().getData().get("uid").toString().equals(currentFirebaseUserUid)) {
+                                                StorageReference imageRef = storageRef.child("users/" + dc.getDocument().getData().get("uid").toString() + "/profile.jpg");
+
+                                                long ONE_MEGABYTE = 1024 * 1024;
+
+                                                imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                                    @Override
+                                                    public void onSuccess(byte[] bytes) {
+                                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
+                                                        communityNoteList.add(communityNote);
+                                                        recyclerView(communityNoteList);
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception exception) {
+                                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null, dc.getDocument().getData().get("dateCreated").toString());
+                                                        communityNoteList.add(communityNote);
+                                                        recyclerView(communityNoteList);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                        else if (dc.getType() == DocumentChange.Type.REMOVED) {
+
+                                        }
+                                    }
+                                }
+                            });
+                }
             }
         });
     }

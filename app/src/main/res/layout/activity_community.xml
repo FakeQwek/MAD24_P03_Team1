@@ -5,7 +5,8 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:animateLayoutChanges="true">
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
@@ -51,7 +52,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/swapButton"
             app:layout_constraintEnd_toStartOf="@+id/swapButton"
             app:layout_constraintTop_toTopOf="@+id/swapButton"
-            app:srcCompat="@drawable/cog" />
+            app:srcCompat="@drawable/account" />
 
         <ViewAnimator
             android:id="@+id/viewAnimator"

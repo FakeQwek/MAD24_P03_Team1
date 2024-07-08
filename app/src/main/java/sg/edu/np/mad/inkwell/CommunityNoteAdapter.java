@@ -1,6 +1,7 @@
 package sg.edu.np.mad.inkwell;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +10,14 @@ import android.widget.ViewAnimator;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 
 public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteViewHolder> {
+
+    // Get firebase
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private ArrayList<CommunityNote> communityNoteList;
 
@@ -41,6 +47,8 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
 
         EditText noteBody = communityActivity.findViewById(R.id.noteBody);
 
+        RecyclerView recyclerView = communityActivity.findViewById(R.id.communityRecyclerView);
+
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,6 +57,20 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
                 viewAnimator.setDisplayedChild(1);
                 noteTitle.setText(communityNote.getTitle());
                 noteBody.setText(communityNote.getBody());
+            }
+        });
+
+        if (CommunityActivity.manageNotes) {
+            holder.deleteButton.setVisibility(View.VISIBLE);
+        }
+
+        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                communityNoteList.remove(communityNote);
+                recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
+
+                db.collection("community").document(communityNote.getId()).delete();
             }
         });
     }
