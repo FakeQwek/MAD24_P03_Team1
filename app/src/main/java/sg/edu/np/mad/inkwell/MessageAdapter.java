@@ -31,13 +31,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         Message message = messageList.get(position);
         holder.message.setText(message.getMessage());
-
-        if (message.type.equals("sent")) {
-            holder.relativeLayout.setGravity(Gravity.END);
-        } else if (message.type.equals("received")) {
-            holder.message.setTextColor(Color.parseColor("#FFFFFF"));
-            holder.cardView.setCardBackgroundColor(Color.parseColor("#009C2C"));
-        }
     }
 
     public int getItemCount() { return messageList.size(); }

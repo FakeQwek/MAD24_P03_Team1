@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
@@ -60,16 +61,31 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
     public static boolean selectedNote = false;
 
+    private ArrayList<CommunityNote> communityNotes = new ArrayList<>();
+
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
 
-    private void recyclerView(ArrayList<CommunityNote> communityNoteList) {
+    public static boolean manageNotes = false;
+
+    private void recyclerView(ArrayList<CommunityNote> communityNoteList, ArrayList<CommunityNote> communityNotes) {
         RecyclerView recyclerView = findViewById(R.id.communityRecyclerView);
-        CommunityNoteAdapter adapter = new CommunityNoteAdapter(communityNoteList, this);
+        CommunityNoteAdapter adapter = new CommunityNoteAdapter(communityNoteList, communityNotes, this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
         recyclerView.getAdapter().notifyDataSetChanged();
+    }
+
+    private void filter(ArrayList<CommunityNote> communityNoteList, String query) {
+        ArrayList<CommunityNote> filterList = new ArrayList<>();
+        for (CommunityNote communityNote : communityNoteList){
+            if(communityNote.getTitle().toLowerCase().contains(query)) {
+                filterList.add(communityNote);
+            }
+        }
+        communityNotes = filterList;
+        recyclerView(communityNoteList, filterList);
     }
 
     @Override
@@ -104,6 +120,10 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         ArrayList<CommunityNote> communityNoteList = new ArrayList<>();
 
+        RecyclerView recyclerView = findViewById(R.id.communityRecyclerView);
+
+        manageNotes = false;
+
         db.collection("community")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -125,16 +145,16 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                                     @Override
                                     public void onSuccess(byte[] bytes) {
                                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(),  dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap);
+                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
                                         communityNoteList.add(communityNote);
-                                        recyclerView(communityNoteList);
+                                        filter(communityNoteList, "");
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception exception) {
-                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null);
+                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null, dc.getDocument().getData().get("dateCreated").toString());
                                         communityNoteList.add(communityNote);
-                                        recyclerView(communityNoteList);
+                                        filter(communityNoteList, "");
                                     }
                                 });
                             }
@@ -202,6 +222,129 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                     newNoteData.put("dateUpdated", dateString);
 
                     db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(noteCount)).set(newNoteData);
+                }
+            }
+        });
+
+        SearchView searchView = findViewById(R.id.searchView);
+
+        // Search the items in recycler view
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filter(communityNoteList, query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(communityNoteList, newText);
+                return false;
+            }
+        });
+
+        ImageButton manageButton = findViewById(R.id.manageButton);
+
+        manageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (manageNotes) {
+                    manageNotes = false;
+
+                    communityNoteList.clear();
+                    communityNotes.clear();
+                    recyclerView.getAdapter().notifyDataSetChanged();
+
+                    db.collection("community")
+                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable QuerySnapshot snapshots,
+                                                    @Nullable FirebaseFirestoreException e) {
+                                    if (e != null) {
+                                        Log.w("testing", "listen:error", e);
+                                        return;
+                                    }
+
+                                    // Adds items to recycler view on create and everytime new data is added to firebase
+                                    for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                                        if (dc.getType() == DocumentChange.Type.ADDED) {
+                                            StorageReference imageRef = storageRef.child("users/" + dc.getDocument().getData().get("uid").toString() + "/profile.jpg");
+
+                                            long ONE_MEGABYTE = 1024 * 1024;
+
+                                            imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                                @Override
+                                                public void onSuccess(byte[] bytes) {
+                                                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                    CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
+                                                    communityNoteList.add(communityNote);
+                                                    filter(communityNoteList, "");
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception exception) {
+                                                    CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null, dc.getDocument().getData().get("dateCreated").toString());
+                                                    communityNoteList.add(communityNote);
+                                                    filter(communityNoteList, "");
+                                                }
+                                            });
+                                        }
+                                        else if (dc.getType() == DocumentChange.Type.REMOVED) {
+
+                                        }
+                                    }
+                                }
+                            });
+                } else {
+                    manageNotes = true;
+
+                    communityNoteList.clear();
+                    communityNotes.clear();
+                    recyclerView.getAdapter().notifyDataSetChanged();
+
+
+                    db.collection("community")
+                            .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                @Override
+                                public void onEvent(@Nullable QuerySnapshot snapshots,
+                                                    @Nullable FirebaseFirestoreException e) {
+                                    if (e != null) {
+                                        Log.w("testing", "listen:error", e);
+                                        return;
+                                    }
+
+                                    // Adds items to recycler view on create and everytime new data is added to firebase
+                                    for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                                        if (dc.getType() == DocumentChange.Type.ADDED) {
+                                            if (dc.getDocument().getData().get("uid").toString().equals(currentFirebaseUserUid)) {
+                                                StorageReference imageRef = storageRef.child("users/" + dc.getDocument().getData().get("uid").toString() + "/profile.jpg");
+
+                                                long ONE_MEGABYTE = 1024 * 1024;
+
+                                                imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                                    @Override
+                                                    public void onSuccess(byte[] bytes) {
+                                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), bitmap, dc.getDocument().getData().get("dateCreated").toString());
+                                                        communityNoteList.add(communityNote);
+                                                        filter(communityNoteList, "");
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception exception) {
+                                                        CommunityNote communityNote = new CommunityNote(dc.getDocument().getId(), dc.getDocument().getData().get("title").toString(), dc.getDocument().getData().get("body").toString(), dc.getDocument().getData().get("email").toString(), dc.getDocument().getData().get("uid").toString(), null, dc.getDocument().getData().get("dateCreated").toString());
+                                                        communityNoteList.add(communityNote);
+                                                        filter(communityNoteList, "");
+                                                    }
+                                                });
+                                            }
+                                        }
+                                        else if (dc.getType() == DocumentChange.Type.REMOVED) {
+
+                                        }
+                                    }
+                                }
+                            });
                 }
             }
         });

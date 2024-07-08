@@ -1,6 +1,7 @@
 package sg.edu.np.mad.inkwell;
 
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,6 +17,10 @@ public class CommunityNoteViewHolder extends RecyclerView.ViewHolder {
 
     CardView cardView;
 
+    TextView dateCreated;
+
+    ImageButton deleteButton;
+
     public CommunityNoteViewHolder(View view) {
         super(view);
 
@@ -26,5 +31,9 @@ public class CommunityNoteViewHolder extends RecyclerView.ViewHolder {
         communityNoteTitle = view.findViewById(R.id.communityNoteTitle);
 
         cardView = view.findViewById(R.id.cardView);
+
+        dateCreated = view.findViewById(R.id.dateCreated);
+
+        deleteButton = view.findViewById(R.id.deleteButton);
     }
 }
