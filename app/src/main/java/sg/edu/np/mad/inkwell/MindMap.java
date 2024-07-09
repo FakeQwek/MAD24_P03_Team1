@@ -1,7 +1,10 @@
 package sg.edu.np.mad.inkwell;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,7 +25,7 @@ import java.util.List;
 public class MindMap extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private FrameLayout mindMapContainer;
-    private ImageButton addNodeButton;
+    private ImageButton addNodeButton, addConnectionButton;
     private List<NodeView> nodes;
     private float touchX, touchY;
     private NodeView selectedNode;
@@ -56,8 +59,10 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
         mindMapContainer = findViewById(R.id.mindMapContainer);
         addNodeButton = findViewById(R.id.addNodeButton);
+        addConnectionButton = findViewById(R.id.addConnectionButton);
         nodes = new ArrayList<>();
 
+        // addConnectionButton.setOnClickListener(v -> drawConnections());
         addNodeButton.setOnClickListener(v -> addNode());
 
         // get nodes at position and move if dragged
@@ -96,6 +101,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         params.topMargin = (int) touchY;
         mindMapContainer.addView(node, params);
         nodes.add(node);
+        Log.d(TAG, "addNode: added");
     }
 
     // move node around by dragging
@@ -103,7 +109,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         if (selectedNode != null) {
             selectedNode.setPosX(x);
             selectedNode.setPosY(y);
-            drawConnections();
         }
     }
 
