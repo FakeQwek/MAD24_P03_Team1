@@ -63,7 +63,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
     private ArrayList<CommunityNote> communityNotes = new ArrayList<>();
 
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     public static boolean manageNotes = false;
 
@@ -245,11 +245,15 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         ImageButton manageButton = findViewById(R.id.manageButton);
 
+        TextView pageTitle = findViewById(R.id.pageTitle);
+
         manageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (manageNotes) {
                     manageNotes = false;
+
+                    pageTitle.setText("Community");
 
                     communityNoteList.clear();
                     communityNotes.clear();
@@ -297,6 +301,8 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                             });
                 } else {
                     manageNotes = true;
+
+                    pageTitle.setText("My Notes");
 
                     communityNoteList.clear();
                     communityNotes.clear();

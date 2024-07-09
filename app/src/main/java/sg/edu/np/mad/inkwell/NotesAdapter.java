@@ -102,6 +102,8 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             EditText noteBody = notesActivity.findViewById(R.id.noteBody);
 
+            RecyclerView recyclerView = notesActivity.findViewById(R.id.recyclerView);
+
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
             fileViewHolder.fileButton.setOnClickListener(new View.OnClickListener() {
@@ -287,7 +289,7 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             recyclerView(folderAllNotes, folderViewHolder.recyclerView);
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
             if (folder.bookmarkColour.equals("red")) {
                 folderViewHolder.bookmark.setVisibility(View.VISIBLE);
