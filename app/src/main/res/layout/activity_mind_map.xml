@@ -64,7 +64,7 @@
             app:srcCompat="@drawable/add_node" />
 
         <ImageButton
-            android:id="@+id/addFolderButton"
+            android:id="@+id/addConnectionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="130dp"
@@ -72,7 +72,7 @@
             android:backgroundTint="#00000000"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/folder_plus_outline" />
+            app:srcCompat="@drawable/add_connection" />
 
         <ImageButton
             android:id="@+id/leftButton"
@@ -92,7 +92,7 @@
             android:layout_marginBottom="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/addFolderButton"
+            app:layout_constraintStart_toEndOf="@+id/addConnectionButton"
             app:srcCompat="@drawable/arrow_right_thin"
             android:backgroundTint="#00000000" />
 
