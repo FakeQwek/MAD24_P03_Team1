@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -184,6 +185,9 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoViewHolder> {
                         bottomSheetDialog.dismiss();
                     }
                 });
+
+                TextView todoDateTime = view.findViewById(R.id.todoDateTime);
+                todoDateTime.setText("Notification time: " + todo.getDateTime());
             }
         });
     }
