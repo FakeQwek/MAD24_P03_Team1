@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -52,6 +53,8 @@ public class FlashcardActivity extends AppCompatActivity implements NavigationVi
     public static int selectedFlashcardCollectionId;
 
     private ArrayList<FlashcardCollection> flashcardCollections;
+
+    private int flashcardCollectionCount;
 
     // Method to set items in the recycler view
     private void recyclerView(ArrayList<FlashcardCollection> allFlashcardCollections, ArrayList<FlashcardCollection> flashcardCollections) {
@@ -105,6 +108,8 @@ public class FlashcardActivity extends AppCompatActivity implements NavigationVi
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
 
+        TextView flashcardCollectionCounter = findViewById(R.id.flashcardCollectionCounter);
+
         // Read from firebase and create flashcard collections on create
         db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -123,9 +128,17 @@ public class FlashcardActivity extends AppCompatActivity implements NavigationVi
                                 if (Integer.parseInt(dc.getDocument().getId()) > currentFlashcardCollectionId) {
                                     currentFlashcardCollectionId = Integer.parseInt(dc.getDocument().getId());
                                 }
+
+                                flashcardCollectionCount++;
+                                flashcardCollectionCounter.setText(String.format(getResources().getString(R.string.flashcard_collection_counter), flashcardCollectionCount));
+
                                 FlashcardCollection flashcardCollection = new FlashcardCollection(dc.getDocument().getData().get("title").toString(), Integer.parseInt(dc.getDocument().getId()), Integer.parseInt(dc.getDocument().getData().get("flashcardCount").toString()), Integer.parseInt(dc.getDocument().getData().get("correct").toString()));
                                 allFlashcardCollections.add(flashcardCollection);
                                 filter(allFlashcardCollections, "");
+                            }
+                            else if (dc.getType() == DocumentChange.Type.REMOVED && docFlashcardCollectionUid.equals(currentFirebaseUserUid)) {
+                                flashcardCollectionCount--;
+                                flashcardCollectionCounter.setText(String.format(getResources().getString(R.string.flashcard_collection_counter), flashcardCollectionCount));
                             }
                         }
                     }

@@ -52,7 +52,13 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
 
     implementation("com.google.firebase:firebase-analytics")
+    implementation ("com.google.firebase:firebase-core:21.0.0")
 
     implementation("com.google.firebase:firebase-auth")
+    implementation ("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore")
+    implementation ("com.google.firebase:firebase-auth:20.0.4")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.android.volley:volley:1.2.1")
 }

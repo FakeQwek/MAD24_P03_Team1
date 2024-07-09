@@ -31,7 +31,7 @@ public class Navbar {
             Log.d( "Alert", "Opening notes");
             return newActivity;
         }
-        else if (id == R.id.nav_todo) {
+        else if (id == R.id.nav_todos) {
             Intent newActivity = new Intent(CurrentActivity, TodoActivity.class);
             Log.d("Alert", "Opening todo list");
             return newActivity;
@@ -60,6 +60,21 @@ public class Navbar {
         else if (id == R.id.nav_timetable) {
             Intent newActivity = new Intent(CurrentActivity, TimetableActivity.class);
             Log.d("Alert", "Opening timetable");
+            return newActivity;
+        }
+        else if (id == R.id.nav_profile) {
+            Intent newActivity = new Intent(CurrentActivity, ProfileActivity.class);
+            Log.d("Alert", "Opening profile");
+            return newActivity;
+        }
+        else if (id == R.id.nav_friends) {
+            Intent newActivity = new Intent(CurrentActivity, FriendsActivity.class);
+            Log.d("Alert", "Opening profile");
+            return newActivity;
+        }
+        else if (id == R.id.nav_community) {
+            Intent newActivity = new Intent(CurrentActivity, CommunityActivity.class);
+            Log.d("Alert", "Opening profile");
             return newActivity;
         }
         else if (id == R.id.nav_settings) {

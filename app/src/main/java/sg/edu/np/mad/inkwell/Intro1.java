@@ -33,7 +33,7 @@ public class Intro1 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro1);
-        Log.d("Alert", "Intro1 class created");
+
         backbtn = findViewById(R.id.backbtn);
         nextbtn = findViewById(R.id.nextbtn);
         skipbtn = findViewById(R.id.skipButton);
@@ -41,74 +41,59 @@ public class Intro1 extends AppCompatActivity {
         backbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (getitem(0) > 0){
-
-                    mSLideViewPager.setCurrentItem(getitem(-1),true);
-
+                if (getitem(0) > 0) {
+                    mSLideViewPager.setCurrentItem(getitem(-1), true);
                 }
-
             }
         });
 
         nextbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (getitem(0) < 3)
-                    mSLideViewPager.setCurrentItem(getitem(1),true);
-                else {
-
-
-                    Intent i = new Intent(Intro1.this,MainActivity.class);
-
+                if (getitem(0) < viewPagerAdapter.getCount() - 1) {
+                    mSLideViewPager.setCurrentItem(getitem(1), true);
+                } else {
+                    Intent i = new Intent(Intro1.this, MainActivity.class);
                     startActivity(i);
                     finish();
-
                 }
-
             }
         });
 
         skipbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(Intro1.this,MainActivity.class);
+                Intent i = new Intent(Intro1.this, MainActivity.class);
                 startActivity(i);
                 finish();
             }
         });
 
-        mSLideViewPager = (ViewPager) findViewById(R.id.slideViewPager);
-        mDotLayout = (LinearLayout) findViewById(R.id.indicator_layout);
+        mSLideViewPager = findViewById(R.id.slideViewPager);
+        mDotLayout = findViewById(R.id.indicator_layout);
 
         viewPagerAdapter = new ViewPagerAdapter(this);
-
         mSLideViewPager.setAdapter(viewPagerAdapter);
 
         setUpindicator(0);
         mSLideViewPager.addOnPageChangeListener(viewListener);
-
     }
 
-    public void setUpindicator(int position){
-
-        dots = new TextView[4];
+    public void setUpindicator(int position) {
+        dots = new TextView[viewPagerAdapter.getCount()];
         mDotLayout.removeAllViews();
 
-        for (int i = 0 ; i < dots.length ; i++){
-
+        for (int i = 0; i < dots.length; i++) {
             dots[i] = new TextView(this);
             dots[i].setText(Html.fromHtml("&#8226"));
             dots[i].setTextSize(35);
             dots[i].setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.inactive));
             mDotLayout.addView(dots[i]);
-
         }
 
-        dots[position].setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.active));
-
-
+        if (dots.length > 0) {
+            dots[position].setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.active));
+        }
     }
 
     ViewPager.OnPageChangeListener viewListener = new ViewPager.OnPageChangeListener() {
@@ -119,19 +104,13 @@ public class Intro1 extends AppCompatActivity {
 
         @Override
         public void onPageSelected(int position) {
-
             setUpindicator(position);
 
-            if (position > 0){
-
+            if (position > 0) {
                 backbtn.setVisibility(View.VISIBLE);
-
-            }else {
-
+            } else {
                 backbtn.setVisibility(View.INVISIBLE);
-
             }
-
         }
 
         @Override
@@ -140,9 +119,7 @@ public class Intro1 extends AppCompatActivity {
         }
     };
 
-    private int getitem(int i){
-
+    private int getitem(int i) {
         return mSLideViewPager.getCurrentItem() + i;
     }
-
 }

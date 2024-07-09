@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewAnimator;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -26,15 +27,37 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
 
 public class NotesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -51,6 +74,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
     // selectedNoteId keeps track of the note that has been selected
     public static int selectedNoteId = 1;
 
+    public static File selectedFile;
+
     public static ArrayList<File> files = new ArrayList<>();
 
     public static ArrayList<Integer> fileIds = new ArrayList<>();
@@ -58,6 +83,98 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
     public static ArrayList<File> fileOrder = new ArrayList<>();
 
     public static int fileOrderIndex;
+
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+    private String stringURLEndPoint = "https://api.openai.com/v1/chat/completions";
+
+    private String stringAPIKey = "API KEY";
+
+    private String promptResponse = "";
+
+    public static int currentMessageId;
+
+    public static ArrayList<Message> messageList = new ArrayList<>();
+
+
+    public void callAPI(String prompt){
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put("model", "gpt-3.5-turbo");
+
+            JSONArray jsonArrayMessage = new JSONArray();
+            JSONObject jsonObjectMessage = new JSONObject();
+            jsonObjectMessage.put("role", "user");
+            jsonObjectMessage.put("content", prompt);
+            jsonArrayMessage.put(jsonObjectMessage);
+
+            jsonObject.put("messages", jsonArrayMessage);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
+                stringURLEndPoint, jsonObject, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                String content = null;
+                try {
+                    content = response.getJSONArray("choices")
+                            .getJSONObject(0)
+                            .getJSONObject("message")
+                            .getString("content");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+                promptResponse = promptResponse + content;
+
+                currentMessageId += 1;
+
+                Map<String, Object> newMessage = new HashMap<>();
+                newMessage.put("message", promptResponse);
+                newMessage.put("uid", currentFirebaseUserUid);
+                newMessage.put("type", "received");
+
+                db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(selectedFile.getId())).collection("messages").document(String.valueOf(currentMessageId)).set(newMessage);
+
+                Message message = new Message(currentMessageId, promptResponse, "received");
+
+                messageList.add(message);
+                messageList.sort(Comparator.comparingInt(i -> i.id));
+                messageRecyclerView(messageList);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> mapHeader = new HashMap<>();
+                mapHeader.put("Authorization", "Bearer " + stringAPIKey);
+                mapHeader.put("Content-Type", "application/json");
+
+                return mapHeader;
+            }
+
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                return super.parseNetworkResponse(response);
+            }
+        };
+
+        int intTimeoutPeriod = 60000; // 60 seconds timeout duration defined
+        RetryPolicy retryPolicy = new DefaultRetryPolicy(intTimeoutPeriod,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(retryPolicy);
+        Volley.newRequestQueue(getApplicationContext()).add(jsonObjectRequest);
+    }
 
     // Method to set items in the recycler view
     private void recyclerView(ArrayList<Object> allNotes) {
@@ -71,6 +188,16 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
             recyclerView.setAdapter(adapter);
             recyclerView.getAdapter().notifyDataSetChanged();
         }
+    }
+
+    public void messageRecyclerView(ArrayList<Message> messageList) {
+        RecyclerView recyclerView = findViewById(R.id.messageRecyclerView2);
+        MessageAdapter adapter = new MessageAdapter(messageList, null);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+        recyclerView.getAdapter().notifyDataSetChanged();
     }
 
     // Method to filter items already in the recycler view
@@ -138,7 +265,10 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
         menu.findItem(R.id.nav_calendar).setVisible(false);
         menu.findItem(R.id.nav_timetable).setVisible(false);
         menu.findItem(R.id.nav_settings).setVisible(false);
+        menu.findItem(R.id.nav_profile).setVisible(false);
         menu.findItem(R.id.nav_logout).setVisible(false);
+        menu.findItem(R.id.nav_friends).setVisible(false);
+        menu.findItem(R.id.nav_community).setVisible(false);
 
         ImageButton swapButton = findViewById(R.id.swapButton);
 
@@ -156,7 +286,10 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                         menu.findItem(R.id.nav_calendar).setVisible(false);
                         menu.findItem(R.id.nav_timetable).setVisible(false);
                         menu.findItem(R.id.nav_settings).setVisible(false);
+                        menu.findItem(R.id.nav_profile).setVisible(false);
                         menu.findItem(R.id.nav_logout).setVisible(false);
+                        menu.findItem(R.id.nav_friends).setVisible(false);
+                        menu.findItem(R.id.nav_community).setVisible(false);
                         searchView.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.VISIBLE);
                     } else {
@@ -167,7 +300,10 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                         menu.findItem(R.id.nav_calendar).setVisible(true);
                         menu.findItem(R.id.nav_timetable).setVisible(true);
                         menu.findItem(R.id.nav_settings).setVisible(true);
+                        menu.findItem(R.id.nav_profile).setVisible(true);
                         menu.findItem(R.id.nav_logout).setVisible(true);
+                        menu.findItem(R.id.nav_friends).setVisible(true);
+                        menu.findItem(R.id.nav_community).setVisible(true);
                         searchView.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.GONE);
                     }
@@ -227,11 +363,21 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                                     currentNoteId = Integer.parseInt(document.getId());
                                 }
                                 if (docNoteType.equals("file") && docNoteUid.equals(currentFirebaseUserUid)) {
-                                    File file = new File(document.getData().get("title").toString(), document.getData().get("body").toString(), Integer.parseInt(document.getId()), docNoteType, document.getReference());
+                                    File file;
+                                    try {
+                                        file = new File(document.getData().get("title").toString(), document.getData().get("body").toString(), Integer.parseInt(document.getId()), docNoteType, document.getReference(), simpleDateFormat.parse(document.getData().get("dateCreated").toString()), simpleDateFormat.parse(document.getData().get("dateUpdated").toString()));
+                                    } catch (ParseException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     notes.add(file);
                                     filter(files, notes, "");
                                 } else if (docNoteType.equals("folder") && docNoteUid.equals(currentFirebaseUserUid)) {
-                                    Folder folder = new Folder(document.getData().get("title").toString(), document.getData().get("body").toString(), Integer.parseInt(document.getId()), docNoteType, db.collection("users").document(currentFirebaseUserUid).collection("notes"));
+                                    Folder folder;
+                                    try {
+                                        folder = new Folder(document.getData().get("title").toString(), document.getData().get("body").toString(), Integer.parseInt(document.getId()), docNoteType, db.collection("users").document(currentFirebaseUserUid).collection("notes"), simpleDateFormat.parse(document.getData().get("dateCreated").toString()), simpleDateFormat.parse(document.getData().get("dateUpdated").toString()), document.getData().get("bookmarkColour").toString());
+                                    } catch (ParseException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     notes.add(folder);
                                     filter(files, notes, "");
                                 }
@@ -250,20 +396,28 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
             public void onClick(View v) {
                 currentNoteId++;
 
+                Date currentDate = Calendar.getInstance().getTime();
+
+                String dateString = simpleDateFormat.format(currentDate);
+
                 Map<String, Object> fileData = new HashMap<>();
                 fileData.put("title", "Title");
                 fileData.put("body", "Enter your text");
                 fileData.put("type", "file");
                 fileData.put("uid", currentFirebaseUserUid);
+                fileData.put("dateCreated", dateString);
+                fileData.put("dateUpdated", dateString);
 
                 db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(currentNoteId)).set(fileData);
 
-                File file = new File("Title", "Enter your text", currentNoteId, "file", db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(currentNoteId)));
+                File file = new File("Title", "Enter your text", currentNoteId, "file", db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(currentNoteId)), currentDate, currentDate);
                 fileIds.add(file.id);
                 files.add(file);
                 notes.add(0, file);
 
                 if (currentNoteId == 1) {
+                    recyclerView(notes);
+                } else if (notes.size() == 1) {
                     recyclerView(notes);
                 } else {
                     notifyInsert();
@@ -286,18 +440,28 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
             public void onClick(View v) {
                 currentNoteId++;
 
+                Date currentDate = Calendar.getInstance().getTime();
+
+                String dateString = simpleDateFormat.format(currentDate);
+
                 Map<String, Object> folderData = new HashMap<>();
                 folderData.put("title", "Folder");
                 folderData.put("body", "");
                 folderData.put("type", "folder");
                 folderData.put("uid", currentFirebaseUserUid);
+                folderData.put("dateCreated", dateString);
+                folderData.put("dateUpdated", dateString);
+                folderData.put("bookmarkColour", "none");
+
 
                 db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(currentNoteId)).set(folderData);
 
-                Folder folder = new Folder("Folder", "", NotesActivity.currentNoteId, "folder", db.collection("users").document(currentFirebaseUserUid).collection("notes"));
+                Folder folder = new Folder("Folder", "", NotesActivity.currentNoteId, "folder", db.collection("users").document(currentFirebaseUserUid).collection("notes"), currentDate, currentDate, "none");
                 notes.add(0, folder);
 
                 if (currentNoteId == 1) {
+                    recyclerView(notes);
+                } else if (notes.size() == 1) {
                     recyclerView(notes);
                 } else {
                     notifyInsert();
@@ -358,6 +522,48 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                 }
             }
         });
+
+        ViewAnimator viewAnimator = findViewById(R.id.viewAnimator);
+        ImageButton aiButton = findViewById(R.id.aiButton);
+
+        aiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (viewAnimator.getDisplayedChild() == 0) {
+                    viewAnimator.setDisplayedChild(1);
+                } else {
+                    viewAnimator.setDisplayedChild(0);
+                }
+            }
+        });
+
+        TextInputEditText promptEditText = findViewById(R.id.promptEditText);
+        ImageButton sendButton = findViewById(R.id.sendButton);
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String prompt = noteBody.getText().toString().trim() + " " + promptEditText.getText().toString().trim();
+
+                currentMessageId += 1;
+
+                Map<String, Object> newMessage = new HashMap<>();
+                newMessage.put("message", promptEditText.getText().toString());
+                newMessage.put("uid", currentFirebaseUserUid);
+                newMessage.put("type", "sent");
+
+                db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(selectedFile.getId())).collection("messages").document(String.valueOf(currentMessageId)).set(newMessage);
+
+                Message message = new Message(currentMessageId, promptEditText.getText().toString(), "sent");
+
+                messageList.add(message);
+                messageList.sort(Comparator.comparingInt(i -> i.id));
+                messageRecyclerView(messageList);
+
+                callAPI(prompt);
+            }
+        });
+
     }
 
     //Allows movement between activities upon clicking

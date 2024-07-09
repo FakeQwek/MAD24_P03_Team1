@@ -4,14 +4,16 @@
     //Headings
     <string name="heading_one">Welcome</string>
     <string name="heading_two">Discover</string>
-    <string name="heading_three">Master</string>
-    <string name="heading_fourth">Guide</string>
+    <string name="heading_three">To-do-list</string>
+    <string name="heading_fourth">Adding a Task</string>
+    <string name="heading_fifth">Explore More Features</string>
 
     //Description
     <string name="desc_one">Our Inkwell Website Walkthrough provides detailed instructions on how to use Inkwell features, from creating pages to organizing projects and collaborating with others.</string>
     <string name="desc_two">This guide is designed to make using Inkwell simple and accessible, offering practical tips and step-by-step directions for creating, organizing, and managing your content.</string>
-    <string name="desc_three">Explore our comprehensive Inkwell guide, tailored to help you learn how to set up your workspace, utilize advanced features, and maximize your productivity with ease.</string>
-    <string name="desc_fourth">Navigate Inkwell with confidence using our walkthrough. This guide covers everything from basic setup to advanced features, ensuring you get the most out of this versatile platform.</string>
+    <string name="desc_three">The To-Do List feature in the Inkwell app helps you organize your tasks efficiently. You can easily add, edit, and prioritize tasks, set deadlines, and mark them as complete. This feature ensures that you stay on top of your responsibilities and manage your time effectively.</string>
+    <string name="desc_fourth">On the Add Task page, you can quickly input new tasks. Enter the task details, set a due date, and assign tags or priorities. This simple process keeps your to-do list up-to-date and ensures nothing is missed.</string>
+    <string name="desc_fifth">There are several other features in the Inkwell app for you to explore, each designed to enhance your productivity and organization. Dive into these tools to make the most out of your Inkwell experience.</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -39,6 +41,9 @@
     <string name="title_activity_navdrawer">navdrawer</string>
 
     <string name="flashcard_collection_correct_count">%1$d files/%1$d files</string>
+
+    <string name="flashcard_collection_counter">You have %1$d flashcard collections</string>
+    <string name="todo_counter">You have %1$d todos today</string>
 
     <string name="add_new">Add</string>
     <string name="add_event">Add Event</string>

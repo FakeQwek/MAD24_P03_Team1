@@ -1,5 +1,10 @@
 package sg.edu.np.mad.inkwell;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -11,15 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.Intent;
-
-import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -27,7 +23,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import sg.edu.np.mad.inkwell.R;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,12 +31,13 @@ public class LoginActivity extends AppCompatActivity {
     private EditText loginEmail, loginPassword;
     private TextView signupRedirectText;
     private Button loginButton;
-    TextView forgotPassword;
+    private TextView forgotPassword;
     private void transferName(Intent successfulLogin) {
         EditText emailText = findViewById(R.id.login_email);
         String email = emailText.getText().toString();
         String[] twoParts = email.split("@", 2);
         //Log.d("Alert", "Email name is " + twoParts[0]);
+        successfulLogin.putExtra("Username", twoParts[0]);
         SharedPreferences.Editor editor = getSharedPreferences("Username", MODE_PRIVATE).edit();
         editor.putString("Username", twoParts[0]);
         editor.apply();
@@ -48,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         //.d("Error", "This should load the main page");
     }
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         Log.d("Alert", "LoginActivity class created");
@@ -64,46 +61,41 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view){
                 String email = loginEmail.getText().toString();
                 String pass = loginPassword.getText().toString();
-                /*
-                Intent successfulLogin = new Intent(LoginActivity.this, MainActivity.class);
-                transferName(successfulLogin);
-                */
 
-
-
-
-                if (!email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    if (!pass.isEmpty()) {
-                        auth.signInWithEmailAndPassword(email, pass)
-                                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                                    @Override
-                                    public void onSuccess(AuthResult authResult) {
-                                        //Starts MainActivity.
-                                        Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                        Intent successfulLogin = new Intent(LoginActivity.this, MainActivity.class);
-                                        transferName(successfulLogin);
-
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(LoginActivity.this, "Login Failure", Toast.LENGTH_SHORT).show();
-                                        Log.d("Error", "This should not load the main page");
-                                    }
-                                });
-                    } else {
-                        loginPassword.setError("Password cannot be empty");
-                    }
-                } else if(email.isEmpty()) {
+                if (email.isEmpty()) {
                     loginEmail.setError("Email cannot be empty");
-                } else {
-                    loginEmail.setError("Please enter valid email");
+                    return;
                 }
+                if (pass.isEmpty()) {
+                    loginPassword.setError("Password cannot be empty");
+                    return;
+                }
+
+                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    loginEmail.setError("Please enter valid email");
+                    return;
+                }
+
+                auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = auth.getCurrentUser();
+                            if (user != null && user.isEmailVerified()) {
+                                Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                                Intent successfulLogin = new Intent(LoginActivity.this, MainActivity.class);
+                                transferName(successfulLogin);
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Email not verified. Please verify your email address.", Toast.LENGTH_SHORT).show();
+                                auth.signOut(); // Sign out the user to prevent unauthorized access
+                            }
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Login Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
-
-
-
 
         signupRedirectText.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -160,7 +152,6 @@ public class LoginActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
-
     }
-
 }
+
