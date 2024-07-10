@@ -185,18 +185,44 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     bottomSheetDeleteButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            file.docRef.update("type", "deleted");
-
-                            fileViewHolder.fileButton.setVisibility(View.GONE);
-
                             bottomSheetDialog.dismiss();
 
-                            Toast toast = new Toast(notesActivity);
-                            toast.setDuration(Toast.LENGTH_SHORT);
-                            LayoutInflater layoutInflater = (LayoutInflater) notesActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = layoutInflater.inflate(R.layout.toast_deleted, null);
-                            toast.setView(view);
-                            toast.show();
+                            View popupView = LayoutInflater.from(notesActivity).inflate(R.layout.delete_confirmation_popup, null);
+
+                            PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                            Button popupDeleteButton = popupView.findViewById(R.id.deleteButton);
+
+                            popupDeleteButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    file.docRef.update("type", "deleted");
+
+                                    fileViewHolder.fileButton.setVisibility(View.GONE);
+
+                                    bottomSheetDialog.dismiss();
+
+                                    Toast toast = new Toast(notesActivity);
+                                    toast.setDuration(Toast.LENGTH_SHORT);
+                                    LayoutInflater layoutInflater = (LayoutInflater) notesActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                    View view = layoutInflater.inflate(R.layout.toast_deleted, null);
+                                    toast.setView(view);
+                                    toast.show();
+
+                                    popupWindow.dismiss();
+                                }
+                            });
+
+                            Button cancelButton = popupView.findViewById(R.id.cancelButton);
+
+                            cancelButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    popupWindow.dismiss();
+                                }
+                            });
+
+                            popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
                         }
                     });
 
@@ -509,18 +535,44 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     bottomSheetDeleteButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            folder.colRef.document(String.valueOf(folder.id)).update("type", "deleted");
-
-                            folderViewHolder.constraintLayout.setVisibility(View.GONE);
-
                             bottomSheetDialog.dismiss();
 
-                            Toast toast = new Toast(notesActivity);
-                            toast.setDuration(Toast.LENGTH_SHORT);
-                            LayoutInflater layoutInflater = (LayoutInflater) notesActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            View view = layoutInflater.inflate(R.layout.toast_deleted, null);
-                            toast.setView(view);
-                            toast.show();
+                            View popupView = LayoutInflater.from(notesActivity).inflate(R.layout.delete_confirmation_popup, null);
+
+                            PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                            Button popupDeleteButton = popupView.findViewById(R.id.deleteButton);
+
+                            popupDeleteButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    folder.colRef.document(String.valueOf(folder.id)).update("type", "deleted");
+
+                                    folderViewHolder.constraintLayout.setVisibility(View.GONE);
+
+                                    bottomSheetDialog.dismiss();
+
+                                    Toast toast = new Toast(notesActivity);
+                                    toast.setDuration(Toast.LENGTH_SHORT);
+                                    LayoutInflater layoutInflater = (LayoutInflater) notesActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                    View view = layoutInflater.inflate(R.layout.toast_deleted, null);
+                                    toast.setView(view);
+                                    toast.show();
+
+                                    popupWindow.dismiss();
+                                }
+                            });
+
+                            Button cancelButton = popupView.findViewById(R.id.cancelButton);
+
+                            cancelButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    popupWindow.dismiss();
+                                }
+                            });
+
+                            popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
                         }
                     });
 

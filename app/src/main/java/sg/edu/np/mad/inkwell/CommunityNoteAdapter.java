@@ -2,10 +2,14 @@ package sg.edu.np.mad.inkwell;
 
 import android.content.Intent;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.ViewAnimator;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -70,11 +74,35 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
         holder.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.collection("community").document(communityNote.getId()).delete();
+                View popupView = LayoutInflater.from(communityActivity).inflate(R.layout.delete_confirmation_popup, null);
 
-                communityNoteList.remove(communityNote);
-                communityNotes.remove(communityNote);
-                recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
+                PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                Button popupDeleteButton = popupView.findViewById(R.id.deleteButton);
+
+                popupDeleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        db.collection("community").document(communityNote.getId()).delete();
+
+                        communityNoteList.remove(communityNote);
+                        communityNotes.remove(communityNote);
+                        recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
+
+                        popupWindow.dismiss();
+                    }
+                });
+
+                Button cancelButton = popupView.findViewById(R.id.cancelButton);
+
+                cancelButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.dismiss();
+                    }
+                });
+
+                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
             }
         });
     }
