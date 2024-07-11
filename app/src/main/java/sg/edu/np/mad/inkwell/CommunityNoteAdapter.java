@@ -12,16 +12,26 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ViewAnimator;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteViewHolder> {
 
     // Get firebase
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    String currentFirebaseUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     private ArrayList<CommunityNote> communityNoteList;
 
@@ -47,6 +57,22 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
         holder.email.setText(communityNote.getEmail());
         holder.profileImage.setImageBitmap(communityNote.getBitmap());
         holder.dateCreated.setText(communityNote.getDateCreated());
+
+        db.collection("community").document(communityNote.getId()).collection("likes")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                communityNote.addLike(document.getId());
+                            }
+                            holder.likeCounter.setText(String.valueOf(communityNote.getLikes().size()));
+                        } else {
+                            Log.d("testing", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
 
         ViewAnimator viewAnimator = communityActivity.findViewById(R.id.viewAnimator);
 
@@ -103,6 +129,28 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
                 });
 
                 popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+            }
+        });
+
+        holder.likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (communityNote.getLikes().contains(currentFirebaseUserUid)) {
+                    db.collection("community").document(communityNote.getId()).collection("likes").document(currentFirebaseUserUid).delete();
+
+                    communityNote.getLikes().remove(currentFirebaseUserUid);
+
+                    holder.likeCounter.setText(String.valueOf(communityNote.getLikes().size()));
+                } else {
+                    Map<String, Object> newLikeData = new HashMap<>();
+                    newLikeData.put("uid", currentFirebaseUserUid);
+
+                    db.collection("community").document(communityNote.getId()).collection("likes").document(currentFirebaseUserUid).set(newLikeData);
+
+                    communityNote.addLike(currentFirebaseUserUid);
+
+                    holder.likeCounter.setText(String.valueOf(communityNote.getLikes().size()));
+                }
             }
         });
     }
