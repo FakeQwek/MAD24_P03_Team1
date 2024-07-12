@@ -175,7 +175,6 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                         if (task.isSuccessful()) {
                                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                                Log.d("apple", document.getData().get("email").toString());
                                                 if (document.getData().get("email").toString().equals(friendEditText.getText().toString())) {
                                                     currentFriendId += 1;
 

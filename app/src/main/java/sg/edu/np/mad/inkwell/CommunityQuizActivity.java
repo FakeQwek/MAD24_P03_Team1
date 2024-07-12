@@ -138,9 +138,12 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
                         newLeaderboardData.put("points", points);
 
                         db.collection("community").document(CommunityActivity.selectedNote.getId()).collection("leaderboard").document(currentFirebaseUserUid).set(newLeaderboardData);
+
+                        Intent leaderboard = new Intent(CommunityQuizActivity.this, LeaderboardActivity.class);
+                        startActivity(leaderboard);
                     }
                 } else {
-
+                    // Toast message to ask user to pick an option
                 }
             }
         });
