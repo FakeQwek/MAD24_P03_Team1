@@ -38,6 +38,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +52,7 @@ public class ChatActivity extends AppCompatActivity implements NavigationView.On
     private int currentMessageId;
 
     private void recyclerView(ArrayList<Message> messageList) {
+        messageList.sort(Comparator.comparingInt(Message::getId));
         RecyclerView recyclerView = findViewById(R.id.messageRecyclerView);
         MessageAdapter adapter = new MessageAdapter(messageList, this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);

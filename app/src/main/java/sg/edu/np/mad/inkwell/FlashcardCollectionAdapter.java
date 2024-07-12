@@ -1,5 +1,6 @@
 package sg.edu.np.mad.inkwell;
 
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Gravity;
@@ -127,28 +128,54 @@ public class FlashcardCollectionAdapter extends RecyclerView.Adapter<FlashcardCo
                 flashcardCollectionDeleteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        allFlashcardCollections.remove(flashcardCollection);
-                        flashcardCollectionList.remove(flashcardCollection);
-                        recyclerView.getAdapter().notifyDataSetChanged();
+                        bottomSheetDialog.dismiss();
 
-                        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections")
-                                .document(String.valueOf(flashcardCollection.getId()))
-                                .collection("flashcards")
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                document.getReference().delete();
+                        View popupView = LayoutInflater.from(flashcardActivity).inflate(R.layout.delete_confirmation_popup, null);
+
+                        PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                        Button deleteButton = popupView.findViewById(R.id.deleteButton);
+
+                        deleteButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                allFlashcardCollections.remove(flashcardCollection);
+                                flashcardCollectionList.remove(flashcardCollection);
+                                recyclerView.getAdapter().notifyDataSetChanged();
+
+                                db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections")
+                                        .document(String.valueOf(flashcardCollection.getId()))
+                                        .collection("flashcards")
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                        document.getReference().delete();
+                                                    }
+                                                } else {
+                                                    Log.d("tester", "Error getting documents: ", task.getException());
+                                                }
                                             }
-                                        } else {
-                                            Log.d("tester", "Error getting documents: ", task.getException());
-                                        }
-                                    }
-                                });
+                                        });
 
-                        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document(String.valueOf(flashcardCollection.getId())).delete();
+                                db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document(String.valueOf(flashcardCollection.getId())).delete();
+
+                                popupWindow.dismiss();
+                            }
+                        });
+
+                        Button cancelButton = popupView.findViewById(R.id.cancelButton);
+
+                        cancelButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                popupWindow.dismiss();
+                            }
+                        });
+
+                        popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
 
                         bottomSheetDialog.dismiss();
                     }

@@ -14,6 +14,8 @@ public class Todo {
 
     public String todoStatus;
 
+    public String dateTime;
+
     // Class get methods
     public String getTodoTitle() { return this.todoTitle; }
 
@@ -24,6 +26,8 @@ public class Todo {
     public String getTodoDateTime() { return this.todoDateTime; }
 
     public String getTodoStatus() { return this.todoStatus; }
+
+    public String getDateTime() { return this.dateTime; }
 
     // Class set methods
     public void setTodoTitle(String todoTitle) {
@@ -46,12 +50,17 @@ public class Todo {
         this.todoStatus = todoStatus;
     }
 
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
+    }
+
     // Class constructor
-    public Todo(String todoTitle, int todoId, String description, String todoDateTime, String todoStatus) {
+    public Todo(String todoTitle, int todoId, String description, String todoDateTime, String todoStatus, String dateTime) {
         this.todoTitle = todoTitle;
         this.todoId = todoId;
         this.description = description;
         this.todoDateTime = todoDateTime;
         this.todoStatus = todoStatus;
+        this.dateTime = dateTime;
     }
 }
