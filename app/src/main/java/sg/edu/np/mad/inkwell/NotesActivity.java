@@ -146,6 +146,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                 messageList.add(message);
                 messageList.sort(Comparator.comparingInt(i -> i.id));
                 messageRecyclerView(messageList);
+
+                promptResponse = "";
             }
         }, new Response.ErrorListener() {
             @Override
@@ -559,6 +561,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                 messageList.add(message);
                 messageList.sort(Comparator.comparingInt(i -> i.id));
                 messageRecyclerView(messageList);
+
+                promptEditText.setText("");
 
                 callAPI(prompt);
             }

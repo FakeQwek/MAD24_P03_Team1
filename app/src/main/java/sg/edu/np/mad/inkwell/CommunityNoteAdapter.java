@@ -85,7 +85,7 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                communityActivity.selectedNote = true;
+                communityActivity.selectedNote = communityNote;
 
                 viewAnimator.setDisplayedChild(1);
                 noteTitle.setText(communityNote.getTitle());

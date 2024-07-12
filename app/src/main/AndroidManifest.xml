@@ -18,21 +18,27 @@
         android:theme="@style/Theme.Inkwell"
         tools:targetApi="31">
         <activity
+            android:name=".LeaderboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CommunityQuizActivity"
+            android:exported="true" />
+        <activity
             android:name=".CommunityActivity"
             android:exported="true"
-            android:theme="@style/Theme.Inkwell.NoActionBar"/>
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".ChatActivity"
             android:exported="true"
-            android:theme="@style/Theme.Inkwell.NoActionBar"/>
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".FriendsActivity"
             android:exported="true"
-            android:theme="@style/Theme.Inkwell.NoActionBar"/>
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".ProfileActivity"
             android:exported="true"
-            android:theme="@style/Theme.Inkwell.NoActionBar"/>
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".calendarpage"
             android:exported="true" />
@@ -76,7 +82,7 @@
         <activity
             android:name=".TimetableActivity"
             android:exported="true"
-            android:theme="@style/Theme.Inkwell.NoActionBar"/>
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".LoginActivity"
             android:exported="true" />
