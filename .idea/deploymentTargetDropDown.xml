@@ -2,19 +2,7 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="CommunityActivity">
-        <State />
-      </entry>
-      <entry key="FriendsActivity">
-        <State />
-      </entry>
       <entry key="LoginActivity">
-        <State />
-      </entry>
-      <entry key="NotesActivity">
-        <State />
-      </entry>
-      <entry key="ProfileActivity">
         <State />
       </entry>
       <entry key="app">

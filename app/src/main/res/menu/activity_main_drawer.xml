@@ -45,6 +45,10 @@
             android:icon="@drawable/account_group"
             android:title="Community" />
         <item
+            android:id="@+id/nav_drawing"
+            android:icon="@drawable/pencil_outline"
+            android:title="Drawing" />
+        <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/logout"
             android:title="Log out" />
