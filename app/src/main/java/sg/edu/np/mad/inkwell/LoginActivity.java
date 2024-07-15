@@ -5,7 +5,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,6 +13,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,18 +32,9 @@ public class LoginActivity extends AppCompatActivity {
     private TextView signupRedirectText;
     private Button loginButton;
     private TextView forgotPassword;
-    private void transferName(Intent successfulLogin) {
-        EditText emailText = findViewById(R.id.login_email);
-        String email = emailText.getText().toString();
-        String[] twoParts = email.split("@", 2);
-        //Log.d("Alert", "Email name is " + twoParts[0]);
-        successfulLogin.putExtra("Username", twoParts[0]);
-        SharedPreferences.Editor editor = getSharedPreferences("Username", MODE_PRIVATE).edit();
-        editor.putString("Username", twoParts[0]);
-        editor.apply();
-        startActivity(successfulLogin);
-        //.d("Error", "This should load the main page");
-    }
+    private ImageView loginShowPassword;
+    private boolean isPasswordVisible = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,10 +46,26 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.login_button);
         signupRedirectText = findViewById(R.id.signupRedirectText);
         forgotPassword = findViewById(R.id.forgot_password);
+        loginShowPassword = findViewById(R.id.login_show_password);
 
-        loginButton.setOnClickListener(new View.OnClickListener(){
+        loginShowPassword.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View v) {
+                if (isPasswordVisible) {
+                    loginPassword.setInputType(129); // Text password
+                    loginShowPassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
+                } else {
+                    loginPassword.setInputType(144); // Text visible password
+                    loginShowPassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
+                }
+                isPasswordVisible = !isPasswordVisible;
+                loginPassword.setSelection(loginPassword.length()); // Move cursor to the end of the text
+            }
+        });
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 String email = loginEmail.getText().toString();
                 String pass = loginPassword.getText().toString();
 
@@ -83,8 +90,8 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = auth.getCurrentUser();
                             if (user != null && user.isEmailVerified()) {
                                 Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                Intent successfulLogin = new Intent(LoginActivity.this, MainActivity.class);
-                                transferName(successfulLogin);
+                                startActivity(new Intent(LoginActivity.this, Intro1.class));
+                                finish();
                             } else {
                                 Toast.makeText(LoginActivity.this, "Email not verified. Please verify your email address.", Toast.LENGTH_SHORT).show();
                                 auth.signOut(); // Sign out the user to prevent unauthorized access
@@ -97,9 +104,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        signupRedirectText.setOnClickListener(new View.OnClickListener(){
+        signupRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View view) {
                 startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
             }
         });
@@ -154,4 +161,3 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 }
-
