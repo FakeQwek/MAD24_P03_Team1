@@ -44,6 +44,12 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
 
     String currentFirebaseUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    StorageReference storageRef = storage.getReference();
+
+    ArrayList<LeaderboardRank> leaderboardRankList;
+
     private void recyclerView(ArrayList<LeaderboardRank> leaderboardRankList) {
         RecyclerView recyclerView = findViewById(R.id.leaderboardRecyclerView);
         LeaderboardRankAdapter adapter = new LeaderboardRankAdapter(leaderboardRankList, this);
@@ -80,11 +86,12 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
+        leaderboardRankList = new ArrayList<>();
+    }
 
-        StorageReference storageRef = storage.getReference();
-
-        ArrayList<LeaderboardRank> leaderboardRankList = new ArrayList<>();
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         db.collection("community").document(CommunityActivity.selectedNote.getId()).collection("leaderboard")
                 .get()
@@ -128,8 +135,6 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
     //Allows movement between activities upon clicking
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);

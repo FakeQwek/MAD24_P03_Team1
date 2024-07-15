@@ -56,6 +56,10 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
     String currentFirebaseUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    StorageReference storageRef = storage.getReference();
+
     private int currentFriendId;
 
     public static int selectedFriendId;
@@ -63,6 +67,8 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
     public static String selectedFriendUid;
 
     public static String selectedFriendEmail;
+
+    ArrayList<Friend> friendList;
 
     private void recyclerView(ArrayList<Friend> friendList) {
         RecyclerView recyclerView = findViewById(R.id.friendRecyclerView);
@@ -100,56 +106,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-
-        StorageReference storageRef = storage.getReference();
-
-        ArrayList<Friend> friendList = new ArrayList<>();
-
-        db.collection("users").document(currentFirebaseUserUid).collection("friends")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot snapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w("testing", "listen:error", e);
-                            return;
-                        }
-
-                        // Adds items to recycler view on create and everytime new data is added to firebase
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            if (Integer.parseInt(dc.getDocument().getId()) > currentFriendId) {
-                                currentFriendId = Integer.parseInt(dc.getDocument().getId());
-                            }
-                            String docFriendUid = String.valueOf(dc.getDocument().getData().get("uid"));
-                            if (dc.getType() == DocumentChange.Type.ADDED && docFriendUid.equals(currentFirebaseUserUid)) {
-                                StorageReference imageRef = storageRef.child("users/" + dc.getDocument().getData().get("friendUid").toString() + "/profile.jpg");
-
-                                long ONE_MEGABYTE = 1024 * 1024;
-
-                                imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                                    @Override
-                                    public void onSuccess(byte[] bytes) {
-                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                        Friend friend = new Friend(Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("friendUid").toString(), dc.getDocument().getData().get("friendEmail").toString(), bitmap);
-                                        friendList.add(friend);
-                                        recyclerView(friendList);
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception exception) {
-                                        Friend friend = new Friend(Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("friendUid").toString(), dc.getDocument().getData().get("friendEmail").toString(), null);
-                                        friendList.add(friend);
-                                        recyclerView(friendList);
-                                    }
-                                });
-                            }
-                            else if (dc.getType() == DocumentChange.Type.REMOVED && docFriendUid.equals(currentFirebaseUserUid)) {
-
-                            }
-                        }
-                    }
-                });
+        friendList = new ArrayList<>();
 
         ImageButton addFriendButton = findViewById(R.id.addFriendButton);
 
@@ -215,11 +172,59 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        db.collection("users").document(currentFirebaseUserUid).collection("friends")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("testing", "listen:error", e);
+                            return;
+                        }
+
+                        // Adds items to recycler view on create and everytime new data is added to firebase
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            if (Integer.parseInt(dc.getDocument().getId()) > currentFriendId) {
+                                currentFriendId = Integer.parseInt(dc.getDocument().getId());
+                            }
+                            String docFriendUid = String.valueOf(dc.getDocument().getData().get("uid"));
+                            if (dc.getType() == DocumentChange.Type.ADDED && docFriendUid.equals(currentFirebaseUserUid)) {
+                                StorageReference imageRef = storageRef.child("users/" + dc.getDocument().getData().get("friendUid").toString() + "/profile.jpg");
+
+                                long ONE_MEGABYTE = 1024 * 1024;
+
+                                imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                    @Override
+                                    public void onSuccess(byte[] bytes) {
+                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                        Friend friend = new Friend(Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("friendUid").toString(), dc.getDocument().getData().get("friendEmail").toString(), bitmap);
+                                        friendList.add(friend);
+                                        recyclerView(friendList);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        Friend friend = new Friend(Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("friendUid").toString(), dc.getDocument().getData().get("friendEmail").toString(), null);
+                                        friendList.add(friend);
+                                        recyclerView(friendList);
+                                    }
+                                });
+                            }
+                            else if (dc.getType() == DocumentChange.Type.REMOVED && docFriendUid.equals(currentFirebaseUserUid)) {
+
+                            }
+                        }
+                    }
+                });
+    }
+
     //Allows movement between activities upon clicking
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);
