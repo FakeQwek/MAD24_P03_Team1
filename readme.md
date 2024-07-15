@@ -64,10 +64,10 @@ Productivity
 - Profile Page - Chin Teck
 - Markdown - Chin Teck
 - Upgraded Authentication (Biometric, persistent password,otp verification, security questions) -  Jin Xuan
-- Mind Map – Jin Xuan 
 - Storyboard – Jin Xuan
 - Language Translator - Jin Xuan
 - Dictionary - Jin Xuan
+- Mind Map - Rithika
 - Time tracking with work statistics and achievements  - Rithika
 - Goal setting and recurring tasks - Rithika
 - Widgets – Rithika
