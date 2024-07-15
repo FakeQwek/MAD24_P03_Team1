@@ -2,18 +2,17 @@ package sg.edu.np.mad.inkwell;
 
 import android.content.ContentValues;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
 import android.view.ViewTreeObserver;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.slider.RangeSlider;
@@ -23,13 +22,16 @@ import java.io.OutputStream;
 public class DrawingMainActivity extends AppCompatActivity {
 
     private DrawView paint;
-    private ImageButton save, color, stroke, undo;
+    private ImageButton save, color, stroke, undo, eraser, reset;
     private RangeSlider rangeSlider;
 
     // Custom color picker dialog views
     private View colorPickerDialog;
-    private SeekBar redSeekBar, greenSeekBar, blueSeekBar;
-    private TextView colorPreview;
+    private LinearLayout colorPalette;
+    private ImageButton closeColorPickerButton;
+
+    private int currentColor;
+    private boolean isEraserOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,31 +44,29 @@ public class DrawingMainActivity extends AppCompatActivity {
         save = findViewById(R.id.btn_save);
         color = findViewById(R.id.btn_color);
         stroke = findViewById(R.id.btn_stroke);
+        eraser = findViewById(R.id.btn_eraser);
+        reset = findViewById(R.id.btn_reset);
 
         // Initialize custom color picker dialog views
-        colorPickerDialog = (LinearLayout) findViewById(R.id.color_picker_dialog);
-        redSeekBar = colorPickerDialog.findViewById(R.id.color_picker_red);
-        greenSeekBar = colorPickerDialog.findViewById(R.id.color_picker_green);
-        blueSeekBar = colorPickerDialog.findViewById(R.id.color_picker_blue);
-        colorPreview = colorPickerDialog.findViewById(R.id.color_preview);
+        colorPickerDialog = findViewById(R.id.color_picker_dialog);
+        colorPalette = findViewById(R.id.color_palette);
+        closeColorPickerButton = findViewById(R.id.btn_close_color_picker);
 
-        redSeekBar.setOnSeekBarChangeListener(colorChangeListener);
-        greenSeekBar.setOnSeekBarChangeListener(colorChangeListener);
-        blueSeekBar.setOnSeekBarChangeListener(colorChangeListener);
+        // Set colors for the color buttons
+        setColorButtons();
 
         color.setOnClickListener(view -> showCustomColorPickerDialog());
+        closeColorPickerButton.setOnClickListener(view -> colorPickerDialog.setVisibility(View.GONE));
 
         undo.setOnClickListener(view -> paint.undo());
 
         save.setOnClickListener(view -> saveDrawing());
 
-        stroke.setOnClickListener(view -> {
-            if (rangeSlider.getVisibility() == View.VISIBLE) {
-                rangeSlider.setVisibility(View.GONE);
-            } else {
-                rangeSlider.setVisibility(View.VISIBLE);
-            }
-        });
+        stroke.setOnClickListener(view -> toggleRangeSliderVisibility());
+
+        eraser.setOnClickListener(view -> toggleEraser());
+
+        reset.setOnClickListener(view -> resetDrawing());
 
         rangeSlider.addOnChangeListener((slider, value, fromUser) -> paint.setStrokeWidth((int) value));
 
@@ -81,8 +81,13 @@ public class DrawingMainActivity extends AppCompatActivity {
             }
         });
 
+        // Set default stroke width value
+        rangeSlider.setValues(0.5f);
+
         // Initialize the color picker dialog with default color
-        updateColorPreview();
+        currentColor = Color.BLACK;
+        paint.setColor(currentColor);
+        paint.setStrokeWidth(0.5f);
     }
 
     private void showCustomColorPickerDialog() {
@@ -107,29 +112,54 @@ public class DrawingMainActivity extends AppCompatActivity {
         }
     }
 
-    private final SeekBar.OnSeekBarChangeListener colorChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            updateColorPreview();
-        }
+    private void setColorButtons() {
+        Button blackButton = (Button) colorPalette.getChildAt(0);
+        Button redButton = (Button) colorPalette.getChildAt(1);
+        Button greenButton = (Button) colorPalette.getChildAt(2);
+        Button blueButton = (Button) colorPalette.getChildAt(3);
 
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {}
+        blackButton.setBackgroundColor(Color.BLACK);
+        blackButton.setOnClickListener(view -> selectColor(Color.BLACK));
 
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {}
-    };
+        redButton.setBackgroundColor(Color.RED);
+        redButton.setOnClickListener(view -> selectColor(Color.RED));
 
-    private void updateColorPreview() {
-        int red = redSeekBar.getProgress();
-        int green = greenSeekBar.getProgress();
-        int blue = blueSeekBar.getProgress();
-        int color = getColorFromRGB(red, green, blue);
-        colorPreview.setBackgroundColor(color);
-        paint.setColor(color);
+        greenButton.setBackgroundColor(Color.GREEN);
+        greenButton.setOnClickListener(view -> selectColor(Color.GREEN));
+
+        blueButton.setBackgroundColor(Color.BLUE);
+        blueButton.setOnClickListener(view -> selectColor(Color.BLUE));
     }
 
-    private int getColorFromRGB(int red, int green, int blue) {
-        return 0xff000000 | (red << 16) | (green << 8) | blue;
+    private void selectColor(int color) {
+        currentColor = color;
+        if (!isEraserOn) {
+            paint.setColor(currentColor);
+        }
+        colorPickerDialog.setVisibility(View.GONE);
+    }
+
+    private void toggleEraser() {
+        if (isEraserOn) {
+            paint.setColor(currentColor);
+            isEraserOn = false;
+            eraser.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
+        } else {
+            paint.setColor(Color.WHITE);
+            isEraserOn = true;
+            eraser.setImageResource(android.R.drawable.ic_menu_revert);
+        }
+    }
+
+    private void toggleRangeSliderVisibility() {
+        if (rangeSlider.getVisibility() == View.GONE) {
+            rangeSlider.setVisibility(View.VISIBLE);
+        } else {
+            rangeSlider.setVisibility(View.GONE);
+        }
+    }
+
+    private void resetDrawing() {
+        paint.clear();
     }
 }

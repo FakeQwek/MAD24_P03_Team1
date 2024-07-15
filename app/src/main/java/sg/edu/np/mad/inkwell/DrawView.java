@@ -20,7 +20,7 @@ public class DrawView extends View {
     private Paint mPaint;
     private ArrayList<Stroke> paths = new ArrayList<>();
     private int currentColor;
-    private int strokeWidth;
+    private float strokeWidth;
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
@@ -31,18 +31,19 @@ public class DrawView extends View {
 
     public DrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        initPaint();
+    }
+
+    private void initPaint() {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        mPaint.setColor(Color.GREEN);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setAlpha(0xff);
-
-        // Initialize defaults
-        currentColor = Color.GREEN;
-        strokeWidth = 20;
+        mPaint.setColor(Color.BLACK); // Default color to black
+        mPaint.setStrokeWidth(0.5f); // Default stroke width
     }
 
     public void init(int height, int width) {
@@ -53,10 +54,12 @@ public class DrawView extends View {
 
     public void setColor(int color) {
         currentColor = color;
+        mPaint.setColor(color);
     }
 
-    public void setStrokeWidth(int width) {
+    public void setStrokeWidth(float width) {
         strokeWidth = width;
+        mPaint.setStrokeWidth(width);
     }
 
     public void undo() {
@@ -70,8 +73,14 @@ public class DrawView extends View {
         return mBitmap;
     }
 
+    public void clear() {
+        paths.clear();  // Clear all paths
+        mCanvas.drawColor(Color.WHITE);  // Clear the canvas by filling it with white color
+        invalidate();  // Refresh the view
+    }
+
     private void redraw() {
-        mBitmap.eraseColor(Color.WHITE);  // Clear the canvas
+        mCanvas.drawColor(Color.WHITE);  // Clear the canvas
         for (Stroke fp : paths) {
             mPaint.setColor(fp.color);
             mPaint.setStrokeWidth(fp.strokeWidth);
@@ -83,11 +92,16 @@ public class DrawView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+        for (Stroke fp : paths) {
+            mPaint.setColor(fp.color);
+            mPaint.setStrokeWidth(fp.strokeWidth);
+            mCanvas.drawPath(fp.path, mPaint);
+        }
     }
 
     private void touchStart(float x, float y) {
         mPath = new Path();
-        Stroke fp = new Stroke(currentColor, strokeWidth, mPath);
+        Stroke fp = new Stroke(currentColor, (int) strokeWidth, mPath);
         paths.add(fp);
         mPath.reset();
         mPath.moveTo(x, y);
@@ -128,5 +142,17 @@ public class DrawView extends View {
                 break;
         }
         return true;
+    }
+
+    private static class Stroke {
+        int color;
+        int strokeWidth;
+        Path path;
+
+        Stroke(int color, int strokeWidth, Path path) {
+            this.color = color;
+            this.strokeWidth = strokeWidth;
+            this.path = path;
+        }
     }
 }
