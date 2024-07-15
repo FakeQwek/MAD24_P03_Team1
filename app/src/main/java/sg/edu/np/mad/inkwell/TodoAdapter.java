@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -177,13 +179,41 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoViewHolder> {
                 deleteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        db.collection("users").document(currentFirebaseUserUid).collection("todos").document(String.valueOf(todo.todoId)).delete();
-                        allTodos.remove(todo);
-                        todoList.remove(todo);
-                        recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
                         bottomSheetDialog.dismiss();
+
+                        View popupView = LayoutInflater.from(todoActivity).inflate(R.layout.delete_confirmation_popup, null);
+
+                        PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+
+                        Button popupDeleteButton = popupView.findViewById(R.id.deleteButton);
+
+                        popupDeleteButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                db.collection("users").document(currentFirebaseUserUid).collection("todos").document(String.valueOf(todo.todoId)).delete();
+                                allTodos.remove(todo);
+                                todoList.remove(todo);
+                                recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
+
+                                popupWindow.dismiss();
+                            }
+                        });
+
+                        Button cancelButton = popupView.findViewById(R.id.cancelButton);
+
+                        cancelButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                popupWindow.dismiss();
+                            }
+                        });
+
+                        popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
                     }
                 });
+
+                TextView todoDateTime = view.findViewById(R.id.todoDateTime);
+                todoDateTime.setText("Notification time: " + todo.getDateTime());
             }
         });
     }

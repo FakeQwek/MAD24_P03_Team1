@@ -42,7 +42,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="600dp"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="10dp">
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -79,7 +80,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="600dp"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="10dp">
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -107,7 +109,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:srcCompat="@drawable/eye_outline"
+                        app:srcCompat="@drawable/eye_off_outline"
                         android:backgroundTint="#00000000"/>
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -117,7 +119,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="600dp"
                 app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="10dp">
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -125,13 +128,14 @@
 
                     <ProgressBar
                         android:id="@+id/progressBar"
-                        style="?android:attr/progressBarStyleHorizontal"
+                        style="@android:style/Widget.ProgressBar.Horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="30dp"
-                        android:layout_marginEnd="30dp"
-                        android:layout_marginBottom="80dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:layout_height="7dp"
+                        android:layout_marginStart="40dp"
+                        android:layout_marginTop="250dp"
+                        android:layout_marginEnd="40dp"
+                        android:progressTint="@color/primary_green"
+                        android:progressBackgroundTint="@color/secondary_green"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -164,44 +168,63 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="30dp"
+                        android:fontFamily="@font/inter_regular"
                         android:text="TextView"
                         app:layout_constraintBottom_toBottomOf="@+id/textView9"
                         app:layout_constraintEnd_toEndOf="@+id/progressBar"
-                        app:layout_constraintTop_toTopOf="@+id/textView9"
-                        android:fontFamily="@font/inter_regular" />
+                        app:layout_constraintTop_toTopOf="@+id/textView9" />
 
                     <TextView
                         android:id="@+id/stillLearningCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_regular"
                         android:text="TextView"
                         app:layout_constraintBottom_toBottomOf="@+id/textView10"
                         app:layout_constraintEnd_toEndOf="@+id/knownCount"
-                        app:layout_constraintTop_toTopOf="@+id/textView10"
-                        android:fontFamily="@font/inter_regular" />
+                        app:layout_constraintTop_toTopOf="@+id/textView10" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
+
         </ViewAnimator>
 
-        <Button
-            android:id="@+id/wrongButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginBottom="10dp"
-            android:text="Button"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
+        <ImageButton
             android:id="@+id/correctButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="10dp"
-            android:text="Button"
+            android:layout_marginEnd="50dp"
+            android:layout_marginBottom="30dp"
+            android:backgroundTint="@color/primary_green"
+            android:padding="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewAnimator"
+            app:srcCompat="@drawable/check" />
+
+        <ImageButton
+            android:id="@+id/wrongButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginBottom="30dp"
+            android:backgroundTint="@color/primary_red"
+            android:padding="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewAnimator"
+            app:srcCompat="@drawable/close" />
+
+        <TextView
+            android:id="@+id/flashcardsLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 left"
+            app:layout_constraintBottom_toBottomOf="@+id/wrongButton"
+            app:layout_constraintEnd_toStartOf="@+id/correctButton"
+            app:layout_constraintStart_toEndOf="@+id/wrongButton"
+            app:layout_constraintTop_toTopOf="@+id/wrongButton"
+            android:fontFamily="@font/inter_regular"
+            android:textSize="20sp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -67,6 +68,8 @@ public class TodoActivity extends AppCompatActivity implements NavigationView.On
     public static String currentStatus = "todo";
 
     private ArrayList<Todo> todos;
+
+    private int todoCount;
 
     int hour = 0;
 
@@ -148,6 +151,8 @@ public class TodoActivity extends AppCompatActivity implements NavigationView.On
 
         RecyclerView recyclerView = findViewById(R.id.todoRecyclerView);
 
+        TextView todoCounter = findViewById(R.id.todoCounter);
+
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
         // Read from firebase and create todos on create
@@ -168,9 +173,20 @@ public class TodoActivity extends AppCompatActivity implements NavigationView.On
                             }
                             String docTodoUid = String.valueOf(dc.getDocument().getData().get("uid"));
                             if (dc.getType() == DocumentChange.Type.ADDED && docTodoUid.equals(currentFirebaseUserUid)) {
-                                Todo todo = new Todo(dc.getDocument().getData().get("title").toString(), Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("description").toString(), dc.getDocument().getData().get("dateTime").toString(), dc.getDocument().getData().get("status").toString());
+                                Todo todo = new Todo(dc.getDocument().getData().get("title").toString(), Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("description").toString(), dc.getDocument().getData().get("dateTime").toString(), dc.getDocument().getData().get("status").toString(), dc.getDocument().getData().get("notificationDateTime").toString());
+                                if (dc.getDocument().getData().get("status").toString().equals("todo")) {
+                                    todoCount++;
+                                }
+                                todoCounter.setText(String.format(getResources().getString(R.string.todo_counter), todoCount));
+
                                 allTodos.add(todo);
                                 filter(allTodos, "todo", "");
+                            }
+                            else if (dc.getType() == DocumentChange.Type.REMOVED && docTodoUid.equals(currentFirebaseUserUid)) {
+                                if (dc.getDocument().getData().get("status").toString().equals("todo")) {
+                                    todoCount--;
+                                }
+                                todoCounter.setText(String.format(getResources().getString(R.string.todo_counter), todoCount));
                             }
                         }
                     }
@@ -257,6 +273,7 @@ public class TodoActivity extends AppCompatActivity implements NavigationView.On
                         todoData.put("dateTime", simpleDateFormat.format(Calendar.getInstance().getTime()));
                         todoData.put("status", "todo");
                         todoData.put("uid", currentFirebaseUserUid);
+                        todoData.put("notificationDateTime", datePickerButton.getText().toString() + " " + timePickerButton.getText().toString());
                         db.collection("users").document(currentFirebaseUserUid).collection("todos").document(String.valueOf(currentTodoId + 1)).set(todoData);
                         bottomSheetDialog.dismiss();
 

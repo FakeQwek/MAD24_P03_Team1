@@ -49,6 +49,8 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
 
     private int stillLearning;
 
+    private int flashcardCount;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +88,8 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
 
         TextView knownCount = findViewById(R.id.knownCount);
 
+        TextView flashcardsLeft = findViewById(R.id.flashcardsLeft);
+
         TextView stillLearningCount = findViewById(R.id.stillLearningCount);
 
         ProgressBar progressBar = findViewById(R.id.progressBar);
@@ -100,21 +104,29 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 questionList.add(document.getData().get("question").toString());
                                 answerList.add(document.getData().get("answer").toString());
+                                flashcardCount += 1;
                             }
                         } else {
                             Log.d("testing", "Error getting documents: ", task.getException());
                         }
                         question1.setText(questionList.get(currentFlashcardPosition));
+                        flashcardsLeft.setText(flashcardCount + " Left");
                     }
                 });
 
-        Button wrongButton = findViewById(R.id.wrongButton);
+        ImageButton answerButton1 = findViewById(R.id.answerButton1);
+
+        ImageButton answerButton2 = findViewById(R.id.answerButton2);
+
+        ImageButton wrongButton = findViewById(R.id.wrongButton);
 
         // Increments stillLearning and goes to the next flashcard
         wrongButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 currentFlashcardPosition++;
+                answerButton1.setImageResource(R.drawable.eye_off_outline);
+                answerButton2.setImageResource(R.drawable.eye_off_outline);
                 if (currentFlashcardPosition > questionList.size()) {
                     Intent flashcardActivity = new Intent(QuizFlashcardActivity.this, FlashcardActivity.class);
                     startActivity(flashcardActivity);
@@ -137,16 +149,23 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
                         viewAnimator.setDisplayedChild(0);
                     }
                 }
+
+                if (flashcardCount != 0) {
+                    flashcardCount -= 1;
+                    flashcardsLeft.setText(flashcardCount + " Left");
+                }
             }
         });
 
-        Button correctButton = findViewById(R.id.correctButton);
+        ImageButton correctButton = findViewById(R.id.correctButton);
 
         // Increments correct and goes to the next flashcard
         correctButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 currentFlashcardPosition++;
+                answerButton1.setImageResource(R.drawable.eye_off_outline);
+                answerButton2.setImageResource(R.drawable.eye_off_outline);
                 if (currentFlashcardPosition > questionList.size()) {
                     Intent flashcardActivity = new Intent(QuizFlashcardActivity.this, FlashcardActivity.class);
                     startActivity(flashcardActivity);
@@ -169,10 +188,13 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
                         viewAnimator.setDisplayedChild(0);
                     }
                 }
+
+                if (flashcardCount != 0) {
+                    flashcardCount -= 1;
+                    flashcardsLeft.setText(flashcardCount + " Left");
+                }
             }
         });
-
-        ImageButton answerButton1 = findViewById(R.id.answerButton1);
 
         // Toggles between the question and answer
         answerButton1.setOnClickListener(new View.OnClickListener() {
@@ -187,8 +209,6 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
                 }
             }
         });
-
-        ImageButton answerButton2 = findViewById(R.id.answerButton2);
 
         // Toggles between the question and answer
         answerButton2.setOnClickListener(new View.OnClickListener() {
@@ -207,6 +227,48 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        if (menuItem.getItemId() == R.id.nav_home) {
+            Intent notesActivity = new Intent(QuizFlashcardActivity.this, MainActivity.class);
+            startActivity(notesActivity);
+            return true;
+        }
+        else if (menuItem.getItemId() == R.id.nav_notes) {
+            Intent todoActivity = new Intent(QuizFlashcardActivity.this, NotesActivity.class);
+            startActivity(todoActivity);
+            return true;
+        }
+        else if (menuItem.getItemId() == R.id.nav_todos) {
+            Intent todoActivity = new Intent(QuizFlashcardActivity.this, TodoActivity.class);
+            startActivity(todoActivity);
+            return true;
+        }
+        else if (menuItem.getItemId() == R.id.nav_flashcards) {
+            Intent todoActivity = new Intent(QuizFlashcardActivity.this, FlashcardActivity.class);
+            startActivity(todoActivity);
+            return true;
+        }
+        else if (menuItem.getItemId() == R.id.nav_calendar) {
+            Intent todoActivity = new Intent(QuizFlashcardActivity.this, TimetableActivity.class);
+            startActivity(todoActivity);
+            return true;
+        }
+        else if (menuItem.getItemId() == R.id.nav_timetable) {
+            Intent todoActivity = new Intent(QuizFlashcardActivity.this, TimetableActivity.class);
+            startActivity(todoActivity);
+            return true;
+        }
+        else if (menuItem.getItemId() == R.id.nav_settings) {
+            Intent todoActivity = new Intent(QuizFlashcardActivity.this, SettingsActivity.class);
+            startActivity(todoActivity);
+            return true;
+        }
+        else if (menuItem.getItemId() == R.id.nav_logout) {
+            Log.d("Message", "Logout");
+        }
+        else {
+            Log.d("Message", "Unknown page!");
+        }
+
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);

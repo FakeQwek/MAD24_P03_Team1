@@ -42,6 +42,9 @@
 
     <string name="flashcard_collection_correct_count">%1$d files/%1$d files</string>
 
+    <string name="flashcard_collection_counter">You have %1$d flashcard collections</string>
+    <string name="todo_counter">You have %1$d todos today</string>
+
     <string name="add_new">Add</string>
     <string name="add_event">Add Event</string>
     <string name="timetable">Timetable</string>

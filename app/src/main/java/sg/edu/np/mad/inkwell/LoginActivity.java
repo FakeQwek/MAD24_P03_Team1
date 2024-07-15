@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -31,7 +32,18 @@ public class LoginActivity extends AppCompatActivity {
     private TextView signupRedirectText;
     private Button loginButton;
     private TextView forgotPassword;
-
+    private void transferName(Intent successfulLogin) {
+        EditText emailText = findViewById(R.id.login_email);
+        String email = emailText.getText().toString();
+        String[] twoParts = email.split("@", 2);
+        //Log.d("Alert", "Email name is " + twoParts[0]);
+        successfulLogin.putExtra("Username", twoParts[0]);
+        SharedPreferences.Editor editor = getSharedPreferences("Username", MODE_PRIVATE).edit();
+        editor.putString("Username", twoParts[0]);
+        editor.apply();
+        startActivity(successfulLogin);
+        //.d("Error", "This should load the main page");
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,8 +83,8 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = auth.getCurrentUser();
                             if (user != null && user.isEmailVerified()) {
                                 Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(LoginActivity.this, Intro1.class));
-                                finish();
+                                Intent successfulLogin = new Intent(LoginActivity.this, MainActivity.class);
+                                transferName(successfulLogin);
                             } else {
                                 Toast.makeText(LoginActivity.this, "Email not verified. Please verify your email address.", Toast.LENGTH_SHORT).show();
                                 auth.signOut(); // Sign out the user to prevent unauthorized access
