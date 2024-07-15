@@ -40,6 +40,8 @@ public class NodeView extends View {
                 return true;
             }
         });
+
+        updateRect();
     }
 
     // create and display editTextDialog
@@ -52,6 +54,7 @@ public class NodeView extends View {
                 .setView(editText)
                 .setPositiveButton("OK", (dialog, which) -> {
                     text = editText.getText().toString();
+                    updateRect(); // Update rect bounds when text changes
                     invalidate(); // Redraw view with updated text
                 })
                 .setNegativeButton("Cancel", null);
@@ -84,6 +87,7 @@ public class NodeView extends View {
 
     public void setText(String editedText) {
         this.text = editedText;
+        updateRect();
         invalidate();
     }
 
@@ -113,7 +117,7 @@ public class NodeView extends View {
                     posY += dy;
                     lastTouchX = touchX;
                     lastTouchY = touchY;
-                    updateRect(); //
+                    updateRect();
                     invalidate();
                 }
                 break;
@@ -166,6 +170,6 @@ public class NodeView extends View {
 
         // Draw text centered inside the rounded rectangle
         paint.setColor(Color.WHITE);
-        canvas.drawText(text, posX + padding, posY + padding + getTextHeight(), paint);
+        canvas.drawText(text, posX + padding, posY + padding - paint.ascent(), paint);
     }
 }

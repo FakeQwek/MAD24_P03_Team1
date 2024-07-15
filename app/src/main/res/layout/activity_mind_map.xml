@@ -43,17 +43,13 @@
             app:layout_constraintStart_toStartOf="@+id/toolbar"
             app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-        <sg.edu.np.mad.inkwell.ZoomLayout
+        <FrameLayout
+            android:id="@+id/mindMapContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:background="#FFFFFF"
             app:layout_constraintBottom_toTopOf="@id/addNodeButton"
-            app:layout_constraintTop_toBottomOf="@id/toolbar" >
-            <FrameLayout
-                android:id="@+id/mindMapContainer"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:background="#FFFFFF" />
-        </sg.edu.np.mad.inkwell.ZoomLayout>
+            app:layout_constraintTop_toBottomOf="@id/toolbar"/>
 
         <ImageButton
             android:id="@+id/addNodeButton"
@@ -113,4 +109,3 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>
-

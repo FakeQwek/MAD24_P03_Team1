@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
@@ -91,18 +92,50 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
     // create new node
     private void addNode() {
-        // create a new NodeView at the touch position
-        NodeView node = new NodeView(this, "Node " + (nodes.size() + 1), touchX, touchY);
+        // Calculate the center of the screen
+        int centerX = mindMapContainer.getWidth() / 2;
+        int centerY = mindMapContainer.getHeight() / 2;
+
+        // Create a new NodeView at the center of the screen
+        NodeView node = new NodeView(this, "Node " + (nodes.size() + 1), centerX, centerY);
+
+        // Set layout parameters to wrap the content
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
         );
-        params.leftMargin = (int) touchX;
-        params.topMargin = (int) touchY;
+
+        // Add the node to the mind map container
         mindMapContainer.addView(node, params);
+
+        // Use ViewTreeObserver to adjust the position after the layout is complete
+        node.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                // Remove the listener to prevent repeated calls
+                node.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                // Adjust the node's position to the center
+                int adjustedLeftMargin = centerX - node.getWidth() / 2;
+                int adjustedTopMargin = centerY - node.getHeight() / 2;
+
+                FrameLayout.LayoutParams updatedParams = (FrameLayout.LayoutParams) node.getLayoutParams();
+                updatedParams.leftMargin = adjustedLeftMargin;
+                updatedParams.topMargin = adjustedTopMargin;
+
+                // Apply the new layout parameters
+                node.setLayoutParams(updatedParams);
+
+                // Log to confirm the node has been positioned
+                Log.d(TAG, "Node positioned at: " + adjustedLeftMargin + ", " + adjustedTopMargin);
+            }
+        });
+
         nodes.add(node);
+
         Log.d(TAG, "addNode: added");
     }
+
 
     // move node around by dragging
     private void moveNode(float x, float y) {
