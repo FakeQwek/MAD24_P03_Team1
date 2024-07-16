@@ -22,7 +22,7 @@ import java.io.OutputStream;
 public class DrawingMainActivity extends AppCompatActivity {
 
     private DrawView paint;
-    private ImageButton save, color, stroke, undo, eraser, reset;
+    private ImageButton save, color, stroke, undo, redo, eraser, reset;
     private RangeSlider rangeSlider;
 
     // Custom color picker dialog views
@@ -41,6 +41,7 @@ public class DrawingMainActivity extends AppCompatActivity {
         paint = findViewById(R.id.draw_view);
         rangeSlider = findViewById(R.id.rangebar);
         undo = findViewById(R.id.btn_undo);
+        redo = findViewById(R.id.btn_redo); // Add the redo button
         save = findViewById(R.id.btn_save);
         color = findViewById(R.id.btn_color);
         stroke = findViewById(R.id.btn_stroke);
@@ -59,6 +60,7 @@ public class DrawingMainActivity extends AppCompatActivity {
         closeColorPickerButton.setOnClickListener(view -> colorPickerDialog.setVisibility(View.GONE));
 
         undo.setOnClickListener(view -> paint.undo());
+        redo.setOnClickListener(view -> paint.redo()); // Add redo click listener
 
         save.setOnClickListener(view -> saveDrawing());
 
@@ -117,6 +119,12 @@ public class DrawingMainActivity extends AppCompatActivity {
         Button redButton = (Button) colorPalette.getChildAt(1);
         Button greenButton = (Button) colorPalette.getChildAt(2);
         Button blueButton = (Button) colorPalette.getChildAt(3);
+        Button yellowButton = (Button) colorPalette.getChildAt(4);
+        Button purpleButton = (Button) colorPalette.getChildAt(5);
+        Button orangeButton = (Button) colorPalette.getChildAt(6);
+        Button pinkButton = (Button) colorPalette.getChildAt(7);
+        Button brownButton = (Button) colorPalette.getChildAt(8);
+        Button grayButton = (Button) colorPalette.getChildAt(9);
 
         blackButton.setBackgroundColor(Color.BLACK);
         blackButton.setOnClickListener(view -> selectColor(Color.BLACK));
@@ -129,6 +137,24 @@ public class DrawingMainActivity extends AppCompatActivity {
 
         blueButton.setBackgroundColor(Color.BLUE);
         blueButton.setOnClickListener(view -> selectColor(Color.BLUE));
+
+        yellowButton.setBackgroundColor(Color.YELLOW);
+        yellowButton.setOnClickListener(view -> selectColor(Color.YELLOW));
+
+        purpleButton.setBackgroundColor(Color.parseColor("#800080"));
+        purpleButton.setOnClickListener(view -> selectColor(Color.parseColor("#800080"))); // Purple
+
+        orangeButton.setBackgroundColor(Color.parseColor("#FFA500"));
+        orangeButton.setOnClickListener(view -> selectColor(Color.parseColor("#FFA500"))); // Orange
+
+        pinkButton.setBackgroundColor(Color.parseColor("#FFC0CB"));
+        pinkButton.setOnClickListener(view -> selectColor(Color.parseColor("#FFC0CB"))); // Pink
+
+        brownButton.setBackgroundColor(Color.parseColor("#8B4513"));
+        brownButton.setOnClickListener(view -> selectColor(Color.parseColor("#8B4513"))); // Brown
+
+        grayButton.setBackgroundColor(Color.parseColor("#808080"));
+        grayButton.setOnClickListener(view -> selectColor(Color.parseColor("#808080"))); // Gray
     }
 
     private void selectColor(int color) {

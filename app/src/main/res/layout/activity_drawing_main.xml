@@ -24,9 +24,30 @@
             android:id="@+id/color_palette"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp"
+            android:layout_marginBottom="10dp">
 
-            <!-- Color buttons -->
+            <!-- Additional Color Buttons -->
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
             <Button
                 android:layout_width="40dp"
                 android:layout_height="40dp"/>
@@ -86,6 +107,12 @@
 
             <ImageButton
                 android:id="@+id/btn_undo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_revert" />
+
+            <ImageButton
+                android:id="@+id/btn_redo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@android:drawable/ic_menu_revert" />

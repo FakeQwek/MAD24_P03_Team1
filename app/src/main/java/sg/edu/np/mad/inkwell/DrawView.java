@@ -19,6 +19,7 @@ public class DrawView extends View {
     private Path mPath;
     private Paint mPaint;
     private ArrayList<Stroke> paths = new ArrayList<>();
+    private ArrayList<Stroke> undonePaths = new ArrayList<>(); // List for storing undone paths
     private int currentColor;
     private float strokeWidth;
     private Bitmap mBitmap;
@@ -64,7 +65,14 @@ public class DrawView extends View {
 
     public void undo() {
         if (paths.size() > 0) {
-            paths.remove(paths.size() - 1);
+            undonePaths.add(paths.remove(paths.size() - 1)); // Move the last path to undonePaths
+            redraw();
+        }
+    }
+
+    public void redo() {
+        if (undonePaths.size() > 0) {
+            paths.add(undonePaths.remove(undonePaths.size() - 1)); // Move the last undone path back to paths
             redraw();
         }
     }
@@ -75,6 +83,7 @@ public class DrawView extends View {
 
     public void clear() {
         paths.clear();  // Clear all paths
+        undonePaths.clear(); // Clear undone paths
         mCanvas.drawColor(Color.WHITE);  // Clear the canvas by filling it with white color
         invalidate();  // Refresh the view
     }
@@ -103,6 +112,7 @@ public class DrawView extends View {
         mPath = new Path();
         Stroke fp = new Stroke(currentColor, (int) strokeWidth, mPath);
         paths.add(fp);
+        undonePaths.clear(); // Clear undone paths when a new stroke is started
         mPath.reset();
         mPath.moveTo(x, y);
         mX = x;
