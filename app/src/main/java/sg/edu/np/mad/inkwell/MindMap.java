@@ -29,6 +29,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
     private FrameLayout mindMapContainer;
     private ImageButton addNodeButton, addConnectionButton;
     private List<NodeView> nodes;
+    private List<LineView> lines;
     private float touchX, touchY;
     private NodeView selectedNode;
     private boolean isMovingNode;
@@ -62,6 +63,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         addNodeButton = findViewById(R.id.addNodeButton);
         addConnectionButton = findViewById(R.id.addConnectionButton);
         nodes = new ArrayList<>();
+        lines = new ArrayList<>();
 
         initializeTitleNode();
 
@@ -142,6 +144,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         if (titleNode != null) {
             NodeView childNode = new NodeView(this, "Child Node " + (nodes.size() + 1), titleNode.getPosX() + 200, titleNode.getPosY() + 200);
             addNodeToContainer(childNode);
+            addConnectionLine(titleNode, childNode);
         }
     }
 
@@ -150,7 +153,15 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         if (titleNode != null) {
             NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), titleNode.getPosX() + 200, titleNode.getPosY() - 200);
             addNodeToContainer(siblingNode);
+            addConnectionLine(titleNode, siblingNode);
         }
+    }
+
+    // Add connection line
+    private void addConnectionLine(NodeView startNode, NodeView endNode) {
+        LineView lineView = new LineView(this, startNode, endNode);
+        lines.add(lineView);
+        mindMapContainer.addView(lineView);
     }
 
     // add node to container
@@ -189,6 +200,11 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
             selectedNode.invalidate();
             touchX = x;
             touchY = y;
+
+            // Update lines connected to this node
+            for (LineView line : lines) {
+                line.updatePosition();
+            }
         }
     }
 

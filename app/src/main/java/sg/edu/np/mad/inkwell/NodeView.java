@@ -24,6 +24,8 @@ public class NodeView extends View {
     private float lastTouchX, lastTouchY;
     private boolean isMoving = false;
     private boolean isSelected = false;
+    private static NodeView selectedNode = null;
+    private OnPositionChangedListener positionChangedListener;
 
     public NodeView(Context context, String text, float posX, float posY) {
         super(context);
@@ -52,7 +54,7 @@ public class NodeView extends View {
         setWillNotDraw(false);
     }
 
-    // create and display editTextDialog
+    // Create and display edit text dialog
     private void showEditDialog() {
         final EditText editText = new EditText(getContext());
         editText.setText(text);
@@ -62,8 +64,8 @@ public class NodeView extends View {
                 .setView(editText)
                 .setPositiveButton("OK", (dialog, which) -> {
                     text = editText.getText().toString();
-                    updateRect(); // Update rect bounds when text changes
-                    invalidate(); // Redraw view with updated text
+                    updateRect();
+                    invalidate();
                 })
                 .setNegativeButton("Cancel", null);
 
@@ -78,6 +80,7 @@ public class NodeView extends View {
     public void setPosX(float posX) {
         this.posX = posX;
         updateRect();
+        notifyPositionChanged();
     }
 
     public float getPosY() {
@@ -87,6 +90,7 @@ public class NodeView extends View {
     public void setPosY(float posY) {
         this.posY = posY;
         updateRect();
+        notifyPositionChanged();
     }
 
     public String getText() {
@@ -111,7 +115,15 @@ public class NodeView extends View {
     }
 
     public void toggleSelection() {
+        // Deselect the previously selected node (if any)
+        if (selectedNode != null && selectedNode != this) {
+            selectedNode.setSelected(false);
+        }
+
+        // Toggle selection for the current node
         isSelected = !isSelected;
+        selectedNode = isSelected ? this : null;
+
         invalidate();
     }
 
@@ -124,12 +136,14 @@ public class NodeView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                // check if the touch is within the bounds of the NodeView
+                // Check if the touch is within the bounds of the NodeView
                 if (touchX >= rect.left && touchX <= rect.right &&
                         touchY >= rect.top && touchY <= rect.bottom) {
                     lastTouchX = touchX;
                     lastTouchY = touchY;
                     isMoving = true;
+                    // Select this node when it's touched
+                    toggleSelection();
                     return true;
                 }
                 break;
@@ -143,6 +157,8 @@ public class NodeView extends View {
                     lastTouchY = touchY;
                     updateRect();
                     invalidate();
+                    // Notify position change listener
+                    notifyPositionChanged();
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -153,15 +169,15 @@ public class NodeView extends View {
         return super.onTouchEvent(event);
     }
 
-    // if size rectangle changes, update
+    // Update rectangle bounds when the size changes
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         updateRect();
     }
 
-    // ensure text fits within node no matter the length
-    void updateRect() {
+    // Ensure the text fits within the node no matter the length
+    public void updateRect() {
         int padding = 40;
         rect = new RectF(posX, posY, posX + getTextWidth() + 2 * padding, posY + getTextHeight() + 2 * padding);
     }
@@ -182,7 +198,7 @@ public class NodeView extends View {
         int padding = 40;
         int cornerRadius = 20;
 
-        // Calculate position of the rounded rectangle based on text position
+        // Calculate the position of the rounded rectangle based on text position
         float rectLeft = posX;
         float rectTop = posY;
         float rectRight = posX + getTextWidth() + 2 * padding;
@@ -197,12 +213,17 @@ public class NodeView extends View {
         canvas.drawText(text, posX + padding, posY + padding - paint.ascent(), paint);
     }
 
-    // Ensure NodeView measures itself to match its parent's size
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        setMeasuredDimension(width, height);
+    private void notifyPositionChanged() {
+        if (positionChangedListener != null) {
+            positionChangedListener.onPositionChanged(this);
+        }
+    }
+
+    public void setOnPositionChangedListener(OnPositionChangedListener listener) {
+        this.positionChangedListener = listener;
+    }
+
+    public interface OnPositionChangedListener {
+        void onPositionChanged(NodeView nodeView);
     }
 }
