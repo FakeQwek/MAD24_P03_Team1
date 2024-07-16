@@ -129,6 +129,13 @@
                 android:layout_height="wrap_content"
                 android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
+            <ImageButton
+                android:id="@+id/btn_fill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_menu_slideshow"
+                android:background="?attr/selectableItemBackground" />
+
             <!-- New reset button -->
             <ImageButton
                 android:id="@+id/btn_reset"

@@ -1,136 +1,76 @@
 package sg.edu.np.mad.inkwell;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
+import android.graphics.*;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.ArrayList;
+import java.util.Stack;  // Make sure this import is included
 
 public class DrawView extends View {
 
-    private static final float TOUCH_TOLERANCE = 4;
-    private float mX, mY;
-    private Path mPath;
-    private Paint mPaint;
-    private ArrayList<Stroke> paths = new ArrayList<>();
-    private ArrayList<Stroke> undonePaths = new ArrayList<>(); // List for storing undone paths
-    private int currentColor;
-    private float strokeWidth;
-    private Bitmap mBitmap;
-    private Canvas mCanvas;
-    private Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-
-    public DrawView(Context context) {
-        this(context, null);
-    }
+    private Path path;
+    private Paint paint;
+    private Bitmap bitmap;
+    private Canvas canvas;
+    private Stack<Bitmap> undoStack = new Stack<>();
+    private Stack<Bitmap> redoStack = new Stack<>();
+    private int currentColor;  // Added this line to define currentColor
+    private boolean isFillModeOn = false;  // Add a flag for fill mode
 
     public DrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initPaint();
-    }
-
-    private void initPaint() {
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setDither(true);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setAlpha(0xff);
-        mPaint.setColor(Color.BLACK); // Default color to black
-        mPaint.setStrokeWidth(0.5f); // Default stroke width
-    }
-
-    public void init(int height, int width) {
-        mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-        mCanvas.drawColor(Color.WHITE);  // Set initial background color
+        path = new Path();
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        currentColor = Color.BLACK;  // Initialize currentColor to default color
     }
 
     public void setColor(int color) {
-        currentColor = color;
-        mPaint.setColor(color);
+        currentColor = color;  // Update currentColor when color is set
+        paint.setColor(color);
     }
 
     public void setStrokeWidth(float width) {
-        strokeWidth = width;
-        mPaint.setStrokeWidth(width);
+        paint.setStrokeWidth(width);
     }
 
-    public void undo() {
-        if (paths.size() > 0) {
-            undonePaths.add(paths.remove(paths.size() - 1)); // Move the last path to undonePaths
-            redraw();
-        }
-    }
-
-    public void redo() {
-        if (undonePaths.size() > 0) {
-            paths.add(undonePaths.remove(undonePaths.size() - 1)); // Move the last undone path back to paths
-            redraw();
-        }
-    }
-
-    public Bitmap save() {
-        return mBitmap;
-    }
-
-    public void clear() {
-        paths.clear();  // Clear all paths
-        undonePaths.clear(); // Clear undone paths
-        mCanvas.drawColor(Color.WHITE);  // Clear the canvas by filling it with white color
-        invalidate();  // Refresh the view
-    }
-
-    private void redraw() {
-        mCanvas.drawColor(Color.WHITE);  // Clear the canvas
-        for (Stroke fp : paths) {
-            mPaint.setColor(fp.color);
-            mPaint.setStrokeWidth(fp.strokeWidth);
-            mCanvas.drawPath(fp.path, mPaint);
-        }
-        invalidate();  // Refresh the view
+    public void init(int height, int width) {
+        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.WHITE);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-        for (Stroke fp : paths) {
-            mPaint.setColor(fp.color);
-            mPaint.setStrokeWidth(fp.strokeWidth);
-            mCanvas.drawPath(fp.path, mPaint);
+        super.onDraw(canvas);
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        canvas.drawPath(path, paint);
+    }
+
+    private void startTouch(float x, float y) {
+        path.moveTo(x, y);
+    }
+
+    private void moveTouch(float x, float y) {
+        path.lineTo(x, y);
+    }
+
+    private void upTouch() {
+        // Draw the path with the current paint mode
+        if (paint.getXfermode() != null) {
+            // If eraser mode is on, the path is cleared
+            canvas.drawPath(path, paint);
+        } else {
+            // Otherwise, draw the path as normal
+            canvas.drawPath(path, paint);
         }
-    }
-
-    private void touchStart(float x, float y) {
-        mPath = new Path();
-        Stroke fp = new Stroke(currentColor, (int) strokeWidth, mPath);
-        paths.add(fp);
-        undonePaths.clear(); // Clear undone paths when a new stroke is started
-        mPath.reset();
-        mPath.moveTo(x, y);
-        mX = x;
-        mY = y;
-    }
-
-    private void touchMove(float x, float y) {
-        float dx = Math.abs(x - mX);
-        float dy = Math.abs(y - mY);
-        if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-            mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-            mX = x;
-            mY = y;
-        }
-    }
-
-    private void touchUp() {
-        mPath.lineTo(mX, mY);
+        path.reset();
     }
 
     @Override
@@ -139,30 +79,79 @@ public class DrawView extends View {
         float y = event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                touchStart(x, y);
+                saveStateForUndo();
+                startTouch(x, y);
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
-                touchMove(x, y);
+                moveTouch(x, y);
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
-                touchUp();
+                upTouch();
+                if (isFillModeOn) {
+                    int targetColor = bitmap.getPixel((int) x, (int) y);
+                    QueueLinearFloodFiller filler = new QueueLinearFloodFiller(bitmap, targetColor, currentColor);
+                    filler.setTolerance(10);  // Set tolerance value as needed
+                    filler.floodFill((int) x, (int) y);
+                    invalidate();
+                }
                 invalidate();
                 break;
         }
         return true;
     }
 
-    private static class Stroke {
-        int color;
-        int strokeWidth;
-        Path path;
+    public void clear() {
+        path.reset();
+        saveStateForUndo();
+        canvas.drawColor(Color.WHITE);
+        invalidate();
+    }
 
-        Stroke(int color, int strokeWidth, Path path) {
-            this.color = color;
-            this.strokeWidth = strokeWidth;
-            this.path = path;
+    public void undo() {
+        if (!undoStack.isEmpty()) {
+            saveStateForRedo();
+            bitmap = undoStack.pop();
+            canvas.setBitmap(bitmap);
+            invalidate();
         }
+    }
+
+    public void redo() {
+        if (!redoStack.isEmpty()) {
+            saveStateForUndo();
+            bitmap = redoStack.pop();
+            canvas.setBitmap(bitmap);
+            invalidate();
+        }
+    }
+
+    private void saveStateForUndo() {
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap);
+        undoStack.push(newBitmap);
+    }
+
+    private void saveStateForRedo() {
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap);
+        redoStack.push(newBitmap);
+    }
+
+    public Bitmap save() {
+        return bitmap;
+    }
+
+    public void setEraserMode(boolean isEraserOn) {
+        if (isEraserOn) {
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            paint.setColor(Color.TRANSPARENT);  // Set the eraser color to transparent
+        } else {
+            paint.setXfermode(null);
+            paint.setColor(currentColor);  // Reset color to the current drawing color
+        }
+    }
+
+    public void setFillMode(boolean isFillModeOn) {
+        this.isFillModeOn = isFillModeOn;
     }
 }

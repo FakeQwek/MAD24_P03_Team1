@@ -22,7 +22,7 @@ import java.io.OutputStream;
 public class DrawingMainActivity extends AppCompatActivity {
 
     private DrawView paint;
-    private ImageButton save, color, stroke, undo, redo, eraser, reset;
+    private ImageButton save, color, stroke, undo, redo, eraser, reset, fill;
     private RangeSlider rangeSlider;
 
     // Custom color picker dialog views
@@ -32,6 +32,7 @@ public class DrawingMainActivity extends AppCompatActivity {
 
     private int currentColor;
     private boolean isEraserOn = false;
+    private boolean isFillModeOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +42,13 @@ public class DrawingMainActivity extends AppCompatActivity {
         paint = findViewById(R.id.draw_view);
         rangeSlider = findViewById(R.id.rangebar);
         undo = findViewById(R.id.btn_undo);
-        redo = findViewById(R.id.btn_redo); // Add the redo button
+        redo = findViewById(R.id.btn_redo);
         save = findViewById(R.id.btn_save);
         color = findViewById(R.id.btn_color);
         stroke = findViewById(R.id.btn_stroke);
         eraser = findViewById(R.id.btn_eraser);
         reset = findViewById(R.id.btn_reset);
+        fill = findViewById(R.id.btn_fill);  // Add this line for fill button
 
         // Initialize custom color picker dialog views
         colorPickerDialog = findViewById(R.id.color_picker_dialog);
@@ -60,7 +62,8 @@ public class DrawingMainActivity extends AppCompatActivity {
         closeColorPickerButton.setOnClickListener(view -> colorPickerDialog.setVisibility(View.GONE));
 
         undo.setOnClickListener(view -> paint.undo());
-        redo.setOnClickListener(view -> paint.redo()); // Add redo click listener
+
+        redo.setOnClickListener(view -> paint.redo());
 
         save.setOnClickListener(view -> saveDrawing());
 
@@ -69,6 +72,8 @@ public class DrawingMainActivity extends AppCompatActivity {
         eraser.setOnClickListener(view -> toggleEraser());
 
         reset.setOnClickListener(view -> resetDrawing());
+
+        fill.setOnClickListener(view -> toggleFillMode());  // Add this line to toggle fill mode
 
         rangeSlider.addOnChangeListener((slider, value, fromUser) -> paint.setStrokeWidth((int) value));
 
@@ -126,66 +131,58 @@ public class DrawingMainActivity extends AppCompatActivity {
         Button brownButton = (Button) colorPalette.getChildAt(8);
         Button grayButton = (Button) colorPalette.getChildAt(9);
 
+        blackButton.setOnClickListener(v -> setColor(Color.BLACK));
         blackButton.setBackgroundColor(Color.BLACK);
-        blackButton.setOnClickListener(view -> selectColor(Color.BLACK));
-
+        redButton.setOnClickListener(v -> setColor(Color.RED));
         redButton.setBackgroundColor(Color.RED);
-        redButton.setOnClickListener(view -> selectColor(Color.RED));
-
+        greenButton.setOnClickListener(v -> setColor(Color.GREEN));
         greenButton.setBackgroundColor(Color.GREEN);
-        greenButton.setOnClickListener(view -> selectColor(Color.GREEN));
-
+        blueButton.setOnClickListener(v -> setColor(Color.BLUE));
         blueButton.setBackgroundColor(Color.BLUE);
-        blueButton.setOnClickListener(view -> selectColor(Color.BLUE));
-
+        yellowButton.setOnClickListener(v -> setColor(Color.YELLOW));
         yellowButton.setBackgroundColor(Color.YELLOW);
-        yellowButton.setOnClickListener(view -> selectColor(Color.YELLOW));
-
+        purpleButton.setOnClickListener(v -> setColor(Color.parseColor("#800080")));
         purpleButton.setBackgroundColor(Color.parseColor("#800080"));
-        purpleButton.setOnClickListener(view -> selectColor(Color.parseColor("#800080"))); // Purple
-
+        orangeButton.setOnClickListener(v -> setColor(Color.parseColor("#FFA500")));
         orangeButton.setBackgroundColor(Color.parseColor("#FFA500"));
-        orangeButton.setOnClickListener(view -> selectColor(Color.parseColor("#FFA500"))); // Orange
-
+        pinkButton.setOnClickListener(v -> setColor(Color.parseColor("#FFC0CB")));
         pinkButton.setBackgroundColor(Color.parseColor("#FFC0CB"));
-        pinkButton.setOnClickListener(view -> selectColor(Color.parseColor("#FFC0CB"))); // Pink
-
+        brownButton.setOnClickListener(v -> setColor(Color.parseColor("#8B4513")));
         brownButton.setBackgroundColor(Color.parseColor("#8B4513"));
-        brownButton.setOnClickListener(view -> selectColor(Color.parseColor("#8B4513"))); // Brown
-
+        grayButton.setOnClickListener(v -> setColor(Color.parseColor("#808080")));
         grayButton.setBackgroundColor(Color.parseColor("#808080"));
-        grayButton.setOnClickListener(view -> selectColor(Color.parseColor("#808080"))); // Gray
     }
 
-    private void selectColor(int color) {
+    private void setColor(int color) {
         currentColor = color;
-        if (!isEraserOn) {
-            paint.setColor(currentColor);
-        }
-        colorPickerDialog.setVisibility(View.GONE);
-    }
-
-    private void toggleEraser() {
-        if (isEraserOn) {
-            paint.setColor(currentColor);
-            isEraserOn = false;
-            eraser.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
-        } else {
-            paint.setColor(Color.WHITE);
-            isEraserOn = true;
-            eraser.setImageResource(android.R.drawable.ic_menu_revert);
-        }
+        paint.setColor(color);
     }
 
     private void toggleRangeSliderVisibility() {
-        if (rangeSlider.getVisibility() == View.GONE) {
-            rangeSlider.setVisibility(View.VISIBLE);
-        } else {
+        if (rangeSlider.getVisibility() == View.VISIBLE) {
             rangeSlider.setVisibility(View.GONE);
+        } else {
+            rangeSlider.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void toggleEraser() {
+        isEraserOn = !isEraserOn;
+        paint.setEraserMode(isEraserOn);
+        if (isEraserOn) {
+            eraser.setColorFilter(Color.RED);  // Change icon color to red to indicate eraser mode
+        } else {
+            eraser.clearColorFilter();  // Clear color filter to reset icon color
         }
     }
 
     private void resetDrawing() {
         paint.clear();
+    }
+
+    private void toggleFillMode() {
+        isFillModeOn = !isFillModeOn;
+        fill.setColorFilter(isFillModeOn ? Color.GREEN : Color.BLACK);  // Change button color to indicate fill mode status
+        paint.setFillMode(isFillModeOn);
     }
 }
