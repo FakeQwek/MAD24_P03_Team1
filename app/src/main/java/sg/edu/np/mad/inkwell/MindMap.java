@@ -25,12 +25,14 @@ import java.util.List;
 
 public class MindMap extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    // init
     private FrameLayout mindMapContainer;
     private ImageButton addNodeButton, addConnectionButton;
     private List<NodeView> nodes;
     private float touchX, touchY;
     private NodeView selectedNode;
     private boolean isMovingNode;
+    private NodeView titleNode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +55,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         toggle.syncState();
 
         View decorView = getWindow().getDecorView();
-
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-
         decorView.setSystemUiVisibility(uiOptions);
 
         mindMapContainer = findViewById(R.id.mindMapContainer);
@@ -63,8 +63,10 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         addConnectionButton = findViewById(R.id.addConnectionButton);
         nodes = new ArrayList<>();
 
-        // addConnectionButton.setOnClickListener(v -> drawConnections());
-        addNodeButton.setOnClickListener(v -> addNode());
+        initializeTitleNode();
+
+        addNodeButton.setOnClickListener(v -> addChildNode());
+        addConnectionButton.setOnClickListener(v -> addSiblingNode());
 
         // get nodes at position and move if dragged
         mindMapContainer.setOnTouchListener((v, event) -> {
@@ -90,81 +92,95 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         });
     }
 
-    // create new node
-    private void addNode() {
-        // Calculate the center of the screen
-        int centerX = mindMapContainer.getWidth() / 2;
-        int centerY = mindMapContainer.getHeight() / 2;
+    // add title node to middle of screen
+    private void initializeTitleNode() {
+        // create the title node
+        titleNode = new NodeView(this, "My New MindMap", -1000, -1000);
 
-        // Create a new NodeView at the center of the screen
-        NodeView node = new NodeView(this, "Node " + (nodes.size() + 1), centerX, centerY);
+        // set text size to be larger
+        titleNode.setTextSize(60);
 
-        // Set layout parameters to wrap the content
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+        );
+
+        // add title node to container
+        mindMapContainer.addView(titleNode, params);
+
+        mindMapContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mindMapContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                // Calculate the center position for the title node
+                float centerX = (mindMapContainer.getWidth() - titleNode.getTextWidth()) / 2;
+                float centerY = (mindMapContainer.getHeight() - titleNode.getTextHeight()) / 2;
+
+                // Update the title node's position and bounds
+                titleNode.setPosX(centerX);
+                titleNode.setPosY(centerY);
+                titleNode.updateRect();
+                titleNode.invalidate();
+            }
+        });
+
+        // add title node to list of nodes
+        nodes.add(titleNode);
+    }
+
+    // add child node
+    private void addChildNode() {
+        if (titleNode != null) {
+            NodeView childNode = new NodeView(this, "Child Node " + (nodes.size() + 1), titleNode.getPosX() + 200, titleNode.getPosY() + 200);
+            addNodeToContainer(childNode);
+        }
+    }
+
+    // add sibling node
+    private void addSiblingNode() {
+        if (titleNode != null) {
+            NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), titleNode.getPosX() + 200, titleNode.getPosY() - 200);
+            addNodeToContainer(siblingNode);
+        }
+    }
+
+    // add node to container
+    private void addNodeToContainer(NodeView node) {
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
         );
 
-        // Add the node to the mind map container
         mindMapContainer.addView(node, params);
-
-        // Use ViewTreeObserver to adjust the position after the layout is complete
-        node.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                // Remove the listener to prevent repeated calls
-                node.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                // Adjust the node's position to the center
-                int adjustedLeftMargin = centerX - node.getWidth() / 2;
-                int adjustedTopMargin = centerY - node.getHeight() / 2;
-
-                FrameLayout.LayoutParams updatedParams = (FrameLayout.LayoutParams) node.getLayoutParams();
-                updatedParams.leftMargin = adjustedLeftMargin;
-                updatedParams.topMargin = adjustedTopMargin;
-
-                // Apply the new layout parameters
-                node.setLayoutParams(updatedParams);
-
-                // Log to confirm the node has been positioned
-                Log.d(TAG, "Node positioned at: " + adjustedLeftMargin + ", " + adjustedTopMargin);
-            }
-        });
-
+        node.updateRect();
         nodes.add(node);
 
-        Log.d(TAG, "addNode: added");
-    }
-
-
-    // move node around by dragging
-    private void moveNode(float x, float y) {
-        if (selectedNode != null) {
-            selectedNode.setPosX(x);
-            selectedNode.setPosY(y);
-        }
+        Log.d(TAG, "Node added: " + node.getText());
     }
 
     // get the node by position
     private NodeView getNodeAtPosition(float x, float y) {
         for (NodeView node : nodes) {
-            float nodeLeft = node.getPosX();
-            float nodeRight = nodeLeft + node.getWidth();
-            float nodeTop = node.getPosY();
-            float nodeBottom = nodeTop + node.getHeight();
-
-            if (x >= nodeLeft && x <= nodeRight && y >= nodeTop && y <= nodeBottom) {
+            if (x >= node.getPosX() && x <= node.getPosX() + node.getWidth() &&
+                    y >= node.getPosY() && y <= node.getPosY() + node.getHeight()) {
                 return node;
             }
         }
         return null;
     }
 
-    // connect nodes
-    private void drawConnections() {
-        mindMapContainer.removeAllViews();
-        for (NodeView node : nodes) {
-            mindMapContainer.addView(node);
+    // move node by dragging
+    private void moveNode(float x, float y) {
+        if (selectedNode != null) {
+            float dx = x - touchX;
+            float dy = y - touchY;
+            selectedNode.setPosX(selectedNode.getPosX() + dx);
+            selectedNode.setPosY(selectedNode.getPosY() + dy);
+            selectedNode.updateRect();
+            selectedNode.invalidate();
+            touchX = x;
+            touchY = y;
         }
     }
 

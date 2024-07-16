@@ -42,6 +42,7 @@ public class NodeView extends View {
         });
 
         updateRect();
+        setWillNotDraw(false); // Ensure onDraw is called
     }
 
     // create and display editTextDialog
@@ -87,6 +88,12 @@ public class NodeView extends View {
 
     public void setText(String editedText) {
         this.text = editedText;
+        updateRect();
+        invalidate();
+    }
+
+    public void setTextSize(float size) {
+        paint.setTextSize(size);
         updateRect();
         invalidate();
     }
@@ -137,16 +144,16 @@ public class NodeView extends View {
     }
 
     // ensure text fits within node no matter the length
-    private void updateRect() {
+    void updateRect() {
         int padding = 40;
         rect = new RectF(posX, posY, posX + getTextWidth() + 2 * padding, posY + getTextHeight() + 2 * padding);
     }
 
-    private float getTextWidth() {
+    public float getTextWidth() {
         return paint.measureText(text);
     }
 
-    private float getTextHeight() {
+    public float getTextHeight() {
         return paint.descent() - paint.ascent();
     }
 
@@ -171,5 +178,14 @@ public class NodeView extends View {
         // Draw text centered inside the rounded rectangle
         paint.setColor(Color.WHITE);
         canvas.drawText(text, posX + padding, posY + padding - paint.ascent(), paint);
+    }
+
+    // Ensure NodeView measures itself to match its parent's size
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = MeasureSpec.getSize(heightMeasureSpec);
+        setMeasuredDimension(width, height);
     }
 }
