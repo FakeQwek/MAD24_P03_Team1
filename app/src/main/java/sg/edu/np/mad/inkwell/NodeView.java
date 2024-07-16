@@ -23,6 +23,7 @@ public class NodeView extends View {
 
     private float lastTouchX, lastTouchY;
     private boolean isMoving = false;
+    private boolean isSelected = false;
 
     public NodeView(Context context, String text, float posX, float posY) {
         super(context);
@@ -32,17 +33,23 @@ public class NodeView extends View {
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setTextSize(40);
 
-        // set up GestureDetector for double-click detection
+        // Set up GestureDetector for tap and double-tap detection
         gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 showEditDialog();
                 return true;
             }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                toggleSelection();
+                return true;
+            }
         });
 
         updateRect();
-        setWillNotDraw(false); // Ensure onDraw is called
+        setWillNotDraw(false);
     }
 
     // create and display editTextDialog
@@ -70,7 +77,7 @@ public class NodeView extends View {
 
     public void setPosX(float posX) {
         this.posX = posX;
-        updateRect(); // Update rect bounds when posX changes
+        updateRect();
     }
 
     public float getPosY() {
@@ -95,6 +102,16 @@ public class NodeView extends View {
     public void setTextSize(float size) {
         paint.setTextSize(size);
         updateRect();
+        invalidate();
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+        invalidate();
+    }
+
+    public void toggleSelection() {
+        isSelected = !isSelected;
         invalidate();
     }
 
@@ -157,7 +174,7 @@ public class NodeView extends View {
         return paint.descent() - paint.ascent();
     }
 
-    // set up + create nodes
+    // Set up and create nodes
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -165,14 +182,14 @@ public class NodeView extends View {
         int padding = 40;
         int cornerRadius = 20;
 
-        // calc position of the rounded rectangle based on text position
+        // Calculate position of the rounded rectangle based on text position
         float rectLeft = posX;
         float rectTop = posY;
         float rectRight = posX + getTextWidth() + 2 * padding;
         float rectBottom = posY + getTextHeight() + 2 * padding;
 
-        // make node rounded
-        paint.setColor(Color.BLUE);
+        // Make node rounded
+        paint.setColor(isSelected ? Color.YELLOW : Color.BLUE); // Change color if selected
         canvas.drawRoundRect(rectLeft, rectTop, rectRight, rectBottom, cornerRadius, cornerRadius, paint);
 
         // Draw text centered inside the rounded rectangle

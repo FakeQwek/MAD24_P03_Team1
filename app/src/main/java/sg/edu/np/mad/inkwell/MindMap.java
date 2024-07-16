@@ -68,36 +68,47 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         addNodeButton.setOnClickListener(v -> addChildNode());
         addConnectionButton.setOnClickListener(v -> addSiblingNode());
 
-        // get nodes at position and move if dragged
-        mindMapContainer.setOnTouchListener((v, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    selectedNode = getNodeAtPosition(event.getX(), event.getY());
-                    if (selectedNode != null) {
+        // handle all touch events for nodes in the mind map
+        mindMapContainer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Deselect previous selectedNode if exists
+                        if (selectedNode != null) {
+                            selectedNode.setSelected(false); // Reset previous selection
+                            selectedNode.invalidate(); // Redraw to reset color
+                        }
+
+                        // Select new node if touched
+                        selectedNode = getNodeAtPosition(event.getX(), event.getY());
+                        if (selectedNode != null) {
+                            selectedNode.setSelected(true); // Set as selected
+                            selectedNode.invalidate(); // Redraw to apply selection color
+                        }
+
+                        // Handle other touch events (move, up) as before
                         touchX = event.getX();
                         touchY = event.getY();
-                        isMovingNode = true;
-                    }
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    if (isMovingNode && selectedNode != null) {
-                        moveNode(event.getX(), event.getY());
-                    }
-                    break;
-                case MotionEvent.ACTION_UP:
-                    isMovingNode = false;
-                    break;
+                        isMovingNode = (selectedNode != null);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (isMovingNode && selectedNode != null) {
+                            moveNode(event.getX(), event.getY());
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        isMovingNode = false;
+                        break;
+                }
+                return true;
             }
-            return true;
         });
     }
 
     // add title node to middle of screen
     private void initializeTitleNode() {
-        // create the title node
         titleNode = new NodeView(this, "My New MindMap", -1000, -1000);
-
-        // set text size to be larger
         titleNode.setTextSize(60);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -105,7 +116,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
                 FrameLayout.LayoutParams.MATCH_PARENT
         );
 
-        // add title node to container
         mindMapContainer.addView(titleNode, params);
 
         mindMapContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -117,7 +127,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
                 float centerX = (mindMapContainer.getWidth() - titleNode.getTextWidth()) / 2;
                 float centerY = (mindMapContainer.getHeight() - titleNode.getTextHeight()) / 2;
 
-                // Update the title node's position and bounds
                 titleNode.setPosX(centerX);
                 titleNode.setPosY(centerY);
                 titleNode.updateRect();
@@ -125,7 +134,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
             }
         });
 
-        // add title node to list of nodes
         nodes.add(titleNode);
     }
 
@@ -187,12 +195,10 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
     // navigation
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);
         startActivity(newActivity);
-
         return true;
     }
 }
