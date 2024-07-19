@@ -88,6 +88,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
                             // Log node selection for debugging
                             Log.d(TAG, "Node selected: " + nodeAtPosition.getText());
                             setSelectedNode(nodeAtPosition);
+                            bringNodeToFront(nodeAtPosition); // Bring the selected node to front
                         } else {
                             if (selectedNode != null) {
                                 // Log deselection for debugging
@@ -121,12 +122,12 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
     // add title node to middle of screen
     private void initializeTitleNode() {
-        titleNode = new NodeView(this, "My New MindMap", -1000, -1000);
+        titleNode = new NodeView(this, "My New MindMap", 0, 0);
         titleNode.setTextSize(60);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
         );
 
         mindMapContainer.addView(titleNode, params);
@@ -165,7 +166,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
     // add sibling node
     private void addSiblingNode() {
         NodeView parentNode = selectedNode != null ? selectedNode : titleNode;
-        NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() - 200);
+        NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
         addNodeToContainer(siblingNode);
         addConnectionLine(parentNode, siblingNode);
         Log.d(TAG, "Added sibling node connected to: " + parentNode.getText());
@@ -197,7 +198,8 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
     // get the node by position
     private NodeView getNodeAtPosition(float x, float y) {
-        for (NodeView node : nodes) {
+        for (int i = nodes.size() - 1; i >= 0; i--) {
+            NodeView node = nodes.get(i);
             Log.d(TAG, "Checking node: " + node.getText() + " at (" +
                     node.getPosX() + ", " + node.getPosY() + ") with size (" +
                     node.getWidth() + ", " + node.getHeight() + ")");
@@ -207,6 +209,13 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
             }
         }
         return null;
+    }
+
+    // bring the selected node to front
+    private void bringNodeToFront(NodeView node) {
+        mindMapContainer.removeView(node);
+        mindMapContainer.addView(node);
+        node.bringToFront();
     }
 
     // move node by dragging

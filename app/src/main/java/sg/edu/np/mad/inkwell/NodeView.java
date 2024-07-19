@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,9 +21,6 @@ public class NodeView extends View {
     private RectF rect;
     private GestureDetector gestureDetector;
     private AlertDialog editDialog;
-
-    private float lastTouchX, lastTouchY;
-    private boolean isMoving = false;
     private boolean isSelected = false;
     private static NodeView selectedNode = null;
     private OnPositionChangedListener positionChangedListener;
@@ -50,11 +48,10 @@ public class NodeView extends View {
             }
         });
 
-        updateRect();
         setWillNotDraw(false);
+        updateRect();
     }
 
-    // Create and display edit text dialog
     private void showEditDialog() {
         final EditText editText = new EditText(getContext());
         editText.setText(text);
@@ -65,6 +62,7 @@ public class NodeView extends View {
                 .setPositiveButton("OK", (dialog, which) -> {
                     text = editText.getText().toString();
                     updateRect();
+                    requestLayout(); // Request layout update to adjust size
                     invalidate();
                 })
                 .setNegativeButton("Cancel", null);
@@ -81,6 +79,7 @@ public class NodeView extends View {
         this.posX = posX;
         updateRect();
         notifyPositionChanged();
+        requestLayout(); // Request layout update to adjust position
     }
 
     public float getPosY() {
@@ -91,6 +90,7 @@ public class NodeView extends View {
         this.posY = posY;
         updateRect();
         notifyPositionChanged();
+        requestLayout(); // Request layout update to adjust position
     }
 
     public String getText() {
@@ -100,12 +100,14 @@ public class NodeView extends View {
     public void setText(String editedText) {
         this.text = editedText;
         updateRect();
+        requestLayout(); // Request layout update to adjust size
         invalidate();
     }
 
     public void setTextSize(float size) {
         paint.setTextSize(size);
         updateRect();
+        requestLayout(); // Request layout update to adjust size
         invalidate();
     }
 
@@ -131,17 +133,25 @@ public class NodeView extends View {
         invalidate();
     }
 
-    // Update rectangle bounds when the size changes
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // Measure width and height based on content
+        int width = (int) (getTextWidth() + 80); // Padding
+        int height = (int) (getTextHeight() + 80); // Padding
+        setMeasuredDimension(width, height);
+    }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         updateRect();
     }
 
-    // Ensure the text fits within the node no matter the length
     public void updateRect() {
         int padding = 40;
         rect = new RectF(posX, posY, posX + getTextWidth() + 2 * padding, posY + getTextHeight() + 2 * padding);
+        setX(posX);
+        setY(posY);
     }
 
     public float getTextWidth() {
@@ -152,27 +162,27 @@ public class NodeView extends View {
         return paint.descent() - paint.ascent();
     }
 
-    // Set up and create nodes
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.d("NodeView", "Width: " + getWidth() + ", Height: " + getHeight());
 
         int padding = 40;
         int cornerRadius = 20;
 
         // Calculate the position of the rounded rectangle based on text position
-        float rectLeft = posX;
-        float rectTop = posY;
-        float rectRight = posX + getTextWidth() + 2 * padding;
-        float rectBottom = posY + getTextHeight() + 2 * padding;
+        float rectLeft = 0;
+        float rectTop = 0;
+        float rectRight = getWidth();
+        float rectBottom = getHeight();
 
         // Make node rounded
         paint.setColor(isSelected ? Color.YELLOW : Color.BLUE); // Change color if selected
         canvas.drawRoundRect(rectLeft, rectTop, rectRight, rectBottom, cornerRadius, cornerRadius, paint);
 
         // Draw text centered inside the rounded rectangle
-        paint.setColor(Color.WHITE);
-        canvas.drawText(text, posX + padding, posY + padding - paint.ascent(), paint);
+        paint.setColor(isSelected ? Color.BLACK : Color.WHITE);
+        canvas.drawText(text, padding, padding - paint.ascent(), paint);
     }
 
     private void notifyPositionChanged() {
@@ -187,5 +197,10 @@ public class NodeView extends View {
 
     public interface OnPositionChangedListener {
         void onPositionChanged(NodeView nodeView);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event);
     }
 }
