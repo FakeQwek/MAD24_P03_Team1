@@ -244,14 +244,33 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
     // set selected node
     private void setSelectedNode(NodeView node) {
         if (selectedNode != null) {
-            selectedNode.setSelected(false); // Deselect previous selected node
-            selectedNode.invalidate(); // Redraw to reset color
+            selectedNode.setSelected(false);
+            selectedNode.invalidate();
         }
 
         selectedNode = node;
         if (selectedNode != null) {
-            selectedNode.setSelected(true); // Set as selected
-            selectedNode.invalidate(); // Redraw to apply selection color
+            selectedNode.setSelected(true);
+            selectedNode.invalidate();
+        }
+    }
+
+    // remove node
+    public void removeNode(NodeView node) {
+        if (nodes.contains(node)) {
+            // remove lines connected to this node
+            for (LineView line : new ArrayList<>(lines)) {
+                if (line.isConnectedTo(node)) {
+                    lines.remove(line);
+                    mindMapContainer.removeView(line);
+                }
+            }
+
+            // Remove the node itself
+            nodes.remove(node);
+            mindMapContainer.removeView(node);
+
+            Log.d(TAG, "Node removed: " + node.getText());
         }
     }
 

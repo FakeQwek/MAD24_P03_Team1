@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.EditText;
 import androidx.appcompat.app.AlertDialog;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NodeView extends View {
 
     private String text;
@@ -19,10 +22,11 @@ public class NodeView extends View {
     private Paint paint;
     private RectF rect;
     private GestureDetector gestureDetector;
-    private AlertDialog editDialog;
     private boolean isSelected = false;
     private static NodeView selectedNode = null;
     private OnPositionChangedListener positionChangedListener;
+    private List<NodeView> childNodes = new ArrayList<>();
+
 
     public NodeView(Context context, String text, float posX, float posY) {
         super(context);
@@ -51,7 +55,8 @@ public class NodeView extends View {
         updateRect();
     }
 
-    void showEditDialog() {
+    // show edit dialog
+    public void showEditDialog() {
         final EditText editText = new EditText(getContext());
         editText.setText(text);
 
@@ -61,13 +66,30 @@ public class NodeView extends View {
                 .setPositiveButton("OK", (dialog, which) -> {
                     text = editText.getText().toString();
                     updateRect();
-                    requestLayout(); // Request layout update to adjust size
+                    requestLayout();
                     invalidate();
                 })
-                .setNegativeButton("Cancel", null);
+                .setNegativeButton("Cancel", null)
+                .setNeutralButton("Delete", (dialog, which) -> {
+                    showDeleteConfirmationDialog();
+                });
 
-        editDialog = builder.create();
-        editDialog.show();
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Delete Node")
+                .setMessage("Are you sure you want to delete this node?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Notify MindMap to delete this node
+                    if (getContext() instanceof MindMap) {
+                        ((MindMap) getContext()).removeNode(NodeView.this);
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     public float getPosX() {
@@ -120,7 +142,7 @@ public class NodeView extends View {
             return;
         }
 
-        // Deselect the previously selected node (if any)
+        // Deselect the previously selected node
         if (selectedNode != null && selectedNode != this) {
             selectedNode.setSelected(false);
         }
@@ -132,11 +154,15 @@ public class NodeView extends View {
         invalidate();
     }
 
+    public List<NodeView> getChildNodes() {
+        return childNodes;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Measure width and height based on content
-        int width = (int) (getTextWidth() + 80); // Padding
-        int height = (int) (getTextHeight() + 80); // Padding
+        int width = (int) (getTextWidth() + 80);
+        int height = (int) (getTextHeight() + 80);
         setMeasuredDimension(width, height);
     }
 
@@ -200,7 +226,6 @@ public class NodeView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Pass the touch event to the GestureDetector
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 }

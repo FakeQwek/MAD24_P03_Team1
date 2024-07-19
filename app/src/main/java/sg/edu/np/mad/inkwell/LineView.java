@@ -37,4 +37,9 @@ public class LineView extends View {
 
         canvas.drawLine(startX, startY, endX, endY, paint);
     }
+
+    public boolean isConnectedTo(NodeView node) {
+        return startNode == node || endNode == node;
+    }
+
 }
