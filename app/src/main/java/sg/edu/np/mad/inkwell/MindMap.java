@@ -270,7 +270,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
             nodes.remove(node);
             mindMapContainer.removeView(node);
 
-            Log.d(TAG, "Node removed: " + node.getText());
+            setSelectedNode(titleNode);
         }
     }
 
