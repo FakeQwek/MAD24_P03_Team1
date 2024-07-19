@@ -5,15 +5,18 @@ import static android.content.ContentValues.TAG;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -72,29 +75,36 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
         // Handle all touch events for nodes in the mind map
         mindMapContainer.setOnTouchListener(new View.OnTouchListener() {
+            private GestureDetector gestureDetector = new GestureDetector(MindMap.this, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    float x = e.getX();
+                    float y = e.getY();
+                    NodeView nodeAtPosition = getNodeAtPosition(x, y);
+                    if (nodeAtPosition != null) {
+                        nodeAtPosition.showEditDialog();
+                    }
+                    return true;
+                }
+            });
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
                 float x = event.getX();
                 float y = event.getY();
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        // Log touch coordinates for debugging
-                        Log.d(TAG, "Touch down at: (" + x + ", " + y + ")");
-
                         // Select new node if touched
                         NodeView nodeAtPosition = getNodeAtPosition(x, y);
                         if (nodeAtPosition != null) {
-                            // Log node selection for debugging
-                            Log.d(TAG, "Node selected: " + nodeAtPosition.getText());
                             setSelectedNode(nodeAtPosition);
-                            bringNodeToFront(nodeAtPosition); // Bring the selected node to front
+                            bringNodeToFront(nodeAtPosition);
                         } else {
                             if (selectedNode != null) {
-                                // Log deselection for debugging
-                                Log.d(TAG, "Deselecting node: " + selectedNode.getText());
-                                selectedNode.setSelected(false); // Deselect previous selected node
-                                selectedNode.invalidate(); // Redraw to reset color
+                                selectedNode.setSelected(false);
+                                selectedNode.invalidate();
                                 selectedNode = null;
                             }
                         }
@@ -157,7 +167,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         NodeView childNode = new NodeView(this, "Child Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
         addNodeToContainer(childNode);
         addConnectionLine(parentNode, childNode);
-        Log.d(TAG, "Added child node connected to: " + parentNode.getText());
 
         // Set the new node as the selected node
         setSelectedNode(childNode);
@@ -169,7 +178,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
         addNodeToContainer(siblingNode);
         addConnectionLine(parentNode, siblingNode);
-        Log.d(TAG, "Added sibling node connected to: " + parentNode.getText());
 
         // Set the new node as the selected node
         setSelectedNode(siblingNode);
@@ -193,16 +201,12 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         node.updateRect();
         nodes.add(node);
 
-        Log.d(TAG, "Node added: " + node.getText());
     }
 
     // get the node by position
     private NodeView getNodeAtPosition(float x, float y) {
         for (int i = nodes.size() - 1; i >= 0; i--) {
             NodeView node = nodes.get(i);
-            Log.d(TAG, "Checking node: " + node.getText() + " at (" +
-                    node.getPosX() + ", " + node.getPosY() + ") with size (" +
-                    node.getWidth() + ", " + node.getHeight() + ")");
             if (x >= node.getPosX() && x <= node.getPosX() + node.getWidth() &&
                     y >= node.getPosY() && y <= node.getPosY() + node.getHeight()) {
                 return node;

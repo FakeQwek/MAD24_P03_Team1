@@ -10,7 +10,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
-
 import androidx.appcompat.app.AlertDialog;
 
 public class NodeView extends View {
@@ -52,7 +51,7 @@ public class NodeView extends View {
         updateRect();
     }
 
-    private void showEditDialog() {
+    void showEditDialog() {
         final EditText editText = new EditText(getContext());
         editText.setText(text);
 
@@ -201,6 +200,7 @@ public class NodeView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return gestureDetector.onTouchEvent(event);
+        // Pass the touch event to the GestureDetector
+        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 }
