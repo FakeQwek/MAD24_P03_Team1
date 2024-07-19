@@ -70,35 +70,46 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         addNodeButton.setOnClickListener(v -> addChildNode());
         addConnectionButton.setOnClickListener(v -> addSiblingNode());
 
-        // handle all touch events for nodes in the mind map
+        // Handle all touch events for nodes in the mind map
         mindMapContainer.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                float x = event.getX();
+                float y = event.getY();
+
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        // Deselect previous selectedNode if exists
-                        if (selectedNode != null) {
-                            selectedNode.setSelected(false); // Reset previous selection
-                            selectedNode.invalidate(); // Redraw to reset color
-                        }
+                        // Log touch coordinates for debugging
+                        Log.d(TAG, "Touch down at: (" + x + ", " + y + ")");
 
                         // Select new node if touched
-                        selectedNode = getNodeAtPosition(event.getX(), event.getY());
-                        if (selectedNode != null) {
-                            selectedNode.setSelected(true); // Set as selected
-                            selectedNode.invalidate(); // Redraw to apply selection color
+                        NodeView nodeAtPosition = getNodeAtPosition(x, y);
+                        if (nodeAtPosition != null) {
+                            // Log node selection for debugging
+                            Log.d(TAG, "Node selected: " + nodeAtPosition.getText());
+                            setSelectedNode(nodeAtPosition);
+                        } else {
+                            if (selectedNode != null) {
+                                // Log deselection for debugging
+                                Log.d(TAG, "Deselecting node: " + selectedNode.getText());
+                                selectedNode.setSelected(false); // Deselect previous selected node
+                                selectedNode.invalidate(); // Redraw to reset color
+                                selectedNode = null;
+                            }
                         }
 
-                        // Handle other touch events (move, up) as before
-                        touchX = event.getX();
-                        touchY = event.getY();
+                        // Initialize touch position and movement state
+                        touchX = x;
+                        touchY = y;
                         isMovingNode = (selectedNode != null);
                         break;
+
                     case MotionEvent.ACTION_MOVE:
                         if (isMovingNode && selectedNode != null) {
-                            moveNode(event.getX(), event.getY());
+                            moveNode(x, y);
                         }
                         break;
+
                     case MotionEvent.ACTION_UP:
                         isMovingNode = false;
                         break;
@@ -141,20 +152,26 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
     // add child node
     private void addChildNode() {
-        if (titleNode != null) {
-            NodeView childNode = new NodeView(this, "Child Node " + (nodes.size() + 1), titleNode.getPosX() + 200, titleNode.getPosY() + 200);
-            addNodeToContainer(childNode);
-            addConnectionLine(titleNode, childNode);
-        }
+        NodeView parentNode = selectedNode != null ? selectedNode : titleNode;
+        NodeView childNode = new NodeView(this, "Child Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
+        addNodeToContainer(childNode);
+        addConnectionLine(parentNode, childNode);
+        Log.d(TAG, "Added child node connected to: " + parentNode.getText());
+
+        // Set the new node as the selected node
+        setSelectedNode(childNode);
     }
 
     // add sibling node
     private void addSiblingNode() {
-        if (titleNode != null) {
-            NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), titleNode.getPosX() + 200, titleNode.getPosY() - 200);
-            addNodeToContainer(siblingNode);
-            addConnectionLine(titleNode, siblingNode);
-        }
+        NodeView parentNode = selectedNode != null ? selectedNode : titleNode;
+        NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() - 200);
+        addNodeToContainer(siblingNode);
+        addConnectionLine(parentNode, siblingNode);
+        Log.d(TAG, "Added sibling node connected to: " + parentNode.getText());
+
+        // Set the new node as the selected node
+        setSelectedNode(siblingNode);
     }
 
     // Add connection line
@@ -181,6 +198,9 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
     // get the node by position
     private NodeView getNodeAtPosition(float x, float y) {
         for (NodeView node : nodes) {
+            Log.d(TAG, "Checking node: " + node.getText() + " at (" +
+                    node.getPosX() + ", " + node.getPosY() + ") with size (" +
+                    node.getWidth() + ", " + node.getHeight() + ")");
             if (x >= node.getPosX() && x <= node.getPosX() + node.getWidth() &&
                     y >= node.getPosY() && y <= node.getPosY() + node.getHeight()) {
                 return node;
@@ -205,6 +225,20 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
             for (LineView line : lines) {
                 line.updatePosition();
             }
+        }
+    }
+
+    // set selected node
+    private void setSelectedNode(NodeView node) {
+        if (selectedNode != null) {
+            selectedNode.setSelected(false); // Deselect previous selected node
+            selectedNode.invalidate(); // Redraw to reset color
+        }
+
+        selectedNode = node;
+        if (selectedNode != null) {
+            selectedNode.setSelected(true); // Set as selected
+            selectedNode.invalidate(); // Redraw to apply selection color
         }
     }
 

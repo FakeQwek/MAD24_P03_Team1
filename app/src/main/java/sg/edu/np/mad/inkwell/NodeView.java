@@ -115,58 +115,20 @@ public class NodeView extends View {
     }
 
     public void toggleSelection() {
+        if (isSelected) {
+            return;
+        }
+
         // Deselect the previously selected node (if any)
         if (selectedNode != null && selectedNode != this) {
             selectedNode.setSelected(false);
         }
 
-        // Toggle selection for the current node
-        isSelected = !isSelected;
-        selectedNode = isSelected ? this : null;
+        // Select the current node
+        isSelected = true;
+        selectedNode = this;
 
         invalidate();
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-
-        float touchX = event.getX();
-        float touchY = event.getY();
-
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                // Check if the touch is within the bounds of the NodeView
-                if (touchX >= rect.left && touchX <= rect.right &&
-                        touchY >= rect.top && touchY <= rect.bottom) {
-                    lastTouchX = touchX;
-                    lastTouchY = touchY;
-                    isMoving = true;
-                    // Select this node when it's touched
-                    toggleSelection();
-                    return true;
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (isMoving) {
-                    float dx = touchX - lastTouchX;
-                    float dy = touchY - lastTouchY;
-                    posX += dx;
-                    posY += dy;
-                    lastTouchX = touchX;
-                    lastTouchY = touchY;
-                    updateRect();
-                    invalidate();
-                    // Notify position change listener
-                    notifyPositionChanged();
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-                isMoving = false;
-                break;
-        }
-
-        return super.onTouchEvent(event);
     }
 
     // Update rectangle bounds when the size changes
