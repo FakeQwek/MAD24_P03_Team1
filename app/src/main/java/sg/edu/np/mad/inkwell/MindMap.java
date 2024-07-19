@@ -1,7 +1,5 @@
 package sg.edu.np.mad.inkwell;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,13 +8,11 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.EditText;
-import android.widget.FrameLayout;
+import android.view.ScaleGestureDetector;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -29,7 +25,7 @@ import java.util.List;
 public class MindMap extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     // init
-    private FrameLayout mindMapContainer;
+    private ZoomLayout mindMapContainer;
     private ImageButton addNodeButton, addConnectionButton;
     private List<NodeView> nodes;
     private List<LineView> lines;
@@ -37,6 +33,8 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
     private NodeView selectedNode;
     private boolean isMovingNode;
     private NodeView titleNode;
+    private ScaleGestureDetector scaleGestureDetector;
+    private float scaleFactor = 1.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +88,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                scaleGestureDetector.onTouchEvent(event);
                 gestureDetector.onTouchEvent(event);
                 float x = event.getX();
                 float y = event.getY();
@@ -128,6 +127,24 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
                 return true;
             }
         });
+
+        // init ScaleGestureDetector for zoom
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                scaleFactor *= detector.getScaleFactor();
+                scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
+
+                // Update child view scales
+                for (int i = 0; i < mindMapContainer.getChildCount(); i++) {
+                    View child = mindMapContainer.getChildAt(i);
+                    child.setScaleX(scaleFactor);
+                    child.setScaleY(scaleFactor);
+                }
+
+                return true;
+            }
+        });
     }
 
     // add title node to middle of screen
@@ -135,9 +152,9 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         titleNode = new NodeView(this, "My New MindMap", 0, 0);
         titleNode.setTextSize(60);
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+        ZoomLayout.LayoutParams params = new ZoomLayout.LayoutParams(
+                ZoomLayout.LayoutParams.WRAP_CONTENT,
+                ZoomLayout.LayoutParams.WRAP_CONTENT
         );
 
         mindMapContainer.addView(titleNode, params);
@@ -192,10 +209,13 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
     // add node to container
     private void addNodeToContainer(NodeView node) {
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+        ZoomLayout.LayoutParams params = new ZoomLayout.LayoutParams(
+                ZoomLayout.LayoutParams.WRAP_CONTENT,
+                ZoomLayout.LayoutParams.WRAP_CONTENT
         );
+
+        node.setScaleX(scaleFactor);
+        node.setScaleY(scaleFactor);
 
         mindMapContainer.addView(node, params);
         node.updateRect();

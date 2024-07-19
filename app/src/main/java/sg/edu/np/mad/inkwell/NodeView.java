@@ -26,6 +26,7 @@ public class NodeView extends View {
     private static NodeView selectedNode = null;
     private OnPositionChangedListener positionChangedListener;
     private List<NodeView> childNodes = new ArrayList<>();
+    private float scale = 1.0f;
 
 
     public NodeView(Context context, String text, float posX, float posY) {
@@ -81,7 +82,7 @@ public class NodeView extends View {
     private void showDeleteConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Delete Node")
-                .setMessage("Are you sure you want to delete this node?")
+                .setMessage("Are you sure you want to delete this node? This action cannot be undone!")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     // Notify MindMap to delete this node
                     if (getContext() instanceof MindMap) {
@@ -137,6 +138,16 @@ public class NodeView extends View {
         invalidate();
     }
 
+    public void setScale(float scale) {
+        this.scale = scale;
+        // Adjust position based on scale
+        setPosX(getPosX() * scale);
+        setPosY(getPosY() * scale);
+        updateRect();
+        requestLayout();
+    }
+
+
     public void toggleSelection() {
         if (isSelected) {
             return;
@@ -169,6 +180,8 @@ public class NodeView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        setScaleX(scale);
+        setScaleY(scale);
         updateRect();
     }
 

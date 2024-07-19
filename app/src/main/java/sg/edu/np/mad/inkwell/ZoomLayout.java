@@ -24,7 +24,7 @@ public class ZoomLayout extends FrameLayout implements ScaleGestureDetector.OnSc
     private float scale = 1.0f;
     private float lastScaleFactor = 0f;
 
-    // Where the finger first  touches the screen
+    // Where the finger first touches the screen
     private float startX = 0f;
     private float startY = 0f;
 
@@ -87,7 +87,7 @@ public class ZoomLayout extends FrameLayout implements ScaleGestureDetector.OnSc
                 if ((mode == Mode.DRAG && scale >= MIN_ZOOM) || mode == Mode.ZOOM) {
                     getParent().requestDisallowInterceptTouchEvent(true);
                     float maxDx = (child().getWidth() - (child().getWidth() / scale)) / 2 * scale;
-                    float maxDy = (child().getHeight() - (child().getHeight() / scale))/ 2 * scale;
+                    float maxDy = (child().getHeight() - (child().getHeight() / scale)) / 2 * scale;
                     dx = Math.min(Math.max(dx, -maxDx), maxDx);
                     dy = Math.min(Math.max(dy, -maxDy), maxDy);
                     Log.i(TAG, "Width: " + child().getWidth() + ", scale " + scale + ", dx " + dx
@@ -100,8 +100,6 @@ public class ZoomLayout extends FrameLayout implements ScaleGestureDetector.OnSc
         });
     }
 
-    // ScaleGestureDetector
-
     @Override
     public boolean onScaleBegin(ScaleGestureDetector scaleDetector) {
         Log.i(TAG, "onScaleBegin");
@@ -111,7 +109,7 @@ public class ZoomLayout extends FrameLayout implements ScaleGestureDetector.OnSc
     @Override
     public boolean onScale(ScaleGestureDetector scaleDetector) {
         float scaleFactor = scaleDetector.getScaleFactor();
-        Log.i(TAG, "onScale" + scaleFactor);
+        Log.i(TAG, "onScale " + scaleFactor);
         if (lastScaleFactor == 0 || (Math.signum(scaleFactor) == Math.signum(lastScaleFactor))) {
             scale *= scaleFactor;
             scale = Math.max(MIN_ZOOM, Math.min(scale, MAX_ZOOM));
@@ -128,10 +126,17 @@ public class ZoomLayout extends FrameLayout implements ScaleGestureDetector.OnSc
     }
 
     private void applyScaleAndTranslation() {
-        child().setScaleX(scale);
-        child().setScaleY(scale);
-        child().setTranslationX(dx);
-        child().setTranslationY(dy);
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof LineView) {
+                // Skip LineView since we handle it separately in onDraw
+                continue;
+            }
+            child.setScaleX(scale);
+            child.setScaleY(scale);
+            child.setTranslationX(dx);
+            child.setTranslationY(dy);
+        }
     }
 
     private View child() {
