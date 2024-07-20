@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -27,11 +28,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -49,6 +53,10 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
     StorageReference storageRef = storage.getReference();
 
     ArrayList<LeaderboardRank> leaderboardRankList;
+
+    TextView noteTitle;
+
+    TextView noteOwner;
 
     private void recyclerView(ArrayList<LeaderboardRank> leaderboardRankList) {
         RecyclerView recyclerView = findViewById(R.id.leaderboardRecyclerView);
@@ -87,6 +95,10 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
         decorView.setSystemUiVisibility(uiOptions);
 
         leaderboardRankList = new ArrayList<>();
+
+        noteTitle = findViewById(R.id.noteTitle);
+
+        noteOwner = findViewById(R.id.noteOwner);
     }
 
     @Override
@@ -127,6 +139,19 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
                             }
                         } else {
                             Log.d("testing", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        db.collection("community").document(CommunityActivity.selectedNote.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            noteTitle.setText(document.getData().get("title").toString());
+                            noteOwner.setText("By " + document.getData().get("email").toString());
                         }
                     }
                 });

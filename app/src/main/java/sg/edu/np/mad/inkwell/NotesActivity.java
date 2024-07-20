@@ -97,11 +97,11 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
     public static ArrayList<Message> messageList = new ArrayList<>();
 
 
-    public void callAPI(String prompt){
+    public void callAPI(String prompt) {
         JSONObject jsonObject = new JSONObject();
 
         try {
-            jsonObject.put("model", "gpt-3.5-turbo");
+            jsonObject.put("model", "gpt-4o-mini");
 
             JSONArray jsonArrayMessage = new JSONArray();
             JSONObject jsonObjectMessage = new JSONObject();
@@ -567,7 +567,6 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                 callAPI(prompt);
             }
         });
-
     }
 
     //Allows movement between activities upon clicking

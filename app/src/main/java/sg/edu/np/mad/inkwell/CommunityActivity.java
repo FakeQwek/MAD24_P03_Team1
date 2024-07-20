@@ -27,6 +27,15 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,6 +50,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -73,6 +86,81 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
     public static boolean manageNotes = false;
 
     ArrayList<CommunityNote> communityNoteList;
+
+    private String stringURLEndPoint = "https://api.openai.com/v1/chat/completions";
+
+    private String stringAPIKey = "API KEY";
+
+    public static String promptResponse = "";
+
+    private String prompt = "output a string of an mcq question in this format. question; option A; option B; option C; option D; answer make sure to add the semicolons. only output the string. do this for 10 questions. separate the questions with semicolons as well. do not number the questions. label the options with A, B, C, D. do not have spaces after semicolons. The answer should be in this format A";
+
+    public void callAPI(String prompt) {
+        JSONObject jsonObject = new JSONObject();
+
+        try {
+            jsonObject.put("model", "gpt-4o-mini");
+
+            JSONArray jsonArrayMessage = new JSONArray();
+            JSONObject jsonObjectMessage = new JSONObject();
+            jsonObjectMessage.put("role", "user");
+            jsonObjectMessage.put("content", prompt);
+            jsonArrayMessage.put(jsonObjectMessage);
+
+            jsonObject.put("messages", jsonArrayMessage);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
+                stringURLEndPoint, jsonObject, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                String content = null;
+                try {
+                    content = response.getJSONArray("choices")
+                            .getJSONObject(0)
+                            .getJSONObject("message")
+                            .getString("content");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+                promptResponse = promptResponse + content;
+
+                Intent quiz = new Intent(CommunityActivity.this, CommunityQuizActivity.class);
+                startActivity(quiz);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> mapHeader = new HashMap<>();
+                mapHeader.put("Authorization", "Bearer " + stringAPIKey);
+                mapHeader.put("Content-Type", "application/json");
+
+                return mapHeader;
+            }
+
+            @Override
+            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                return super.parseNetworkResponse(response);
+            }
+        };
+
+        int intTimeoutPeriod = 60000; // 60 seconds timeout duration defined
+        RetryPolicy retryPolicy = new DefaultRetryPolicy(intTimeoutPeriod,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsonObjectRequest.setRetryPolicy(retryPolicy);
+        Volley.newRequestQueue(getApplicationContext()).add(jsonObjectRequest);
+    }
 
     private void recyclerView(ArrayList<CommunityNote> communityNoteList, ArrayList<CommunityNote> communityNotes) {
         RecyclerView recyclerView = findViewById(R.id.communityRecyclerView);
@@ -316,8 +404,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
             @Override
             public void onClick(View v) {
                 if (selectedNote != null) {
-                    Intent quiz = new Intent(CommunityActivity.this, CommunityQuizActivity.class);
-                    startActivity(quiz);
+                    callAPI(noteBody.getText().toString() + prompt);
                 }
             }
         });
