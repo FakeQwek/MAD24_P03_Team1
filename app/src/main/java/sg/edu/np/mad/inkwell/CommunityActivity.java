@@ -1,16 +1,19 @@
 package sg.edu.np.mad.inkwell;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import androidx.activity.EdgeToEdge;
@@ -255,6 +258,13 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                     newNoteData.put("dateUpdated", dateString);
 
                     db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(noteCount)).set(newNoteData);
+                } else {
+                    Toast toast = new Toast(CommunityActivity.this);
+                    toast.setDuration(Toast.LENGTH_SHORT);
+                    LayoutInflater layoutInflater = (LayoutInflater) CommunityActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = layoutInflater.inflate(R.layout.toast_no_note_selected, null);
+                    toast.setView(view);
+                    toast.show();
                 }
             }
         });
@@ -393,8 +403,17 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
         leaderboardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent leaderboard = new Intent(CommunityActivity.this, LeaderboardActivity.class);
-                startActivity(leaderboard);
+                if (selectedNote != null) {
+                    Intent leaderboard = new Intent(CommunityActivity.this, LeaderboardActivity.class);
+                    startActivity(leaderboard);
+                } else {
+                    Toast toast = new Toast(CommunityActivity.this);
+                    toast.setDuration(Toast.LENGTH_SHORT);
+                    LayoutInflater layoutInflater = (LayoutInflater) CommunityActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = layoutInflater.inflate(R.layout.toast_no_note_selected, null);
+                    toast.setView(view);
+                    toast.show();
+                }
             }
         });
 
@@ -405,6 +424,13 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
             public void onClick(View v) {
                 if (selectedNote != null) {
                     callAPI(noteBody.getText().toString() + prompt);
+                } else {
+                    Toast toast = new Toast(CommunityActivity.this);
+                    toast.setDuration(Toast.LENGTH_SHORT);
+                    LayoutInflater layoutInflater = (LayoutInflater) CommunityActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = layoutInflater.inflate(R.layout.toast_no_note_selected, null);
+                    toast.setView(view);
+                    toast.show();
                 }
             }
         });

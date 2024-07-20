@@ -38,7 +38,7 @@
             android:layout_marginEnd="10dp"
             android:backgroundTint="#00000000"
             app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/scanQRCodeButton"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             app:srcCompat="@drawable/book_open_blank_variant_outline" />
 
@@ -52,6 +52,17 @@
             app:layout_constraintEnd_toStartOf="@+id/readOnlyButton"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             app:srcCompat="@drawable/swap_horizontal" />
+
+        <ImageButton
+            android:id="@+id/scanQRCodeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+            app:layout_constraintEnd_toEndOf="@+id/toolbar"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/qrcode_scan"
+            android:backgroundTint="#00000000" />
 
         <ViewAnimator
             android:id="@+id/viewAnimator"

@@ -1,6 +1,7 @@
 package sg.edu.np.mad.inkwell;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.text.Editable;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -30,6 +32,11 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -260,6 +267,38 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                             communityNoteData.put("dateCreated", simpleDateFormat.format(Calendar.getInstance().getTime()));
 
                             db.collection("community").document().set(communityNoteData);
+                        }
+                    });
+
+                    Button qrCodeButton = view.findViewById(R.id.qrCodeButton);
+                    qrCodeButton.setText("Generate QR Code To Share Note");
+
+                    qrCodeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            bottomSheetDialog.dismiss();
+
+                            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(notesActivity);
+                            View view = LayoutInflater.from(notesActivity).inflate(R.layout.qr_code_bottom_sheet, null);
+                            bottomSheetDialog.setContentView(view);
+                            bottomSheetDialog.show();
+
+                            ImageView imageView = view.findViewById(R.id.imageView);
+
+                            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+
+                            String fileText = file.getTitle() + ";" + file.getBody();
+
+                            try {
+                                BitMatrix bitMatrix = multiFormatWriter.encode(fileText, BarcodeFormat.QR_CODE, 500, 500);
+
+                                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                                Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+
+                                imageView.setImageBitmap(bitmap);
+                            } catch (WriterException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     });
                     return false;

@@ -61,4 +61,5 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.android.volley:volley:1.2.1")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 }
