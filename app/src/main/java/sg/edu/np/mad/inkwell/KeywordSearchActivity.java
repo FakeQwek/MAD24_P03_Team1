@@ -6,8 +6,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -30,12 +28,13 @@ import java.util.List;
 
 public class KeywordSearchActivity extends AppCompatActivity {
 
+    private static final int BOOKMARK_REQUEST_CODE = 1;
     private EditText keywordSearchBar;
-    private Button keywordSearchButton;
     private ListView keywordListView;
-    private ArrayAdapter<String> adapter;
+    private KeywordAdapter adapter;
     private List<String> keywords;
     private RequestQueue requestQueue;
+    private BookmarkManager bookmarkManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +42,14 @@ public class KeywordSearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_keyword_search);
 
         keywordSearchBar = findViewById(R.id.keyword_search_bar);
-        keywordSearchButton = findViewById(R.id.keyword_search_button);
         keywordListView = findViewById(R.id.keyword_list_view);
 
         requestQueue = Volley.newRequestQueue(this);
 
         // Initialize the keyword list
         keywords = new ArrayList<>();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, keywords);
+        bookmarkManager = BookmarkManager.getInstance(this);
+        adapter = new KeywordAdapter(this, keywords);
         keywordListView.setAdapter(adapter);
 
         keywordSearchBar.addTextChangedListener(new TextWatcher() {
@@ -113,6 +112,14 @@ public class KeywordSearchActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
             Toast.makeText(this, "Error parsing data", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BOOKMARK_REQUEST_CODE && resultCode == RESULT_OK) {
+            adapter.notifyDataSetChanged();
         }
     }
 }

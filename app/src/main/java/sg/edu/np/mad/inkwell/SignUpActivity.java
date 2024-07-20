@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -25,7 +27,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.FirebaseApp;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -60,10 +61,10 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (isPasswordVisible) {
-                    signupPassword.setInputType(129); // Text password
+                    signupPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     signupShowPassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
                 } else {
-                    signupPassword.setInputType(144); // Text visible password
+                    signupPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                     signupShowPassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
                 }
                 isPasswordVisible = !isPasswordVisible;
@@ -90,15 +91,14 @@ public class SignUpActivity extends AppCompatActivity {
                     return;
                 }
 
-                saveToSharedPreferences(email, password);
-                checkIfUserExists(email, password);
+                checkIfUserExists(email, password); // Proceed with user registration
             }
         });
 
         loginRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                startActivity(new Intent(SignUpActivity.this, LoginActivity.class)); // Ensure LoginActivity exists
             }
         });
     }
@@ -110,8 +110,10 @@ public class SignUpActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
                     if (isNewUser) {
+                        Log.d(TAG, "No existing user found, creating new user.");
                         createNewUser(email, password);
                     } else {
+                        Log.d(TAG, "Existing user found, signing in.");
                         signInAndCheckVerification(email, password);
                     }
                 } else {
@@ -132,6 +134,7 @@ public class SignUpActivity extends AppCompatActivity {
                     sendVerificationEmail();
                 } else {
                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                        Log.d(TAG, "User already exists, signing in.");
                         signInAndCheckVerification(email, password);
                     } else {
                         Log.e(TAG, "Signup failed", task.getException());
@@ -195,9 +198,15 @@ public class SignUpActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
                         Toast.makeText(SignUpActivity.this, "Verification Email Sent. Please check your email.", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Verification email sent, signing out user.");
                         auth.signOut(); // Sign out the user to prevent unauthorized access
+
+                        // Pass email and password to VerifyEmailActivity
                         Intent intent = new Intent(SignUpActivity.this, VerifyEmailActivity.class);
+                        intent.putExtra("email", signupEmail.getText().toString().trim());
+                        intent.putExtra("password", signupPassword.getText().toString().trim());
                         startActivity(intent);
+                        finish(); // Ensure this activity is finished to prevent it from appearing in the back stack
                     } else {
                         Log.e(TAG, "Failed to send verification email", task.getException());
                         Toast.makeText(SignUpActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
