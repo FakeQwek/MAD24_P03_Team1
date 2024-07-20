@@ -1,6 +1,10 @@
 package sg.edu.np.mad.inkwell;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
+import android.speech.RecognitionListener;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Button;
@@ -8,9 +12,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -24,17 +30,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
-public class Dictionary extends AppCompatActivity {
+public class Dictionary extends AppCompatActivity implements BookmarkChangeListener {
 
+    private static final int BOOKMARK_REQUEST_CODE = 1;
     private EditText searchBar;
     private Button searchButton;
     private ProgressBar progressBar;
     private TextView wordText, phoneticText;
-    private ImageView speakerIcon;
+    private ImageView speakerIcon, bookmarkCollectionIcon, backArrowIcon, bookmarkIcon, microphoneIcon;
     private LinearLayout definitionsLayout;
     private TextToSpeech textToSpeech;
+    private BookmarkManager bookmarkManager;
+    private SpeechRecognizer speechRecognizer;
+    private Intent speechRecognizerIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +58,13 @@ public class Dictionary extends AppCompatActivity {
         wordText = findViewById(R.id.word_text);
         phoneticText = findViewById(R.id.phonetic_text);
         speakerIcon = findViewById(R.id.speaker_icon);
+        bookmarkCollectionIcon = findViewById(R.id.bookmark_collection_icon);
+        backArrowIcon = findViewById(R.id.back_arrow_icon);
+        bookmarkIcon = findViewById(R.id.bookmark_icon);
+        microphoneIcon = findViewById(R.id.microphone_icon);
         definitionsLayout = findViewById(R.id.definitions_layout);
+
+        bookmarkManager = BookmarkManager.getInstance(this);
 
         textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
@@ -85,12 +102,102 @@ public class Dictionary extends AppCompatActivity {
             }
         });
 
+        bookmarkCollectionIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Dictionary.this, BookmarkCollectionActivity.class);
+                startActivityForResult(intent, BOOKMARK_REQUEST_CODE);
+            }
+        });
+
+        backArrowIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        bookmarkIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String word = wordText.getText().toString();
+                if (!word.isEmpty()) {
+                    if (bookmarkManager.isBookmarked(word)) {
+                        bookmarkManager.removeBookmark(word);
+                        bookmarkIcon.setImageResource(R.drawable.baseline_bookmark_border_24);
+                        onBookmarkChanged(word, false);
+                    } else {
+                        bookmarkManager.addBookmark(word);
+                        bookmarkIcon.setImageResource(R.drawable.baseline_bookmark_24);
+                        onBookmarkChanged(word, true);
+                    }
+                }
+            }
+        });
+
+        // Initialize speech recognizer
+        initializeSpeechRecognizer();
+
+        microphoneIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startVoiceRecognition();
+            }
+        });
+
         // Handle selected word from KeywordSearchActivity
         String selectedWord = getIntent().getStringExtra("selected_word");
         if (selectedWord != null) {
             searchBar.setText(selectedWord);
             fetchDefinition(selectedWord);
         }
+    }
+
+    private void initializeSpeechRecognizer() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle params) {}
+
+            @Override
+            public void onBeginningOfSpeech() {}
+
+            @Override
+            public void onRmsChanged(float rmsdB) {}
+
+            @Override
+            public void onBufferReceived(byte[] buffer) {}
+
+            @Override
+            public void onEndOfSpeech() {}
+
+            @Override
+            public void onError(int error) {}
+
+            @Override
+            public void onResults(Bundle results) {
+                ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (matches != null && !matches.isEmpty()) {
+                    String spokenText = matches.get(0);
+                    searchBar.setText(spokenText);
+                    fetchDefinition(spokenText);
+                }
+            }
+
+            @Override
+            public void onPartialResults(Bundle partialResults) {}
+
+            @Override
+            public void onEvent(int eventType, Bundle params) {}
+        });
+    }
+
+    private void startVoiceRecognition() {
+        speechRecognizer.startListening(speechRecognizerIntent);
     }
 
     private void fetchDefinition(String word) {
@@ -103,6 +210,7 @@ public class Dictionary extends AppCompatActivity {
             public void onResponse(String response) {
                 progressBar.setVisibility(View.GONE);
                 parseJson(response);
+                updateBookmarkIcon(word);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -163,11 +271,43 @@ public class Dictionary extends AppCompatActivity {
         }
     }
 
+    private void updateBookmarkIcon(String word) {
+        if (bookmarkManager.isBookmarked(word)) {
+            bookmarkIcon.setImageResource(R.drawable.baseline_bookmark_24);
+        } else {
+            bookmarkIcon.setImageResource(R.drawable.baseline_bookmark_border_24);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BOOKMARK_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            String word = data.getStringExtra("word");
+            boolean isBookmarked = data.getBooleanExtra("isBookmarked", false);
+            if (word != null) {
+                updateBookmarkIcon(word);
+            }
+        }
+    }
+
+    @Override
+    public void onBookmarkChanged(String word, boolean isBookmarked) {
+        if (isBookmarked) {
+            bookmarkIcon.setImageResource(R.drawable.baseline_bookmark_24);
+        } else {
+            bookmarkIcon.setImageResource(R.drawable.baseline_bookmark_border_24);
+        }
+    }
+
     @Override
     protected void onDestroy() {
         if (textToSpeech != null) {
             textToSpeech.stop();
             textToSpeech.shutdown();
+        }
+        if (speechRecognizer != null) {
+            speechRecognizer.destroy();
         }
         super.onDestroy();
     }
