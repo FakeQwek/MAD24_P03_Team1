@@ -74,9 +74,9 @@
                 android:id="@+id/timeSet"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:minWidth="1000dp"
-                android:paddingLeft="50dp"
-                android:paddingRight="50dp">
+                android:minWidth="1050dp"
+                android:paddingLeft="70dp"
+                android:paddingRight="70dp">
 
                 <LinearLayout
                     android:id="@+id/linearLayout2"
@@ -84,6 +84,7 @@
                     android:layout_height="200dp"
                     android:layout_marginLeft="60dp"
                     android:orientation="vertical"
+                    android:paddingRight="20dp"
                     app:layout_constraintStart_toStartOf="parent">
 
                     <TextView
@@ -160,6 +161,7 @@
                         android:singleLine="true"
                         android:textSize="30sp"
                         android:textStyle="normal" />
+
                     <Switch
                         android:id="@+id/timeSwitch"
                         android:layout_width="115dp"

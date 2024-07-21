@@ -13,6 +13,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextView signupRedirectText;
     private Button loginButton;
     private TextView forgotPassword;
+    private ImageView loginShowPassword;
+    private boolean isPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +46,26 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.login_button);
         signupRedirectText = findViewById(R.id.signupRedirectText);
         forgotPassword = findViewById(R.id.forgot_password);
+        loginShowPassword = findViewById(R.id.login_show_password);
 
-        loginButton.setOnClickListener(new View.OnClickListener(){
+        loginShowPassword.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View v) {
+                if (isPasswordVisible) {
+                    loginPassword.setInputType(129); // Text password
+                    loginShowPassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
+                } else {
+                    loginPassword.setInputType(144); // Text visible password
+                    loginShowPassword.setImageResource(R.drawable.baseline_remove_red_eye_24);
+                }
+                isPasswordVisible = !isPasswordVisible;
+                loginPassword.setSelection(loginPassword.length()); // Move cursor to the end of the text
+            }
+        });
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 String email = loginEmail.getText().toString();
                 String pass = loginPassword.getText().toString();
 
@@ -85,9 +104,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        signupRedirectText.setOnClickListener(new View.OnClickListener(){
+        signupRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View view) {
                 startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
             }
         });
@@ -142,4 +161,3 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 }
-

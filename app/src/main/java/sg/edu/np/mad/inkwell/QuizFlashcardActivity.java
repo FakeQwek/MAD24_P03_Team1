@@ -49,6 +49,8 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
 
     private int stillLearning;
 
+    private int flashcardCount;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +88,8 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
 
         TextView knownCount = findViewById(R.id.knownCount);
 
+        TextView flashcardsLeft = findViewById(R.id.flashcardsLeft);
+
         TextView stillLearningCount = findViewById(R.id.stillLearningCount);
 
         ProgressBar progressBar = findViewById(R.id.progressBar);
@@ -100,11 +104,13 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 questionList.add(document.getData().get("question").toString());
                                 answerList.add(document.getData().get("answer").toString());
+                                flashcardCount += 1;
                             }
                         } else {
                             Log.d("testing", "Error getting documents: ", task.getException());
                         }
                         question1.setText(questionList.get(currentFlashcardPosition));
+                        flashcardsLeft.setText(flashcardCount + " Left");
                     }
                 });
 
@@ -143,6 +149,11 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
                         viewAnimator.setDisplayedChild(0);
                     }
                 }
+
+                if (flashcardCount != 0) {
+                    flashcardCount -= 1;
+                    flashcardsLeft.setText(flashcardCount + " Left");
+                }
             }
         });
 
@@ -176,6 +187,11 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
                         question1.setText(questionList.get(currentFlashcardPosition));
                         viewAnimator.setDisplayedChild(0);
                     }
+                }
+
+                if (flashcardCount != 0) {
+                    flashcardCount -= 1;
+                    flashcardsLeft.setText(flashcardCount + " Left");
                 }
             }
         });

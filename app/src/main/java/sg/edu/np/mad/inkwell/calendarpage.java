@@ -493,7 +493,7 @@ public class calendarpage extends AppCompatActivity implements NavigationView.On
 
         Intent intent = new Intent(this, EventAlarmReceiver.class);
         intent.putExtra("event_date", date);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
