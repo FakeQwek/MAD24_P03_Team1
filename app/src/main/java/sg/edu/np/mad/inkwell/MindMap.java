@@ -24,7 +24,9 @@ import java.util.List;
 
 public class MindMap extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    // init
+    private static final float MIN_ZOOM = 0.6f;
+    private static final float MAX_ZOOM = 5.0f;
+
     private ZoomLayout mindMapContainer;
     private ImageButton addNodeButton, addConnectionButton;
     private List<NodeView> nodes;
@@ -45,7 +47,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Finds drawer and nav view before setting listener
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -95,7 +96,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        // Select new node if touched
                         NodeView nodeAtPosition = getNodeAtPosition(x, y);
                         if (nodeAtPosition != null) {
                             setSelectedNode(nodeAtPosition);
@@ -108,7 +108,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
                             }
                         }
 
-                        // Initialize touch position and movement state
                         touchX = x;
                         touchY = y;
                         isMovingNode = (selectedNode != null);
@@ -128,18 +127,24 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
             }
         });
 
-        // init ScaleGestureDetector for zoom
+        // Initialize ScaleGestureDetector for zooming
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
                 scaleFactor *= detector.getScaleFactor();
-                scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
 
-                // Update child view scales
+                // set scale only between min and max zoom
+                scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
+
+                // update child node scales and redraw lines
                 for (int i = 0; i < mindMapContainer.getChildCount(); i++) {
                     View child = mindMapContainer.getChildAt(i);
-                    child.setScaleX(scaleFactor);
-                    child.setScaleY(scaleFactor);
+                    if (child instanceof NodeView) {
+                        child.setScaleX(scaleFactor);
+                        child.setScaleY(scaleFactor);
+                    } else if (child instanceof LineView) {
+                        ((LineView) child).invalidate(); // Request redraw for LineView
+                    }
                 }
 
                 return true;
@@ -147,7 +152,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         });
     }
 
-    // add title node to middle of screen
     private void initializeTitleNode() {
         titleNode = new NodeView(this, "My New MindMap", 0, 0);
         titleNode.setTextSize(60);
@@ -164,7 +168,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
             public void onGlobalLayout() {
                 mindMapContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                // Calculate the center position for the title node
                 float centerX = (mindMapContainer.getWidth() - titleNode.getTextWidth()) / 2;
                 float centerY = (mindMapContainer.getHeight() - titleNode.getTextHeight()) / 2;
 
@@ -178,36 +181,30 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         nodes.add(titleNode);
     }
 
-    // add child node
     private void addChildNode() {
         NodeView parentNode = selectedNode != null ? selectedNode : titleNode;
         NodeView childNode = new NodeView(this, "Child Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
         addNodeToContainer(childNode);
         addConnectionLine(parentNode, childNode);
 
-        // Set the new node as the selected node
         setSelectedNode(childNode);
     }
 
-    // add sibling node
     private void addSiblingNode() {
         NodeView parentNode = selectedNode != null ? selectedNode : titleNode;
         NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
         addNodeToContainer(siblingNode);
         addConnectionLine(parentNode, siblingNode);
 
-        // Set the new node as the selected node
         setSelectedNode(siblingNode);
     }
 
-    // Add connection line
     private void addConnectionLine(NodeView startNode, NodeView endNode) {
         LineView lineView = new LineView(this, startNode, endNode);
         lines.add(lineView);
         mindMapContainer.addView(lineView);
     }
 
-    // add node to container
     private void addNodeToContainer(NodeView node) {
         ZoomLayout.LayoutParams params = new ZoomLayout.LayoutParams(
                 ZoomLayout.LayoutParams.WRAP_CONTENT,
@@ -220,10 +217,8 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         mindMapContainer.addView(node, params);
         node.updateRect();
         nodes.add(node);
-
     }
 
-    // get the node by position
     private NodeView getNodeAtPosition(float x, float y) {
         for (int i = nodes.size() - 1; i >= 0; i--) {
             NodeView node = nodes.get(i);
@@ -235,14 +230,12 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         return null;
     }
 
-    // bring the selected node to front
     private void bringNodeToFront(NodeView node) {
         mindMapContainer.removeView(node);
         mindMapContainer.addView(node);
         node.bringToFront();
     }
 
-    // move node by dragging
     private void moveNode(float x, float y) {
         if (selectedNode != null) {
             float dx = x - touchX;
@@ -254,14 +247,14 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
             touchX = x;
             touchY = y;
 
-            // Update lines connected to this node
             for (LineView line : lines) {
-                line.updatePosition();
+                if (line.isConnectedTo(selectedNode)) {
+                    line.invalidate(); // Request redraw for lines connected to this node
+                }
             }
         }
     }
 
-    // set selected node
     private void setSelectedNode(NodeView node) {
         if (selectedNode != null) {
             selectedNode.setSelected(false);
@@ -275,10 +268,8 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         }
     }
 
-    // remove node
     public void removeNode(NodeView node) {
         if (nodes.contains(node)) {
-            // remove lines connected to this node
             for (LineView line : new ArrayList<>(lines)) {
                 if (line.isConnectedTo(node)) {
                     lines.remove(line);
@@ -286,7 +277,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
                 }
             }
 
-            // Remove the node itself
             nodes.remove(node);
             mindMapContainer.removeView(node);
 
@@ -294,7 +284,6 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
         }
     }
 
-    // navigation
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
