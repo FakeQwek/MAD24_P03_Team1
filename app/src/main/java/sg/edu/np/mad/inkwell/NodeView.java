@@ -5,12 +5,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +32,7 @@ public class NodeView extends View {
     private OnPositionChangedListener positionChangedListener;
     private List<NodeView> childNodes = new ArrayList<>();
     private float scale = 1.0f;
-
+    private int nodeColor = Color.BLUE; // Default color
 
     public NodeView(Context context, String text, float posX, float posY) {
         super(context);
@@ -36,8 +41,8 @@ public class NodeView extends View {
         this.posY = posY;
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setTextSize(40);
+        paint.setColor(nodeColor);
 
-        // Set up GestureDetector for tap and double-tap detection
         gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
@@ -56,24 +61,75 @@ public class NodeView extends View {
         updateRect();
     }
 
-    // show edit dialog
     public void showEditDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        LinearLayout dialogLayout = new LinearLayout(getContext());
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(16, 16, 16, 16);
+
         final EditText editText = new EditText(getContext());
         editText.setText(text);
+        dialogLayout.addView(editText);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Edit Text")
-                .setView(editText)
+        final LinearLayout colorLayout = new LinearLayout(getContext());
+        colorLayout.setOrientation(LinearLayout.HORIZONTAL);
+        dialogLayout.addView(colorLayout);
+
+        int[] colors = {R.color.pastelCoral, R.color.pastelBlue, R.color.pastelGreen, R.color.pastelPurple, R.color.pastelYellow, R.color.pastelOrange};
+        final int[] selectedColor = {R.color.pastelBlue};
+
+        for (final int color : colors) {
+            Button colorButton = new Button(getContext());
+            colorButton.setBackgroundColor(ContextCompat.getColor(getContext(), color));
+            colorButton.setTag(color);
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    getResources().getDimensionPixelSize(R.dimen.color_button_size),
+                    getResources().getDimensionPixelSize(R.dimen.color_button_size)
+            );
+            params.setMargins(10, 10, 10, 10);
+            colorButton.setLayoutParams(params);
+
+            GradientDrawable shape = new GradientDrawable();
+            shape.setShape(GradientDrawable.OVAL);
+            shape.setColor(ContextCompat.getColor(getContext(), color));
+            colorButton.setBackground(shape);
+
+            colorButton.setOnClickListener(v -> {
+                selectedColor[0] = color;
+                for (int i = 0; i < colorLayout.getChildCount(); i++) {
+                    View child = colorLayout.getChildAt(i);
+                    if (child == v) {
+                        child.setSelected(true);
+                        LinearLayout.LayoutParams params1 = (LinearLayout.LayoutParams) child.getLayoutParams();
+                        params1.width = getResources().getDimensionPixelSize(R.dimen.color_button_selected_size);
+                        params1.height = getResources().getDimensionPixelSize(R.dimen.color_button_selected_size);
+                        child.setLayoutParams(params1);
+                    } else {
+                        child.setSelected(false);
+                        LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) child.getLayoutParams();
+                        params2.width = getResources().getDimensionPixelSize(R.dimen.color_button_size);
+                        params2.height = getResources().getDimensionPixelSize(R.dimen.color_button_size);
+                        child.setLayoutParams(params2);
+                    }
+                }
+            });
+
+            colorLayout.addView(colorButton);
+        }
+
+        builder.setView(dialogLayout)
                 .setPositiveButton("OK", (dialog, which) -> {
                     text = editText.getText().toString();
+                    nodeColor = ContextCompat.getColor(getContext(), selectedColor[0]);
+                    paint.setColor(nodeColor); // Update the paint color
                     updateRect();
                     requestLayout();
-                    invalidate();
+                    invalidate(); // Refresh the view with the new color
                 })
                 .setNegativeButton("Cancel", null)
-                .setNeutralButton("Delete", (dialog, which) -> {
-                    showDeleteConfirmationDialog();
-                });
+                .setNeutralButton("Delete", (dialog, which) -> showDeleteConfirmationDialog());
 
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -84,7 +140,6 @@ public class NodeView extends View {
         builder.setTitle("Delete Node")
                 .setMessage("Are you sure you want to delete this node? This action cannot be undone!")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    // Notify MindMap to delete this node
                     if (getContext() instanceof MindMap) {
                         ((MindMap) getContext()).removeNode(NodeView.this);
                     }
@@ -101,7 +156,7 @@ public class NodeView extends View {
         this.posX = posX;
         updateRect();
         notifyPositionChanged();
-        requestLayout(); // Request layout update to adjust position
+        requestLayout();
     }
 
     public float getPosY() {
@@ -112,7 +167,7 @@ public class NodeView extends View {
         this.posY = posY;
         updateRect();
         notifyPositionChanged();
-        requestLayout(); // Request layout update to adjust position
+        requestLayout();
     }
 
     public String getText() {
@@ -122,14 +177,14 @@ public class NodeView extends View {
     public void setText(String editedText) {
         this.text = editedText;
         updateRect();
-        requestLayout(); // Request layout update to adjust size
+        requestLayout();
         invalidate();
     }
 
     public void setTextSize(float size) {
         paint.setTextSize(size);
         updateRect();
-        requestLayout(); // Request layout update to adjust size
+        requestLayout();
         invalidate();
     }
 
@@ -140,25 +195,21 @@ public class NodeView extends View {
 
     public void setScale(float scale) {
         this.scale = scale;
-        // Adjust position based on scale
         setPosX(getPosX() * scale);
         setPosY(getPosY() * scale);
         updateRect();
         requestLayout();
     }
 
-
     public void toggleSelection() {
         if (isSelected) {
             return;
         }
 
-        // Deselect the previously selected node
         if (selectedNode != null && selectedNode != this) {
             selectedNode.setSelected(false);
         }
 
-        // Select the current node
         isSelected = true;
         selectedNode = this;
 
@@ -171,7 +222,6 @@ public class NodeView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // Measure width and height based on content
         int width = (int) (getTextWidth() + 80);
         int height = (int) (getTextHeight() + 80);
         setMeasuredDimension(width, height);
@@ -208,17 +258,14 @@ public class NodeView extends View {
         int padding = 40;
         int cornerRadius = 20;
 
-        // Calculate the position of the rounded rectangle based on text position
         float rectLeft = 0;
         float rectTop = 0;
         float rectRight = getWidth();
         float rectBottom = getHeight();
 
-        // Make node rounded
-        paint.setColor(isSelected ? Color.YELLOW : Color.BLUE); // Change color if selected
+        paint.setColor(isSelected ? Color.YELLOW : nodeColor); // Use nodeColor
         canvas.drawRoundRect(rectLeft, rectTop, rectRight, rectBottom, cornerRadius, cornerRadius, paint);
 
-        // Draw text centered inside the rounded rectangle
         paint.setColor(isSelected ? Color.BLACK : Color.WHITE);
         canvas.drawText(text, padding, padding - paint.ascent(), paint);
     }
