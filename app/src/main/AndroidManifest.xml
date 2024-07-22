@@ -32,49 +32,29 @@
         <activity
             android:name=".SubmitFormActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+           
         </activity>
         <activity
             android:name=".PreviewFormActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+          
         </activity>
         <activity
             android:name=".FormBuilderActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+          
         </activity>
         <activity
             android:name=".ObjectDetectionActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+         
         </activity> <!-- Main launcher activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Inkwell.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+           
         </activity> <!-- Authentication activities -->
         <activity
             android:name=".SignUpActivity"
@@ -154,6 +134,18 @@
             android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".TimetableActivity"
+            android:exported="true" 
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
             android:exported="true"
             android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
@@ -165,13 +157,9 @@
             android:name=".NotesActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Inkwell.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity> <!-- Receivers -->
+            android:theme="@style/Theme.Inkwell.NoActionBar"/>
+               
+        <!-- Receivers -->
         <receiver
             android:name=".EventAlarmReceiver"
             android:exported="false" />
