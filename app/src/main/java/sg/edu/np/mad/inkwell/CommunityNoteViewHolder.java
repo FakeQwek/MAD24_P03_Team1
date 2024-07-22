@@ -21,6 +21,10 @@ public class CommunityNoteViewHolder extends RecyclerView.ViewHolder {
 
     ImageButton deleteButton;
 
+    ImageButton likeButton;
+
+    TextView likeCounter;
+
     public CommunityNoteViewHolder(View view) {
         super(view);
 
@@ -35,5 +39,9 @@ public class CommunityNoteViewHolder extends RecyclerView.ViewHolder {
         dateCreated = view.findViewById(R.id.dateCreated);
 
         deleteButton = view.findViewById(R.id.deleteButton);
+
+        likeButton = view.findViewById(R.id.likeButton);
+
+        likeCounter = view.findViewById(R.id.likeCounter);
     }
 }

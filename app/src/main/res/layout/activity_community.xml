@@ -72,7 +72,7 @@
                     android:layout_marginEnd="30dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView15" />
+                    app:layout_constraintTop_toBottomOf="@+id/pageTitle" />
 
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/toolbar4"
@@ -86,7 +86,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/textView15"
+                    android:id="@+id/pageTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
@@ -159,11 +159,36 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="30dp"
-                    android:layout_marginBottom="30dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="#00000000"
+                    app:layout_constraintBottom_toTopOf="@+id/quizButton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:srcCompat="@drawable/download" />
+
+                <ImageButton
+                    android:id="@+id/leaderboardButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:background="#00000000"
+                    app:layout_constraintBottom_toBottomOf="@+id/downloadButton"
+                    app:layout_constraintEnd_toStartOf="@+id/downloadButton"
+                    app:layout_constraintTop_toTopOf="@+id/downloadButton"
+                    app:srcCompat="@drawable/podium_gold" />
+
+                <Button
+                    android:id="@+id/quizButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginBottom="10dp"
+                    android:backgroundTint="@color/black"
+                    android:text="Quiz"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:srcCompat="@drawable/download"
-                    android:background="#00000000" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:fontFamily="@font/inter_regular" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -59,11 +60,11 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
     private int noteCount;
 
-    public static boolean selectedNote = false;
+    public static CommunityNote selectedNote;
 
     private ArrayList<CommunityNote> communityNotes = new ArrayList<>();
 
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     public static boolean manageNotes = false;
 
@@ -206,7 +207,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (selectedNote) {
+                if (selectedNote != null) {
                     noteCount++;
 
                     Date currentDate = Calendar.getInstance().getTime();
@@ -245,11 +246,15 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         ImageButton manageButton = findViewById(R.id.manageButton);
 
+        TextView pageTitle = findViewById(R.id.pageTitle);
+
         manageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (manageNotes) {
                     manageNotes = false;
+
+                    pageTitle.setText("Community");
 
                     communityNoteList.clear();
                     communityNotes.clear();
@@ -298,6 +303,8 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                 } else {
                     manageNotes = true;
 
+                    pageTitle.setText("My Notes");
+
                     communityNoteList.clear();
                     communityNotes.clear();
                     recyclerView.getAdapter().notifyDataSetChanged();
@@ -345,6 +352,28 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                                     }
                                 }
                             });
+                }
+            }
+        });
+
+        ImageButton leaderboardButton = findViewById(R.id.leaderboardButton);
+
+        leaderboardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent leaderboard = new Intent(CommunityActivity.this, LeaderboardActivity.class);
+                startActivity(leaderboard);
+            }
+        });
+
+        Button quizButton = findViewById(R.id.quizButton);
+
+        quizButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (selectedNote != null) {
+                    Intent quiz = new Intent(CommunityActivity.this, CommunityQuizActivity.class);
+                    startActivity(quiz);
                 }
             }
         });

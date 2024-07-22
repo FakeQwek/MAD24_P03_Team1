@@ -18,6 +18,7 @@
         app:menu="@menu/activity_main_drawer" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/secondary_white" >
