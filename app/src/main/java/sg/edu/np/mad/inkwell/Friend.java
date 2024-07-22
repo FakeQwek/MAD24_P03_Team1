@@ -3,7 +3,7 @@ package sg.edu.np.mad.inkwell;
 import android.graphics.Bitmap;
 
 public class Friend {
-    public int id;
+    public String id;
 
     public String uid;
 
@@ -11,7 +11,7 @@ public class Friend {
 
     public Bitmap bitmap;
 
-    public int getId() { return this.id; }
+    public String getId() { return this.id; }
 
     public String getUid() { return this.uid; }
 
@@ -19,7 +19,7 @@ public class Friend {
 
     public Bitmap getBitmap() { return this.bitmap; }
 
-    public Friend(int id, String uid, String email, Bitmap bitmap) {
+    public Friend(String id, String uid, String email, Bitmap bitmap) {
         this.id = id;
         this.uid = uid;
         this.email = email;

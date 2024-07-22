@@ -56,6 +56,10 @@ public class FlashcardActivity extends AppCompatActivity implements NavigationVi
 
     private int flashcardCollectionCount;
 
+    ArrayList<FlashcardCollection> allFlashcardCollections;
+
+    TextView flashcardCollectionCounter;
+
     // Method to set items in the recycler view
     private void recyclerView(ArrayList<FlashcardCollection> allFlashcardCollections, ArrayList<FlashcardCollection> flashcardCollections) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -104,45 +108,11 @@ public class FlashcardActivity extends AppCompatActivity implements NavigationVi
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        ArrayList<FlashcardCollection> allFlashcardCollections = new ArrayList<>();
+        allFlashcardCollections = new ArrayList<>();
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
 
-        TextView flashcardCollectionCounter = findViewById(R.id.flashcardCollectionCounter);
-
-        // Read from firebase and create flashcard collections on create
-        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot snapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w("testing", "listen:error", e);
-                            return;
-                        }
-
-                        // Adds items to recycler view on create and everytime new data is added to firebase
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            String docFlashcardCollectionUid = String.valueOf(dc.getDocument().getData().get("uid"));
-                            if (dc.getType() == DocumentChange.Type.ADDED && docFlashcardCollectionUid.equals(currentFirebaseUserUid)) {
-                                if (Integer.parseInt(dc.getDocument().getId()) > currentFlashcardCollectionId) {
-                                    currentFlashcardCollectionId = Integer.parseInt(dc.getDocument().getId());
-                                }
-
-                                flashcardCollectionCount++;
-                                flashcardCollectionCounter.setText(String.format(getResources().getString(R.string.flashcard_collection_counter), flashcardCollectionCount));
-
-                                FlashcardCollection flashcardCollection = new FlashcardCollection(dc.getDocument().getData().get("title").toString(), Integer.parseInt(dc.getDocument().getId()), Integer.parseInt(dc.getDocument().getData().get("flashcardCount").toString()), Integer.parseInt(dc.getDocument().getData().get("correct").toString()));
-                                allFlashcardCollections.add(flashcardCollection);
-                                filter(allFlashcardCollections, "");
-                            }
-                            else if (dc.getType() == DocumentChange.Type.REMOVED && docFlashcardCollectionUid.equals(currentFirebaseUserUid)) {
-                                flashcardCollectionCount--;
-                                flashcardCollectionCounter.setText(String.format(getResources().getString(R.string.flashcard_collection_counter), flashcardCollectionCount));
-                            }
-                        }
-                    }
-                });
+        flashcardCollectionCounter = findViewById(R.id.flashcardCollectionCounter);
 
         ImageButton addFlashcardCollectionButton = findViewById(R.id.addFlashcardCollectionButton);
 
@@ -232,9 +202,47 @@ public class FlashcardActivity extends AppCompatActivity implements NavigationVi
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Read from firebase and create flashcard collections on create
+        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("testing", "listen:error", e);
+                            return;
+                        }
+
+                        // Adds items to recycler view on create and everytime new data is added to firebase
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            String docFlashcardCollectionUid = String.valueOf(dc.getDocument().getData().get("uid"));
+                            if (dc.getType() == DocumentChange.Type.ADDED && docFlashcardCollectionUid.equals(currentFirebaseUserUid)) {
+                                if (Integer.parseInt(dc.getDocument().getId()) > currentFlashcardCollectionId) {
+                                    currentFlashcardCollectionId = Integer.parseInt(dc.getDocument().getId());
+                                }
+
+                                flashcardCollectionCount++;
+                                flashcardCollectionCounter.setText(String.format(getResources().getString(R.string.flashcard_collection_counter), flashcardCollectionCount));
+
+                                FlashcardCollection flashcardCollection = new FlashcardCollection(dc.getDocument().getData().get("title").toString(), Integer.parseInt(dc.getDocument().getId()), Integer.parseInt(dc.getDocument().getData().get("flashcardCount").toString()), Integer.parseInt(dc.getDocument().getData().get("correct").toString()));
+                                allFlashcardCollections.add(flashcardCollection);
+                                filter(allFlashcardCollections, "");
+                            }
+                            else if (dc.getType() == DocumentChange.Type.REMOVED && docFlashcardCollectionUid.equals(currentFirebaseUserUid)) {
+                                flashcardCollectionCount--;
+                                flashcardCollectionCounter.setText(String.format(getResources().getString(R.string.flashcard_collection_counter), flashcardCollectionCount));
+                            }
+                        }
+                    }
+                });
+    }
+
     //Allows movement between activities upon clicking
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);

@@ -20,12 +20,25 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,8 +50,6 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
     String currentFirebaseUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     String currentFirebaseUserEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-
-    private String response = "What is the capital of France?;Paris;Berlin;Madrid;Rome;A;What is the largest planet in our solar system?;Mars;Venus;Earth;Jupiter;D;What is the chemical symbol for water?;H2O;O2;CO2;NaCl;A;Who wrote 'To Kill a Mockingbird'?;J.K. Rowling;Harper Lee;Mark Twain;Jane Austen;B;What is the smallest prime number?;1;2;3;5;B;Which element has the atomic number 1?;Helium;Oxygen;Hydrogen;Carbon;C;Who painted the Mona Lisa?;Vincent van Gogh;Pablo Picasso;Leonardo da Vinci;Claude Monet;C;What is the powerhouse of the cell?;Nucleus;Ribosome;Mitochondria;Chloroplast;C;What is the longest river in the world?;Nile;Amazon;Yangtze;Mississippi;A;What is the freezing point of water in Celsius?;0;32;100;212;A";
 
     private int points;
 
@@ -70,7 +81,7 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        String[] questions = response.split(";", 0);
+        String[] questions = CommunityActivity.promptResponse.split(";", 0);
 
         TextView question = findViewById(R.id.question);
 
@@ -138,9 +149,12 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
                         newLeaderboardData.put("points", points);
 
                         db.collection("community").document(CommunityActivity.selectedNote.getId()).collection("leaderboard").document(currentFirebaseUserUid).set(newLeaderboardData);
+
+                        Intent leaderboard = new Intent(CommunityQuizActivity.this, LeaderboardActivity.class);
+                        startActivity(leaderboard);
                     }
                 } else {
-
+                    // Toast message to ask user to pick an option
                 }
             }
         });
