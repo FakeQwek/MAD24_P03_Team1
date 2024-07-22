@@ -2,6 +2,8 @@ package sg.edu.np.mad.inkwell;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +28,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -34,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.checkerframework.checker.units.qual.A;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +63,8 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
@@ -73,7 +80,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
     // Declaration of variables
 
     // currentNoteId keeps track of the ids that have already been assigned
-    public static int currentNoteId;
+    public static int currentNoteId = 1;
 
     // selectedNoteId keeps track of the note that has been selected
     public static int selectedNoteId = 1;
@@ -99,6 +106,20 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
     public static int currentMessageId;
 
     public static ArrayList<Message> messageList = new ArrayList<>();
+
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    StorageReference storageRef = storage.getReference();
+
+    ArrayList<Friend> friendList;
+
+    EditText noteTitle;
+
+    EditText noteBody;
+
+    public static String longClickSelectedNoteTitle;
+
+    public static String longClickSelectedNoteBody;
 
     public void callAPI(String prompt) {
         JSONObject jsonObject = new JSONObject();
@@ -345,12 +366,14 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
         ArrayList<Object> notes = new ArrayList<>();
 
-        EditText noteTitle = findViewById(R.id.noteTitle);
-        EditText noteBody = findViewById(R.id.noteBody);
+        noteTitle = findViewById(R.id.noteTitle);
+        noteBody = findViewById(R.id.noteBody);
 
         fileOrder = new ArrayList<>();
 
         fileOrderIndex = -1;
+
+        friendList = new ArrayList<>();
 
         // Read from firebase and create files and folders on create
         db.collection("users").document(currentFirebaseUserUid).collection("notes")
@@ -625,6 +648,40 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                 callAPI(prompt);
             }
         });
+
+        db.collection("users").document(currentFirebaseUserUid).collection("friends")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (document.getData().get("uid").equals(currentFirebaseUserUid)) {
+                                    StorageReference imageRef = storageRef.child("users/" + document.getId() + "/profile.jpg");
+
+                                    long ONE_MEGABYTE = 1024 * 1024;
+
+                                    imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                                        @Override
+                                        public void onSuccess(byte[] bytes) {
+                                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                            Friend friend = new Friend(document.getId(), document.getId(), document.getData().get("friendEmail").toString(), bitmap);
+                                            friendList.add(friend);
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception exception) {
+                                            Friend friend = new Friend(document.getId(), document.getId(), document.getData().get("friendEmail").toString(), null);
+                                            friendList.add(friend);
+                                        }
+                                    });
+                                }
+                            }
+                        } else {
+                            Log.d("testing", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
 
     //Allows movement between activities upon clicking
