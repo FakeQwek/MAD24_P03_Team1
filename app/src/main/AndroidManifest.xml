@@ -6,8 +6,18 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +30,61 @@
         android:theme="@style/Theme.Inkwell"
         android:hardwareAccelerated="true"
         tools:targetApi="31">
+        <activity
+            android:name=".SubmitFormActivity"
+            android:exported="true">
+           
+        </activity>
+        <activity
+            android:name=".PreviewFormActivity"
+            android:exported="true">
+          
+        </activity>
+        <activity
+            android:name=".FormBuilderActivity"
+            android:exported="true">
+          
+        </activity>
+        <activity
+            android:name=".ObjectDetectionActivity"
+            android:exported="true">
+         
+        </activity> <!-- Main launcher activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Inkwell.NoActionBar">
+           
+        </activity> <!-- Authentication activities -->
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true" />
+        <activity
+            android:name=".VerifyEmailActivity"
+            android:exported="true" /> <!-- Additional activities -->
+        <activity android:name=".BookmarkCollectionActivity" />
+        <activity
+            android:name=".Intro1"
+            android:exported="true" />
+        <activity
+            android:name=".FingerPrintAuthentication"
+            android:exported="true" />
+        <activity
+            android:name=".ReadingListActivity"
+            android:exported="true" />
+        <activity
+            android:name=".LanguageTranslator"
+            android:exported="true" />
+        <activity
+            android:name=".KeywordSearchActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Dictionary"
+            android:exported="true" />
         <activity
             android:name=".LeaderboardActivity"
             android:exported="false" />
@@ -46,21 +111,7 @@
             android:name=".calendarpage"
             android:exported="true" />
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Inkwell.NoActionBar" />
-        <activity
-            android:name=".SignUpActivity"
-            android:exported="true" />
-        <activity
-            android:name=".VerifyEmailActivity"
-            android:exported="true" />
-        <activity
             android:name=".mainscreen"
-            android:exported="true" />
-        <activity
-            android:name=".Intro1"
             android:exported="true" />
         <activity
             android:name=".QuizFlashcardActivity"
@@ -84,11 +135,20 @@
             android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".TimetableActivity"
-            android:exported="true"
+            android:exported="true" 
+            android:label="@string/app_name"
             android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".LoginActivity"
-            android:exported="true" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".SettingsActivity"
             android:exported="true"
@@ -102,23 +162,16 @@
             android:name=".NotesActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Inkwell.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
+            android:theme="@style/Theme.Inkwell.NoActionBar"/>
+               
+        <!-- Receivers -->
         <receiver
             android:name=".EventAlarmReceiver"
             android:exported="false" />
-
+        <receiver android:name=".TodoBroadcast" /> <!-- Firebase messaging channel -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="EventNotificationChannel" />
-
-        <receiver android:name=".TodoBroadcast" />
     </application>
 
 </manifest>

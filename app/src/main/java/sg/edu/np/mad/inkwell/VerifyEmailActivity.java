@@ -3,12 +3,12 @@ package sg.edu.np.mad.inkwell;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.AuthResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -16,10 +16,13 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class VerifyEmailActivity extends AppCompatActivity {
+
+    private static final String TAG = "VerifyEmailActivity";
 
     private TextView verifyMessage, timerText;
     private Button checkVerificationButton, resendButton;
@@ -28,6 +31,7 @@ public class VerifyEmailActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private CountDownTimer countDownTimer;
     private static final long TIMER_DURATION = 60000; // 60 seconds
+    private String email, password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +46,21 @@ public class VerifyEmailActivity extends AppCompatActivity {
         checkVerificationButton = findViewById(R.id.check_verification_button);
         resendButton = findViewById(R.id.resend_button);
 
+        // Retrieve email and password from intent
+        Intent intent = getIntent();
+        email = intent.getStringExtra("email");
+        password = intent.getStringExtra("password");
+
+        if (email == null || password == null) {
+            Toast.makeText(this, "Failed to get email or password. Please try again.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         user = auth.getCurrentUser();
         if (user != null) {
             startTimer();
         } else {
-            String email = sharedPreferences.getString("email", "");
-            String password = sharedPreferences.getString("password", "");
-
             // Sign in the user to get the current FirebaseUser
             auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -132,22 +144,5 @@ public class VerifyEmailActivity extends AppCompatActivity {
         }.start();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
