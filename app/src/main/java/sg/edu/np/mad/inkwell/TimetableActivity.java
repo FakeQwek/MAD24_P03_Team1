@@ -675,7 +675,7 @@ public class TimetableActivity extends AppCompatActivity implements NavigationVi
                         Toast.makeText(TimetableActivity.this, "Category added", Toast.LENGTH_SHORT).show();
 
                         // update the spinner with the new category
-                        categoryList.add(categoryList.size() - 1, categoryName); // Add before "Add New Option"
+                        categoryList.add(categoryList.size() - 1, categoryName);
                         adapter.notifyDataSetChanged();
 
                         // set the spinner to the newly added category
@@ -796,7 +796,6 @@ public class TimetableActivity extends AppCompatActivity implements NavigationVi
         isPanelShown = false;
         clearInputData();
     }
-
 
     // clear all input data from add new event
     private void clearInputData() {
@@ -1050,7 +1049,6 @@ public class TimetableActivity extends AppCompatActivity implements NavigationVi
     // navigation
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
 
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);

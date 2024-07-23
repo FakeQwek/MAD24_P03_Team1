@@ -36,7 +36,7 @@ public class Navbar {
         }
         else if (id == R.id.nav_mind_map) {
             Intent newActivity = new Intent(CurrentActivity, MindMapActivity.class);
-            Log.d("Alert", "Opening settings");
+            Log.d("Alert", "Opening mind map");
             return newActivity;
         }
         else if (id == R.id.nav_flashcards) {
@@ -78,11 +78,6 @@ public class Navbar {
         else if (id == R.id.nav_community) {
             Intent newActivity = new Intent(CurrentActivity, CommunityActivity.class);
             Log.d("Alert", "Opening profile");
-            return newActivity;
-        }
-        else if (id == R.id.nav_mind_map) {
-            Intent newActivity = new Intent(CurrentActivity, MindMapActivity.class);
-            Log.d("Alert", "Opening Mind Map");
             return newActivity;
         }
         else {

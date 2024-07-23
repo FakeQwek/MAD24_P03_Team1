@@ -1,14 +1,18 @@
 package sg.edu.np.mad.inkwell;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -16,10 +20,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 public class MindMapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -55,6 +72,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // finds drawer and nav view before setting listener
         navigationView.bringToFront();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
                 R.string.close_nav);
@@ -64,6 +82,13 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+        // init Firebase
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+        ArrayList<NodeView> nodeViews = new ArrayList<>();
+        ArrayList<LineView> lineViews = new ArrayList<>();
 
         mindMapContainer = findViewById(R.id.mindMapContainer);
         addNodeButton = findViewById(R.id.addNodeButton);
@@ -340,6 +365,67 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             setSelectedNode(titleNode);
         }
     }
+
+    // add the mindmap collections to specific user
+    private void initMindMap(FirebaseFirestore db, String userId) {
+        // Reference the events collection under the user's document
+        CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmap");
+
+        // Check if the events collection already exists
+         mindMapCollection.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().isEmpty()) {
+                                // mindmap collection doesn't exist, create it with fields
+                                Map<String, Object> mindMapData = new HashMap<>();
+
+
+
+                                // create the mindmap collection with a dummy document and fields
+                                mindMapCollection.document("0").set(mindMapData)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d("Firestore", "Empty mindmap collection created for user: " + userId);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.e("Firestore", "Error creating empty mindmap collection", e);
+                                            }
+                                        });
+                            } else {
+                                // mindmap collection already exists, check if it's empty and log a message
+                                mindMapCollection.limit(1).get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    if (task.getResult().isEmpty()) {
+                                                        Log.d("Firestore", "Mindmap collection already exists but is empty for user: " + userId);
+                                                    } else {
+                                                        Log.d("Firestore", "Mindmap collection already exists and is not empty for user: " + userId);
+                                                    }
+                                                } else {
+                                                    Log.e("Firestore", "Error checking mindmap collection", task.getException());
+                                                }
+                                            }
+                                        });
+                            }
+                        } else {
+                            Log.e("Firestore", "Error checking mindmap collection", task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void saveMindMap(FirebaseFirestore db, String userId) {
+
+    }
+
 
     // navigation
     @Override
