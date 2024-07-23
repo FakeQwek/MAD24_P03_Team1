@@ -21,7 +21,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MindMap extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MindMapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final float MIN_ZOOM = 0.6f;
     private static final float MAX_ZOOM = 1.2f;
@@ -78,7 +78,7 @@ public class MindMap extends AppCompatActivity implements NavigationView.OnNavig
 
         // Handle all touch events for nodes in the mind map
         mindMapContainer.setOnTouchListener(new View.OnTouchListener() {
-            private GestureDetector gestureDetector = new GestureDetector(MindMap.this, new GestureDetector.SimpleOnGestureListener() {
+            private GestureDetector gestureDetector = new GestureDetector(MindMapActivity.this, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     float x = e.getX();

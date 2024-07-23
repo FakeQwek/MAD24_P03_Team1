@@ -13,7 +13,7 @@
             android:icon="@drawable/note_outline"
             android:title="Notes" />
         <item
-            android:id="@+id/mind_map"
+            android:id="@+id/nav_mind_map"
             android:icon="@drawable/mind_map_icon"
             android:title="Mind Map" />
         <item

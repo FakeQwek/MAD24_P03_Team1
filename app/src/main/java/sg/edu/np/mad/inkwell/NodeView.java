@@ -140,8 +140,8 @@ public class NodeView extends View {
         builder.setTitle("Delete Node")
                 .setMessage("Are you sure you want to delete this node? This action cannot be undone!")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    if (getContext() instanceof MindMap) {
-                        ((MindMap) getContext()).removeNode(NodeView.this);
+                    if (getContext() instanceof MindMapActivity) {
+                        ((MindMapActivity) getContext()).removeNode(NodeView.this);
                     }
                 })
                 .setNegativeButton("No", null)
