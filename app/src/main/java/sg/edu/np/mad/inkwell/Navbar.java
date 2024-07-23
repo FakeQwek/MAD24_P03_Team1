@@ -1,4 +1,4 @@
-//This class holds functionality for redirecting to activities based on buttong clicked
+//This class holds functionality for redirecting to activities based on button clicked
 
 package sg.edu.np.mad.inkwell;
 import android.app.Activity;

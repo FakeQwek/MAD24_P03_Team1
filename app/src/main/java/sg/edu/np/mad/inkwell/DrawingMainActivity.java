@@ -1,5 +1,6 @@
 package sg.edu.np.mad.inkwell;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -7,17 +8,30 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.view.ViewTreeObserver;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.slider.RangeSlider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class DrawingMainActivity extends AppCompatActivity {
 
@@ -33,6 +47,10 @@ public class DrawingMainActivity extends AppCompatActivity {
     private int currentColor;
     private boolean isEraserOn = false;
     private boolean isFillModeOn = false;
+
+    private FirebaseAuth firebaseAuth;  // Firebase authentication instance
+    private FirebaseFirestore firebaseFirestore;  // Firebase Firestore instance
+    private FirebaseStorage firebaseStorage;  // Firebase Storage instance
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +113,11 @@ public class DrawingMainActivity extends AppCompatActivity {
         currentColor = Color.BLACK;
         paint.setColor(currentColor);
         paint.setStrokeWidth(0.5f);
+
+        // Initialize Firebase instances
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
     }
 
     private void showCustomColorPickerDialog() {
@@ -102,6 +125,7 @@ public class DrawingMainActivity extends AppCompatActivity {
     }
 
     private void saveDrawing() {
+        showSaveDialog();
         Bitmap bmp = paint.save();
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/DrawingApp/");
@@ -114,9 +138,118 @@ public class DrawingMainActivity extends AppCompatActivity {
             values.clear();
             values.put(MediaStore.Images.Media.IS_PENDING, 0);
             getContentResolver().update(uri, values, null, null);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void showSaveDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.dialog_save_drawing, null);
+
+        EditText etName = view.findViewById(R.id.et_name);
+        EditText etTitle = view.findViewById(R.id.et_title);
+        Button btnSave = view.findViewById(R.id.btn_save);
+
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+
+        btnSave.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String title = etTitle.getText().toString().trim();
+            if (name.isEmpty() || title.isEmpty()) {
+                Toast.makeText(this, "Please enter both name and title", Toast.LENGTH_SHORT).show();
+            } else {
+                dialog.dismiss();
+                Bitmap bmp = paint.save();
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/DrawingApp/");
+                values.put(MediaStore.Images.Media.IS_PENDING, 1);
+                Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                try {
+                    OutputStream imageOutStream = getContentResolver().openOutputStream(uri);
+                    bmp.compress(Bitmap.CompressFormat.PNG, 100, imageOutStream);
+                    imageOutStream.close();
+                    values.clear();
+                    values.put(MediaStore.Images.Media.IS_PENDING, 0);
+                    getContentResolver().update(uri, values, null, null);
+
+                    // Save the drawing to Firebase with the user's name and title
+                    saveDrawingToFirebase(bmp, name, title);
+                    saveDrawingToUserSpecificPath(bmp, name, title);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void saveDrawingToFirebase(Bitmap bmp, String name, String title) {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Please log in to save your drawing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+        String drawingId = UUID.randomUUID().toString();
+        StorageReference storageRef = firebaseStorage.getReference().child("drawings").child(userId).child(drawingId + ".png");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        UploadTask uploadTask = storageRef.putBytes(data);
+        uploadTask.addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            String downloadUrl = uri.toString();
+
+            Map<String, Object> drawing = new HashMap<>();
+            drawing.put("userId", userId);
+            drawing.put("drawingId", drawingId);
+            drawing.put("imageUrl", downloadUrl);
+            drawing.put("timestamp", System.currentTimeMillis());
+            drawing.put("name", name);
+            drawing.put("title", title);
+
+            firebaseFirestore.collection("drawings").document(drawingId).set(drawing)
+                    .addOnSuccessListener(aVoid -> Toast.makeText(DrawingMainActivity.this, "Drawing saved to Firebase.", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to save drawing to Firebase.", Toast.LENGTH_SHORT).show());
+        })).addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to upload drawing to Firebase.", Toast.LENGTH_SHORT).show());
+    }
+
+    private void saveDrawingToUserSpecificPath(Bitmap bmp, String name, String title) {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Please log in to save your drawing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+        String drawingId = UUID.randomUUID().toString();
+        StorageReference storageRef = firebaseStorage.getReference().child("users").child(userId).child("drawings").child(drawingId + ".png");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        UploadTask uploadTask = storageRef.putBytes(data);
+        uploadTask.addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            String downloadUrl = uri.toString();
+
+            Map<String, Object> drawing = new HashMap<>();
+            drawing.put("drawingId", drawingId);
+            drawing.put("imageUrl", downloadUrl);
+            drawing.put("timestamp", System.currentTimeMillis());
+            drawing.put("name", name);
+            drawing.put("title", title);
+
+            firebaseFirestore.collection("users").document(userId).collection("drawings").document(drawingId).set(drawing)
+                    .addOnSuccessListener(aVoid -> Toast.makeText(DrawingMainActivity.this, "Drawing saved to user-specific path.", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to save drawing to user-specific path.", Toast.LENGTH_SHORT).show());
+        })).addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to upload drawing to user-specific path.", Toast.LENGTH_SHORT).show());
     }
 
     private void setColorButtons() {
