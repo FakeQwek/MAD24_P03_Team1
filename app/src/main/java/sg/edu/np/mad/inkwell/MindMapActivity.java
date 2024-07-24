@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +23,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -49,7 +52,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     private static final float MAX_PAN_BOTTOM = 6000f;
 
     private ZoomLayout mindMapContainer;
-    private ImageButton addNodeButton, addConnectionButton;
+    private ImageButton addNodeButton, addNewMindmap;
     private List<NodeView> nodes;
     private List<LineView> lines;
     private float touchX, touchY;
@@ -98,14 +101,25 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
         mindMapContainer = findViewById(R.id.mindMapContainer);
         addNodeButton = findViewById(R.id.addNodeButton);
-        addConnectionButton = findViewById(R.id.addConnectionButton);
+        addNewMindmap = findViewById(R.id.addNewMindMap);
         nodes = new ArrayList<>();
         lines = new ArrayList<>();
 
         initializeTitleNode();
 
         addNodeButton.setOnClickListener(v -> addChildNode());
-        addConnectionButton.setOnClickListener(v -> addSiblingNode());
+        addNewMindmap.setOnClickListener(v -> {
+            // Clear the current mind map
+            mindMapContainer.removeAllViews();
+            nodes.clear();
+            lines.clear();
+
+            // Initialize a new mind map
+            initializeTitleNode();
+            selectedNode = null;
+
+        });
+
 
         // Initialize ScaleGestureDetector for zooming
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -175,6 +189,8 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                 return true;
             }
         });
+
+        navigationBar();
     }
 
     // Update node and line scales after zoom
@@ -225,9 +241,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             touchX = x;
             touchY = y;
 
-            if (currentUser != null) {
-                saveMindMap(db, currentUser.getUid());
-            }
         }
     }
 
@@ -274,23 +287,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
         setSelectedNode(childNode);
 
-        if (currentUser != null) {
-            saveMindMap(db, currentUser.getUid());
-        }
-    }
-
-    // add sibling node
-    private void addSiblingNode() {
-        NodeView parentNode = selectedNode != null ? selectedNode : titleNode;
-        NodeView siblingNode = new NodeView(this, "Sibling Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
-        addNodeToContainer(siblingNode);
-        addConnectionLine(parentNode, siblingNode);
-
-        setSelectedNode(siblingNode);
-
-        if (currentUser != null) {
-            saveMindMap(db, currentUser.getUid());
-        }
     }
 
     // add connection line b/w nodes
@@ -351,10 +347,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     line.invalidate();
                 }
             }
-
-            if (currentUser != null) {
-                saveMindMap(db, currentUser.getUid());
-            }
         }
     }
 
@@ -387,9 +379,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
             setSelectedNode(titleNode);
 
-            if (currentUser != null) {
-                saveMindMap(db, currentUser.getUid());
-            }
         }
     }
 
@@ -417,6 +406,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     public void saveMindMap(FirebaseFirestore db, String userId) {
         CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmap");
 
+        // Create a new document ID for each new mind map
+        String mindMapId = mindMapCollection.document().getId();
+
         List<Map<String, Object>> nodesData = new ArrayList<>();
         for (NodeView node : nodes) {
             nodesData.add(node.toMap());
@@ -431,12 +423,12 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         mindMapData.put("nodes", nodesData);
         mindMapData.put("lines", linesData);
 
-        mindMapCollection.document("mindmapData") // Use a unique document ID or timestamp
+        mindMapCollection.document(mindMapId)
                 .set(mindMapData)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "MindMap successfully saved!");
+                        Log.d("Firestore", "MindMap successfully saved with ID: " + mindMapId);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -445,6 +437,79 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                         Log.e("Firestore", "Error saving mind map", e);
                     }
                 });
+    }
+
+    private void navigationBar() {
+        SearchView searchView = findViewById(R.id.searchView);
+
+        if (searchView != null) {
+            searchView.setVisibility(View.VISIBLE);
+        }
+
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+
+        if (recyclerView != null) {
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        Menu menu = navigationView.getMenu();
+
+        menu.findItem(R.id.nav_home).setVisible(false);
+        menu.findItem(R.id.nav_notes).setVisible(false);
+        menu.findItem(R.id.nav_mind_map).setVisible(false);
+        menu.findItem(R.id.nav_todos).setVisible(false);
+        menu.findItem(R.id.nav_flashcards).setVisible(false);
+        menu.findItem(R.id.nav_calendar).setVisible(false);
+        menu.findItem(R.id.nav_timetable).setVisible(false);
+        menu.findItem(R.id.nav_settings).setVisible(false);
+        menu.findItem(R.id.nav_profile).setVisible(false);
+        menu.findItem(R.id.nav_logout).setVisible(false);
+        menu.findItem(R.id.nav_friends).setVisible(false);
+        menu.findItem(R.id.nav_community).setVisible(false);
+
+        ImageButton swapButton = findViewById(R.id.swapButton);
+
+        if (swapButton != null) {
+            swapButton.setVisibility(View.VISIBLE);
+
+            swapButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (menu.hasVisibleItems()) {
+                        menu.findItem(R.id.nav_home).setVisible(false);
+                        menu.findItem(R.id.nav_notes).setVisible(false);
+                        menu.findItem(R.id.nav_mind_map).setVisible(false);
+                        menu.findItem(R.id.nav_todos).setVisible(false);
+                        menu.findItem(R.id.nav_flashcards).setVisible(false);
+                        menu.findItem(R.id.nav_calendar).setVisible(false);
+                        menu.findItem(R.id.nav_timetable).setVisible(false);
+                        menu.findItem(R.id.nav_settings).setVisible(false);
+                        menu.findItem(R.id.nav_profile).setVisible(false);
+                        menu.findItem(R.id.nav_logout).setVisible(false);
+                        menu.findItem(R.id.nav_friends).setVisible(false);
+                        menu.findItem(R.id.nav_community).setVisible(false);
+                        searchView.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    } else {
+                        menu.findItem(R.id.nav_home).setVisible(true);
+                        menu.findItem(R.id.nav_notes).setVisible(true);
+                        menu.findItem(R.id.nav_mind_map).setVisible(true);
+                        menu.findItem(R.id.nav_todos).setVisible(true);
+                        menu.findItem(R.id.nav_flashcards).setVisible(true);
+                        menu.findItem(R.id.nav_calendar).setVisible(true);
+                        menu.findItem(R.id.nav_timetable).setVisible(true);
+                        menu.findItem(R.id.nav_settings).setVisible(true);
+                        menu.findItem(R.id.nav_profile).setVisible(true);
+                        menu.findItem(R.id.nav_logout).setVisible(true);
+                        menu.findItem(R.id.nav_friends).setVisible(true);
+                        menu.findItem(R.id.nav_community).setVisible(true);
+                        searchView.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
     }
 
     @Override

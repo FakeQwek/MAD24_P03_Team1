@@ -64,7 +64,7 @@
             app:srcCompat="@drawable/add_node" />
 
         <ImageButton
-            android:id="@+id/addConnectionButton"
+            android:id="@+id/addNewMindMap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="130dp"
