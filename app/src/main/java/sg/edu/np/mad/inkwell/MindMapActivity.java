@@ -150,6 +150,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     if (nodeAtPosition != null) {
                         nodeAtPosition.showEditDialog();
                     }
+                    if (currentUser != null) {
+                        saveMindMap(db, currentUser.getUid()); // Save new mind map with a new ID
+                    }
                     return true;
                 }
             });

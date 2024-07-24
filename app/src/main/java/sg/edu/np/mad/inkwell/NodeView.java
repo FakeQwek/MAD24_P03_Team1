@@ -129,6 +129,9 @@ public class NodeView extends View {
                     updateRect();
                     requestLayout();
                     invalidate(); // Refresh the view with the new color
+                    if (onNodeUpdateListener != null) {
+                        onNodeUpdateListener.onNodeUpdate(); // Notify update
+                    }
                 })
                 .setNegativeButton("Cancel", null)
                 .setNeutralButton("Delete", (dialog, which) -> showDeleteConfirmationDialog());
@@ -289,6 +292,16 @@ public class NodeView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
+    }
+
+    private OnNodeUpdateListener onNodeUpdateListener;
+
+    public void setOnNodeUpdateListener(OnNodeUpdateListener listener) {
+        this.onNodeUpdateListener = listener;
+    }
+
+    public interface OnNodeUpdateListener {
+        void onNodeUpdate();
     }
 
     public Map<String, Object> toMap() {
