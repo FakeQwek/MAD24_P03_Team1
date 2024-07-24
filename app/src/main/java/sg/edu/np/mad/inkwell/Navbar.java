@@ -83,7 +83,7 @@ public class Navbar {
             return newActivity;
         }
         else if (id == R.id.nav_drawing) {
-            Intent newActivity = new Intent(CurrentActivity, DrawingMainActivity.class);
+            Intent newActivity = new Intent(CurrentActivity, IntermediateActivity.class);
             Log.d("Alert", "Opening drawing activity");
             return newActivity;
         }
