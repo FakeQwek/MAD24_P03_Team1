@@ -33,6 +33,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -65,6 +66,8 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
+    private String currentMindMapId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +120,11 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             // Initialize a new mind map
             initializeTitleNode();
             selectedNode = null;
+            currentMindMapId = null; // Reset mind map ID for new mind map
 
+            if (currentUser != null) {
+                saveMindMap(db, currentUser.getUid()); // Save new mind map with a new ID
+            }
         });
 
 
@@ -287,7 +294,11 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
         setSelectedNode(childNode);
 
+        if (currentUser != null) {
+            saveMindMap(db, currentUser.getUid());
+        }
     }
+
 
     // add connection line b/w nodes
     private void addConnectionLine(NodeView startNode, NodeView endNode) {
@@ -347,6 +358,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     line.invalidate();
                 }
             }
+
+            if (currentUser != null) {
+                saveMindMap(db, currentUser.getUid());
+            }
         }
     }
 
@@ -379,6 +394,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
             setSelectedNode(titleNode);
 
+            if (currentUser != null) {
+                saveMindMap(db, currentUser.getUid());
+            }
         }
     }
 
@@ -391,13 +409,18 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            if (task.getResult().isEmpty()) {
-                                Log.d("Firestore", "Mindmap collection does not exist for user: " + userId);
+                            QuerySnapshot result = task.getResult();
+                            if (!result.isEmpty()) {
+                                // Assume you want the first mind map in the collection
+                                DocumentSnapshot document = result.getDocuments().get(0);
+                                currentMindMapId = document.getId();
+                                Log.d("Firestore", "Loaded existing mindmap with ID: " + currentMindMapId);
                             } else {
-                                Log.d("Firestore", "Mindmap collection exists for user: " + userId);
+                                // No existing mind map, handle this scenario if needed
+                                Log.d("Firestore", "No existing mindmap found for user: " + userId);
                             }
                         } else {
-                            Log.e("Firestore", "Error checking mindmap collection", task.getException());
+                            Log.e("Firestore", "Error loading mindmap", task.getException());
                         }
                     }
                 });
@@ -406,8 +429,11 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     public void saveMindMap(FirebaseFirestore db, String userId) {
         CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmap");
 
-        // Create a new document ID for each new mind map
-        String mindMapId = mindMapCollection.document().getId();
+        if (currentMindMapId == null) {
+            // If there is no current mind map ID, create a new one
+            DocumentReference newMindMapDoc = mindMapCollection.document();
+            currentMindMapId = newMindMapDoc.getId();
+        }
 
         List<Map<String, Object>> nodesData = new ArrayList<>();
         for (NodeView node : nodes) {
@@ -423,18 +449,18 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         mindMapData.put("nodes", nodesData);
         mindMapData.put("lines", linesData);
 
-        mindMapCollection.document(mindMapId)
+        mindMapCollection.document(currentMindMapId)
                 .set(mindMapData)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "MindMap successfully saved with ID: " + mindMapId);
+                        Log.d("Firestore", "MindMap successfully updated with ID: " + currentMindMapId);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e("Firestore", "Error saving mind map", e);
+                        Log.e("Firestore", "Error updating mind map", e);
                     }
                 });
     }
