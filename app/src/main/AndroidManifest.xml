@@ -28,39 +28,30 @@
         android:roundIcon="@drawable/inkwell_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Inkwell"
-        tools:targetApi="31">
+        tools:targetApi="33">
+
+        <activity
+            android:name=".EssayActivity"
+            android:exported="true" />
         <activity
             android:name=".SubmitFormActivity"
-            android:exported="true">
-           
-        </activity>
+            android:exported="true"></activity>
         <activity
             android:name=".PreviewFormActivity"
-            android:exported="true">
-          
-        </activity>
+            android:exported="true"></activity>
         <activity
             android:name=".FormBuilderActivity"
-            android:exported="true">
-          
-        </activity>
+            android:exported="true"></activity>
         <activity
             android:name=".ObjectDetectionActivity"
-            android:exported="true">
-         
-        </activity> <!-- Main launcher activity -->
+            android:exported="true"></activity> <!-- Main launcher activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Inkwell.NoActionBar">
-           
-        </activity> <!-- Authentication activities -->
+            android:theme="@style/Theme.Inkwell.NoActionBar"></activity> <!-- Authentication activities -->
         <activity
             android:name=".SignUpActivity"
-            android:exported="true" />
-        <activity
-            android:name=".LoginActivity"
             android:exported="true" />
         <activity
             android:name=".VerifyEmailActivity"
@@ -134,7 +125,7 @@
             android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".TimetableActivity"
-            android:exported="true" 
+            android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
@@ -146,8 +137,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-            android:exported="true"
-            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".SettingsActivity"
             android:exported="true"
@@ -157,9 +146,7 @@
             android:name=".NotesActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Inkwell.NoActionBar"/>
-               
-        <!-- Receivers -->
+            android:theme="@style/Theme.Inkwell.NoActionBar" /> <!-- Receivers -->
         <receiver
             android:name=".EventAlarmReceiver"
             android:exported="false" />
