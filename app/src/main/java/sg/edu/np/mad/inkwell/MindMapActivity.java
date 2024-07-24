@@ -1,5 +1,7 @@
 package sg.edu.np.mad.inkwell;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class MindMapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final float MIN_ZOOM = 0.6f;
@@ -58,6 +59,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     private NodeView titleNode;
     private ScaleGestureDetector scaleGestureDetector;
     private float scaleFactor = 1.0f;
+
+    private FirebaseFirestore db;
+    private FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +88,13 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         decorView.setSystemUiVisibility(uiOptions);
 
         // init Firebase
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        ArrayList<NodeView> nodeViews = new ArrayList<>();
-        ArrayList<LineView> lineViews = new ArrayList<>();
+        currentUser = auth.getCurrentUser();
+
+        if (currentUser != null) {
+            initMindMap(db, currentUser.getUid());
+        }
 
         mindMapContainer = findViewById(R.id.mindMapContainer);
         addNodeButton = findViewById(R.id.addNodeButton);
@@ -100,6 +106,17 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
         addNodeButton.setOnClickListener(v -> addChildNode());
         addConnectionButton.setOnClickListener(v -> addSiblingNode());
+
+        // Initialize ScaleGestureDetector for zooming
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                scaleFactor *= detector.getScaleFactor();
+                scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
+                updateViewScales();
+                return true;
+            }
+        });
 
         // Handle all touch events for nodes in the mind map
         mindMapContainer.setOnTouchListener(new View.OnTouchListener() {
@@ -137,7 +154,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                             }
                             isPanning = true;
                         }
-
                         touchX = x;
                         touchY = y;
                         isMovingNode = (selectedNode != null);
@@ -159,30 +175,19 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                 return true;
             }
         });
+    }
 
-        // Initialize ScaleGestureDetector for zooming
-        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                scaleFactor *= detector.getScaleFactor();
-
-                // set scale only between min and max zoom
-                scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
-
-                // update child node scales and redraw lines
-                for (int i = 0; i < mindMapContainer.getChildCount(); i++) {
-                    View child = mindMapContainer.getChildAt(i);
-                    if (child instanceof NodeView) {
-                        child.setScaleX(scaleFactor);
-                        child.setScaleY(scaleFactor);
-                    } else if (child instanceof LineView) {
-                        ((LineView) child).invalidate();
-                    }
-                }
-
-                return true;
+    // Update node and line scales after zoom
+    private void updateViewScales() {
+        for (int i = 0; i < mindMapContainer.getChildCount(); i++) {
+            View child = mindMapContainer.getChildAt(i);
+            if (child instanceof NodeView) {
+                child.setScaleX(scaleFactor);
+                child.setScaleY(scaleFactor);
+            } else if (child instanceof LineView) {
+                ((LineView) child).invalidate();
             }
-        });
+        }
     }
 
     // enable mindmap to be panned around
@@ -197,7 +202,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             float newX = node.getPosX() + dx;
             float newY = node.getPosY() + dy;
 
-            // check if the new position is within the allowed bounds
             if (newX < MAX_PAN_LEFT || newX > MAX_PAN_RIGHT) {
                 withinXBounds = false;
             }
@@ -206,7 +210,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             }
         }
 
-        // apply panning only if the new positions are within bounds
         if (withinXBounds && withinYBounds) {
             for (NodeView node : nodes) {
                 node.setPosX(node.getPosX() + dx);
@@ -221,6 +224,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
             touchX = x;
             touchY = y;
+
+            if (currentUser != null) {
+                saveMindMap(db, currentUser.getUid());
+            }
         }
     }
 
@@ -252,6 +259,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         });
 
         nodes.add(titleNode);
+
+        if (currentUser != null) {
+            saveMindMap(db, currentUser.getUid());
+        }
     }
 
     // add child node
@@ -262,6 +273,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         addConnectionLine(parentNode, childNode);
 
         setSelectedNode(childNode);
+
+        if (currentUser != null) {
+            saveMindMap(db, currentUser.getUid());
+        }
     }
 
     // add sibling node
@@ -272,6 +287,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         addConnectionLine(parentNode, siblingNode);
 
         setSelectedNode(siblingNode);
+
+        if (currentUser != null) {
+            saveMindMap(db, currentUser.getUid());
+        }
     }
 
     // add connection line b/w nodes
@@ -332,6 +351,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     line.invalidate();
                 }
             }
+
+            if (currentUser != null) {
+                saveMindMap(db, currentUser.getUid());
+            }
         }
     }
 
@@ -363,57 +386,26 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             mindMapContainer.removeView(node);
 
             setSelectedNode(titleNode);
+
+            if (currentUser != null) {
+                saveMindMap(db, currentUser.getUid());
+            }
         }
     }
 
     // add the mindmap collections to specific user
     private void initMindMap(FirebaseFirestore db, String userId) {
-        // Reference the events collection under the user's document
         CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmap");
 
-        // Check if the events collection already exists
-         mindMapCollection.get()
+        mindMapCollection.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             if (task.getResult().isEmpty()) {
-                                // mindmap collection doesn't exist, create it with fields
-                                Map<String, Object> mindMapData = new HashMap<>();
-
-
-
-                                // create the mindmap collection with a dummy document and fields
-                                mindMapCollection.document("0").set(mindMapData)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d("Firestore", "Empty mindmap collection created for user: " + userId);
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.e("Firestore", "Error creating empty mindmap collection", e);
-                                            }
-                                        });
+                                Log.d("Firestore", "Mindmap collection does not exist for user: " + userId);
                             } else {
-                                // mindmap collection already exists, check if it's empty and log a message
-                                mindMapCollection.limit(1).get()
-                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    if (task.getResult().isEmpty()) {
-                                                        Log.d("Firestore", "Mindmap collection already exists but is empty for user: " + userId);
-                                                    } else {
-                                                        Log.d("Firestore", "Mindmap collection already exists and is not empty for user: " + userId);
-                                                    }
-                                                } else {
-                                                    Log.e("Firestore", "Error checking mindmap collection", task.getException());
-                                                }
-                                            }
-                                        });
+                                Log.d("Firestore", "Mindmap collection exists for user: " + userId);
                             }
                         } else {
                             Log.e("Firestore", "Error checking mindmap collection", task.getException());
@@ -423,11 +415,38 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     }
 
     public void saveMindMap(FirebaseFirestore db, String userId) {
+        CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmap");
 
+        List<Map<String, Object>> nodesData = new ArrayList<>();
+        for (NodeView node : nodes) {
+            nodesData.add(node.toMap());
+        }
+
+        List<Map<String, Object>> linesData = new ArrayList<>();
+        for (LineView line : lines) {
+            linesData.add(line.toMap());
+        }
+
+        Map<String, Object> mindMapData = new HashMap<>();
+        mindMapData.put("nodes", nodesData);
+        mindMapData.put("lines", linesData);
+
+        mindMapCollection.document("mindmapData") // Use a unique document ID or timestamp
+                .set(mindMapData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Firestore", "MindMap successfully saved!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("Firestore", "Error saving mind map", e);
+                    }
+                });
     }
 
-
-    // navigation
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();

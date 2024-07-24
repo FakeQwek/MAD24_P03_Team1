@@ -18,7 +18,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class NodeView extends View {
 
@@ -287,5 +289,14 @@ public class NodeView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("text", text);
+        map.put("posX", posX);
+        map.put("posY", posY);
+        map.put("color", nodeColor);
+        return map;
     }
 }
