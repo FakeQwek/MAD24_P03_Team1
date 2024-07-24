@@ -11,9 +11,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.ScaleGestureDetector;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -68,13 +68,12 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     private FirebaseUser currentUser;
     private String currentMindMapId;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mind_map);
 
-        // Sets toolbar
+        // Set toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -82,7 +81,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // finds drawer and nav view before setting listener
+        // Set up drawer and navigation view
         navigationView.bringToFront();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
                 R.string.close_nav);
@@ -93,7 +92,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        // init Firebase
+        // Initialize Firebase
         db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
@@ -127,7 +126,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             }
         });
 
-
         // Initialize ScaleGestureDetector for zooming
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
@@ -151,7 +149,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                         nodeAtPosition.showEditDialog();
                     }
                     if (currentUser != null) {
-                        saveMindMap(db, currentUser.getUid()); // Save new mind map with a new ID
+                        saveMindMap(db, currentUser.getUid()); // Save mind map on edit
                     }
                     return true;
                 }
@@ -216,7 +214,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    // enable mindmap to be panned around
+    // Enable mind map to be panned around
     private void panMindMap(float x, float y) {
         float dx = x - touchX;
         float dy = y - touchY;
@@ -250,11 +248,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
             touchX = x;
             touchY = y;
-
         }
     }
 
-    // init title node in centre of screen
+    // Initialize title node in center of screen
     private void initializeTitleNode() {
         titleNode = new NodeView(this, "My New MindMap", 0, 0);
         titleNode.setTextSize(60);
@@ -282,13 +279,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         });
 
         nodes.add(titleNode);
-
-        if (currentUser != null) {
-            saveMindMap(db, currentUser.getUid());
-        }
+        setSelectedNode(titleNode);
     }
 
-    // add child node
+    // Add a new child node
     private void addChildNode() {
         NodeView parentNode = selectedNode != null ? selectedNode : titleNode;
         NodeView childNode = new NodeView(this, "Child Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
@@ -325,56 +319,29 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         nodes.add(node);
     }
 
-    // get node at touched position
-    private NodeView getNodeAtPosition(float x, float y) {
-        for (int i = nodes.size() - 1; i >= 0; i--) {
-            NodeView node = nodes.get(i);
-            if (x >= node.getPosX() && x <= node.getPosX() + node.getWidth() &&
-                    y >= node.getPosY() && y <= node.getPosY() + node.getHeight()) {
-                return node;
-            }
-        }
-        return null;
-    }
-
-    // bring node to the front
-    private void bringNodeToFront(NodeView node) {
-        mindMapContainer.removeView(node);
-        mindMapContainer.addView(node);
-        node.bringToFront();
-    }
-
-    // move node on drag
+    // Move the currently selected node
     private void moveNode(float x, float y) {
-        if (selectedNode != null) {
-            float dx = x - touchX;
-            float dy = y - touchY;
-            selectedNode.setPosX(selectedNode.getPosX() + dx);
-            selectedNode.setPosY(selectedNode.getPosY() + dy);
-            selectedNode.updateRect();
-            selectedNode.invalidate();
-            touchX = x;
-            touchY = y;
+        if (selectedNode == null) return;
 
-            for (LineView line : lines) {
-                if (line.isConnectedTo(selectedNode)) {
-                    line.invalidate();
-                }
-            }
+        selectedNode.setPosX(selectedNode.getPosX() + (x - touchX));
+        selectedNode.setPosY(selectedNode.getPosY() + (y - touchY));
+        selectedNode.updateRect();
+        selectedNode.invalidate();
 
-            if (currentUser != null) {
-                saveMindMap(db, currentUser.getUid());
-            }
+        for (LineView line : lines) {
+            line.invalidate();
         }
+
+        touchX = x;
+        touchY = y;
     }
 
-    // set touched node as selected
+    // Set selected node and bring to front
     private void setSelectedNode(NodeView node) {
         if (selectedNode != null) {
             selectedNode.setSelected(false);
             selectedNode.invalidate();
         }
-
         selectedNode = node;
         if (selectedNode != null) {
             selectedNode.setSelected(true);
@@ -403,71 +370,134 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    // add the mindmap collections to specific user
-    private void initMindMap(FirebaseFirestore db, String userId) {
-        CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmap");
-
-        mindMapCollection.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot result = task.getResult();
-                            if (!result.isEmpty()) {
-                                // Assume you want the first mind map in the collection
-                                DocumentSnapshot document = result.getDocuments().get(0);
-                                currentMindMapId = document.getId();
-                                Log.d("Firestore", "Loaded existing mindmap with ID: " + currentMindMapId);
-                            } else {
-                                // No existing mind map, handle this scenario if needed
-                                Log.d("Firestore", "No existing mindmap found for user: " + userId);
-                            }
-                        } else {
-                            Log.e("Firestore", "Error loading mindmap", task.getException());
-                        }
-                    }
-                });
+    // Bring node view to front
+    private void bringNodeToFront(NodeView node) {
+        mindMapContainer.bringChildToFront(node);
     }
 
-    public void saveMindMap(FirebaseFirestore db, String userId) {
-        CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmap");
+    // Get node at a specific position
+    // get node at touched position
+    private NodeView getNodeAtPosition(float x, float y) {
+        for (int i = nodes.size() - 1; i >= 0; i--) {
+            NodeView node = nodes.get(i);
+            if (x >= node.getPosX() && x <= node.getPosX() + node.getWidth() &&
+                    y >= node.getPosY() && y <= node.getPosY() + node.getHeight()) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+
+    // Initialize the mind map from Firebase
+    private void initMindMap(FirebaseFirestore db, String userId) {
+        CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmaps");
+
+        mindMapCollection.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    QuerySnapshot querySnapshot = task.getResult();
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
+                        currentMindMapId = doc.getId();
+                        loadMindMap(db, userId, currentMindMapId);
+                    } else {
+                        // Create new mind map if none exists
+                        initializeTitleNode();
+                        saveMindMap(db, userId);
+                    }
+                } else {
+                    Log.d(TAG, "Error getting mind maps: ", task.getException());
+                }
+            }
+        });
+    }
+
+    // Load a specific mind map from Firebase
+    private void loadMindMap(FirebaseFirestore db, String userId, String mindMapId) {
+        DocumentReference mindMapRef = db.collection("users").document(userId).collection("mindmaps").document(mindMapId);
+        mindMapRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    // Load mind map data from documentSnapshot and update UI
+                    // Example data retrieval
+                    Map<String, Object> mindMapData = documentSnapshot.getData();
+                    if (mindMapData != null) {
+                        // Process and update nodes and lines
+                        List<Map<String, Object>> savedNodes = (List<Map<String, Object>>) mindMapData.get("nodes");
+                        for (Map<String, Object> nodeData : savedNodes) {
+                            String text = (String) nodeData.get("text");
+                            float posX = ((Number) nodeData.get("posX")).floatValue();
+                            float posY = ((Number) nodeData.get("posY")).floatValue();
+                            NodeView node = new NodeView(MindMapActivity.this, text, posX, posY);
+                            ZoomLayout.LayoutParams params = new ZoomLayout.LayoutParams(
+                                    ZoomLayout.LayoutParams.WRAP_CONTENT,
+                                    ZoomLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            mindMapContainer.addView(node, params);
+                            node.updateRect();
+                            node.invalidate();
+                            nodes.add(node);
+                        }
+                        // Example: mindMapData.get("lines") should be a list of line data
+                        // Process and update lines similarly
+                    }
+                } else {
+                    Log.d(TAG, "No such mind map!");
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Error loading mind map: ", e);
+            }
+        });
+    }
+
+    // Save the current mind map to Firebase
+    private void saveMindMap(FirebaseFirestore db, String userId) {
+        CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmaps");
 
         if (currentMindMapId == null) {
-            // If there is no current mind map ID, create a new one
+            // Create a new document if no current ID
             DocumentReference newMindMapDoc = mindMapCollection.document();
             currentMindMapId = newMindMapDoc.getId();
         }
 
-        List<Map<String, Object>> nodesData = new ArrayList<>();
-        for (NodeView node : nodes) {
-            nodesData.add(node.toMap());
-        }
-
-        List<Map<String, Object>> linesData = new ArrayList<>();
-        for (LineView line : lines) {
-            linesData.add(line.toMap());
-        }
+        DocumentReference mindMapRef = mindMapCollection.document(currentMindMapId);
 
         Map<String, Object> mindMapData = new HashMap<>();
-        mindMapData.put("nodes", nodesData);
-        mindMapData.put("lines", linesData);
+        List<Map<String, Object>> nodeList = new ArrayList<>();
+        for (NodeView node : nodes) {
+            Map<String, Object> nodeData = new HashMap<>();
+            nodeData.put("text", node.getText());
+            nodeData.put("posX", node.getPosX());
+            nodeData.put("posY", node.getPosY());
+            nodeList.add(nodeData);
+        }
 
-        mindMapCollection.document(currentMindMapId)
-                .set(mindMapData)
+        mindMapData.put("nodes", nodeList);
+
+        // Add logic to save lines as well if needed
+
+        mindMapRef.set(mindMapData)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "MindMap successfully updated with ID: " + currentMindMapId);
+                        Log.d(TAG, "Mind map successfully saved!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e("Firestore", "Error updating mind map", e);
+                        Log.d(TAG, "Error saving mind map: ", e);
                     }
                 });
     }
 
+    // Navigation bar handling
     private void navigationBar() {
         SearchView searchView = findViewById(R.id.searchView);
 
