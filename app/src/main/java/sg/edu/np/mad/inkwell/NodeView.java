@@ -17,13 +17,15 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class NodeView extends View {
-
+    private int index;
     private String text;
     private float posX, posY;
     private Paint paint;
@@ -41,6 +43,7 @@ public class NodeView extends View {
         this.text = text;
         this.posX = posX;
         this.posY = posY;
+        this.index = -1;
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setTextSize(40);
         paint.setColor(nodeColor);
@@ -132,6 +135,8 @@ public class NodeView extends View {
                     if (onNodeUpdateListener != null) {
                         onNodeUpdateListener.onNodeUpdate(); // Notify update
                     }
+                    // Trigger saveMindMap
+                    ((MindMapActivity) getContext()).saveMindMap(FirebaseFirestore.getInstance(), ((MindMapActivity) getContext()).currentUser.getUid());
                 })
                 .setNegativeButton("Cancel", null)
                 .setNeutralButton("Delete", (dialog, which) -> showDeleteConfirmationDialog());
@@ -184,6 +189,7 @@ public class NodeView extends View {
         updateRect();
         requestLayout();
         invalidate();
+        ((MindMapActivity) getContext()).saveMindMap(FirebaseFirestore.getInstance(), ((MindMapActivity) getContext()).currentUser.getUid());
     }
 
     public void setTextSize(float size) {
@@ -206,6 +212,14 @@ public class NodeView extends View {
         requestLayout();
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public void toggleSelection() {
         if (isSelected) {
             return;
@@ -219,10 +233,6 @@ public class NodeView extends View {
         selectedNode = this;
 
         invalidate();
-    }
-
-    public List<NodeView> getChildNodes() {
-        return childNodes;
     }
 
     @Override

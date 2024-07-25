@@ -65,7 +65,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     private float scaleFactor = 1.0f;
 
     private FirebaseFirestore db;
-    private FirebaseUser currentUser;
+    FirebaseUser currentUser;
     private String currentMindMapId;
 
     @Override
@@ -376,7 +376,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     }
 
     // Get node at a specific position
-    // get node at touched position
     private NodeView getNodeAtPosition(float x, float y) {
         for (int i = nodes.size() - 1; i >= 0; i--) {
             NodeView node = nodes.get(i);
@@ -401,7 +400,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     if (querySnapshot != null && !querySnapshot.isEmpty()) {
                         DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
                         currentMindMapId = doc.getId();
-                        loadMindMap(db, userId, currentMindMapId);
                     } else {
                         // Create new mind map if none exists
                         initializeTitleNode();
@@ -421,11 +419,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
-                    // Load mind map data from documentSnapshot and update UI
-                    // Example data retrieval
                     Map<String, Object> mindMapData = documentSnapshot.getData();
                     if (mindMapData != null) {
-                        // Process and update nodes and lines
+                        // Process and update nodes
                         List<Map<String, Object>> savedNodes = (List<Map<String, Object>>) mindMapData.get("nodes");
                         for (Map<String, Object> nodeData : savedNodes) {
                             String text = (String) nodeData.get("text");
@@ -441,8 +437,18 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                             node.invalidate();
                             nodes.add(node);
                         }
-                        // Example: mindMapData.get("lines") should be a list of line data
-                        // Process and update lines similarly
+
+                        // Process and update lines
+                        List<Map<String, Object>> savedLines = (List<Map<String, Object>>) mindMapData.get("lines");
+                        for (Map<String, Object> lineData : savedLines) {
+                            int startNodeIndex = ((Number) lineData.get("startNodeIndex")).intValue();
+                            int endNodeIndex = ((Number) lineData.get("endNodeIndex")).intValue();
+                            NodeView startNode = nodes.get(startNodeIndex);
+                            NodeView endNode = nodes.get(endNodeIndex);
+                            LineView line = new LineView(MindMapActivity.this, startNode, endNode);
+                            lines.add(line);
+                            mindMapContainer.addView(line);
+                        }
                     }
                 } else {
                     Log.d(TAG, "No such mind map!");
@@ -457,7 +463,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     }
 
     // Save the current mind map to Firebase
-    private void saveMindMap(FirebaseFirestore db, String userId) {
+    public void saveMindMap(FirebaseFirestore db, String userId) {
         CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmaps");
 
         if (currentMindMapId == null) {
@@ -470,17 +476,24 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
         Map<String, Object> mindMapData = new HashMap<>();
         List<Map<String, Object>> nodeList = new ArrayList<>();
-        for (NodeView node : nodes) {
-            Map<String, Object> nodeData = new HashMap<>();
-            nodeData.put("text", node.getText());
-            nodeData.put("posX", node.getPosX());
-            nodeData.put("posY", node.getPosY());
+        for (int i = 0; i < nodes.size(); i++) {
+            NodeView node = nodes.get(i);
+            node.setIndex(i);
+            Map<String, Object> nodeData = node.toMap();
             nodeList.add(nodeData);
         }
 
         mindMapData.put("nodes", nodeList);
 
-        // Add logic to save lines as well if needed
+        List<Map<String, Object>> lineList = new ArrayList<>();
+        for (LineView line : lines) {
+            Map<String, Object> lineData = new HashMap<>();
+            lineData.put("startNodeIndex", line.getStartNode().getIndex());
+            lineData.put("endNodeIndex", line.getEndNode().getIndex());
+            lineList.add(lineData);
+        }
+
+        mindMapData.put("lines", lineList);
 
         mindMapRef.set(mindMapData)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -496,7 +509,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     }
                 });
     }
-
     // Navigation bar handling
     private void navigationBar() {
         SearchView searchView = findViewById(R.id.searchView);
