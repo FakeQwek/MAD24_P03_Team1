@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -98,6 +99,15 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendViewHolder> {
                             friendList.remove(friend);
 
                             recyclerView.getAdapter().notifyItemRemoved(holder.getAdapterPosition());
+
+                            Toast toast = new Toast(friendsActivity);
+                            toast.setDuration(Toast.LENGTH_SHORT);
+                            LayoutInflater layoutInflater = (LayoutInflater) friendsActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            View view = layoutInflater.inflate(R.layout.toast_deleted, null);
+                            TextView toastMessage = view.findViewById(R.id.toastMessage);
+                            toastMessage.setText("Friend Removed");
+                            toast.setView(view);
+                            toast.show();
 
                             bottomSheetDialog.dismiss();
                         }

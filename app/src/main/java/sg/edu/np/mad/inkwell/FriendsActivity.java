@@ -1,5 +1,6 @@
 package sg.edu.np.mad.inkwell;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -153,6 +156,15 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
                                                         db.collection("users").document(currentFirebaseUserUid).collection("friends").document(document.getData().get("uid").toString()).collection("messages").document("0").set(newMessage);
                                                         db.collection("users").document(document.getData().get("uid").toString()).collection("friends").document(currentFirebaseUserUid).collection("messages").document("0").set(newMessage);
+
+                                                        Toast toast = new Toast(FriendsActivity.this);
+                                                        toast.setDuration(Toast.LENGTH_SHORT);
+                                                        LayoutInflater layoutInflater = (LayoutInflater) FriendsActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                                        View view = layoutInflater.inflate(R.layout.toast_added, null);
+                                                        TextView toastMessage = view.findViewById(R.id.toastMessage);
+                                                        toastMessage.setText("Friend Added");
+                                                        toast.setView(view);
+                                                        toast.show();
                                                     }
                                                 }
                                             }
