@@ -7,25 +7,27 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:padding="0dp"
         android:layout_margin="0dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         />
 
+    <TextView
+        android:id="@+id/text_view_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="No drawings available."
+        android:textSize="18sp"
+        android:textColor="@android:color/darker_gray"
+        android:visibility="gone" />
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_drawings"
+        android:id="@+id/recycler_view_public_drawings"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar" />
-
-    <TextView
-        android:id="@+id/layout_empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No saved drawings"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
 
 </RelativeLayout>

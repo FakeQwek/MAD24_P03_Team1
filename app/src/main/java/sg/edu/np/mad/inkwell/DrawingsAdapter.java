@@ -3,10 +3,10 @@ package sg.edu.np.mad.inkwell;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,14 +24,21 @@ public class DrawingsAdapter extends RecyclerView.Adapter<DrawingsAdapter.ViewHo
     private List<Map<String, Object>> drawingList;
     private Context context;
     private OnItemClickListener onItemClickListener;
+    private OnDeleteClickListener onDeleteClickListener; // Add delete listener
+    private int deleteButtonVisibility = View.VISIBLE;
 
     public interface OnItemClickListener {
         void onItemClick(Map<String, Object> drawing);
     }
 
-    public DrawingsAdapter(List<Map<String, Object>> drawingList, OnItemClickListener onItemClickListener) {
+    public interface OnDeleteClickListener {
+        void onDeleteClick(Map<String, Object> drawing);
+    }
+
+    public DrawingsAdapter(List<Map<String, Object>> drawingList, OnItemClickListener onItemClickListener, OnDeleteClickListener onDeleteClickListener) {
         this.drawingList = drawingList;
         this.onItemClickListener = onItemClickListener;
+        this.onDeleteClickListener = onDeleteClickListener;
     }
 
     @NonNull
@@ -63,6 +70,13 @@ public class DrawingsAdapter extends RecyclerView.Adapter<DrawingsAdapter.ViewHo
         });
 
         holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(drawing));
+        holder.deleteButton.setVisibility(deleteButtonVisibility);
+        holder.deleteButton.setOnClickListener(v -> onDeleteClickListener.onDeleteClick(drawing)); // Handle delete click
+    }
+
+    public void setDeleteButtonVisibility(int visibility) {
+        this.deleteButtonVisibility = visibility;
+        notifyDataSetChanged();  // Refresh the list to apply visibility changes
     }
 
     @Override
@@ -74,12 +88,14 @@ public class DrawingsAdapter extends RecyclerView.Adapter<DrawingsAdapter.ViewHo
         ImageView imageView;
         TextView titleTextView;
         TextView nameTextView;
+        ImageButton deleteButton;
 
         ViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.image_view);
             titleTextView = itemView.findViewById(R.id.title_text_view);
             nameTextView = itemView.findViewById(R.id.name_text_view);
+            deleteButton = itemView.findViewById(R.id.btn_delete_drawing); // Initialize delete button
         }
     }
 }

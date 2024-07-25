@@ -7,14 +7,14 @@
 
     <Button
         android:id="@+id/btn_new_drawing"
-        android:layout_width="wrap_content"
+        android:layout_width="550dp"
         android:layout_height="wrap_content"
         android:text="New Drawing"
         android:layout_centerHorizontal="true"/>
 
     <Button
         android:id="@+id/btn_view_saved_drawings"
-        android:layout_width="wrap_content"
+        android:layout_width="550dp"
         android:layout_height="wrap_content"
         android:text="View Saved Drawings"
         android:layout_below="@id/btn_new_drawing"
@@ -23,9 +23,9 @@
 
     <Button
         android:id="@+id/btn_view_other_drawings"
-        android:layout_width="wrap_content"
+        android:layout_width="550dp"
         android:layout_height="wrap_content"
-        android:text="View Other Drawings"
+        android:text="View Public Drawings"
         android:layout_below="@id/btn_view_saved_drawings"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"/>

@@ -151,9 +151,13 @@ public class DrawingMainActivity extends AppCompatActivity {
         EditText etName = view.findViewById(R.id.et_name);
         EditText etTitle = view.findViewById(R.id.et_title);
         Button btnSave = view.findViewById(R.id.btn_save);
+        Button btnPublishToCollection = view.findViewById(R.id.btn_publish_to_collection);
 
         builder.setView(view);
         AlertDialog dialog = builder.create();
+
+        // Create Bitmap outside of the dialog methods to use it in both save and publish functions
+        Bitmap bmp = paint.save();
 
         btnSave.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
@@ -162,41 +166,45 @@ public class DrawingMainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please enter both name and title", Toast.LENGTH_SHORT).show();
             } else {
                 dialog.dismiss();
-                Bitmap bmp = paint.save();
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/DrawingApp/");
-                values.put(MediaStore.Images.Media.IS_PENDING, 1);
-                Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                try {
-                    OutputStream imageOutStream = getContentResolver().openOutputStream(uri);
-                    bmp.compress(Bitmap.CompressFormat.PNG, 100, imageOutStream);
-                    imageOutStream.close();
-                    values.clear();
-                    values.put(MediaStore.Images.Media.IS_PENDING, 0);
-                    getContentResolver().update(uri, values, null, null);
+                saveDrawingToUserSpecificPath(bmp, name, title);
+            }
+        });
 
-                    // Save the drawing to Firebase with the user's name and title
-                    saveDrawingToFirebase(bmp, name, title);
-                    saveDrawingToUserSpecificPath(bmp, name, title);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        btnPublishToCollection.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String title = etTitle.getText().toString().trim();
+            if (name.isEmpty() || title.isEmpty()) {
+                Toast.makeText(this, "Please enter both name and title", Toast.LENGTH_SHORT).show();
+            } else {
+                dialog.dismiss();
+                showPublishConfirmationDialog(bmp, name, title);
             }
         });
 
         dialog.show();
     }
 
-    private void saveDrawingToFirebase(Bitmap bmp, String name, String title) {
+    private void showPublishConfirmationDialog(Bitmap bmp, String name, String title) {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Publish")
+                .setMessage("Are you sure you want to publish this drawing? Once published, you cannot delete it.")
+                .setPositiveButton("Publish", (dialog, which) -> saveDrawingToCollection(bmp, name, title))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void saveDrawingToCollection(Bitmap bmp, String name, String title) {
+        // Call the saveDrawingToUserSpecificPath method first
+        saveDrawingToUserSpecificPath(bmp, name, title);
+
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user == null) {
             Toast.makeText(this, "Please log in to save your drawing.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String userId = user.getUid();
         String drawingId = UUID.randomUUID().toString();
-        StorageReference storageRef = firebaseStorage.getReference().child("drawings").child(userId).child(drawingId + ".png");
+        StorageReference storageRef = firebaseStorage.getReference().child("drawings").child(drawingId + ".png");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
@@ -207,7 +215,6 @@ public class DrawingMainActivity extends AppCompatActivity {
             String downloadUrl = uri.toString();
 
             Map<String, Object> drawing = new HashMap<>();
-            drawing.put("userId", userId);
             drawing.put("drawingId", drawingId);
             drawing.put("imageUrl", downloadUrl);
             drawing.put("timestamp", System.currentTimeMillis());
@@ -215,8 +222,8 @@ public class DrawingMainActivity extends AppCompatActivity {
             drawing.put("title", title);
 
             firebaseFirestore.collection("drawings").document(drawingId).set(drawing)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(DrawingMainActivity.this, "Drawing saved to Firebase.", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to save drawing to Firebase.", Toast.LENGTH_SHORT).show());
+                    .addOnSuccessListener(aVoid -> Toast.makeText(DrawingMainActivity.this, "Drawing published to collection.", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to publish drawing to collection.", Toast.LENGTH_SHORT).show());
         })).addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to upload drawing to Firebase.", Toast.LENGTH_SHORT).show());
     }
 
@@ -247,9 +254,9 @@ public class DrawingMainActivity extends AppCompatActivity {
             drawing.put("title", title);
 
             firebaseFirestore.collection("users").document(userId).collection("drawings").document(drawingId).set(drawing)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(DrawingMainActivity.this, "Drawing saved to user-specific path.", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to save drawing to user-specific path.", Toast.LENGTH_SHORT).show());
-        })).addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to upload drawing to user-specific path.", Toast.LENGTH_SHORT).show());
+                    .addOnSuccessListener(aVoid -> Toast.makeText(DrawingMainActivity.this, "Drawing saved successfully.", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to save drawing.", Toast.LENGTH_SHORT).show());
+        })).addOnFailureListener(e -> Toast.makeText(DrawingMainActivity.this, "Failed to upload drawing to Firebase.", Toast.LENGTH_SHORT).show());
     }
 
     private void setColorButtons() {

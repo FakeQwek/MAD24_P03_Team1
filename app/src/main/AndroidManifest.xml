@@ -117,6 +117,7 @@
         <activity android:name=".IntermediateActivity"></activity>
         <activity android:name=".ViewSavedDrawingsActivity"></activity>
         <activity android:name=".FullImageActivity"></activity>
+        <activity android:name=".ViewPublicCollectionActivity"></activity>
 
 
         <receiver

@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,11 +54,13 @@ public class ViewSavedDrawingsActivity extends AppCompatActivity {
             intent.putExtra("title", (String) drawing.get("title"));
             intent.putExtra("name", (String) drawing.get("name"));
             startActivity(intent);
-        });
+        }, this::onDeleteClick); // Pass delete listener
         recyclerView.setAdapter(adapter);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
+
+        adapter.setDeleteButtonVisibility(View.VISIBLE);
 
         fetchSavedDrawings();
     }
@@ -71,12 +75,45 @@ public class ViewSavedDrawingsActivity extends AppCompatActivity {
                         drawingList.clear();
                         for (DocumentSnapshot document : task.getResult()) {
                             Map<String, Object> drawing = document.getData();
+                            drawing.put("documentId", document.getId());
                             drawingList.add(drawing);
                         }
                         adapter.notifyDataSetChanged();
                         layoutEmpty.setVisibility(drawingList.isEmpty() ? View.VISIBLE : View.GONE);
                     } else {
                         // Handle error
+                    }
+                });
+    }
+
+    private void onDeleteClick(Map<String, Object> drawing) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Drawing")
+                .setMessage("Are you sure you want to delete this drawing from your saved drawings?")
+                .setPositiveButton("Yes", (dialog, which) -> deleteDrawing(drawing))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void deleteDrawing(Map<String, Object> drawing) {
+        String userId = firebaseAuth.getCurrentUser().getUid();
+        String drawingId = (String) drawing.get("documentId");
+
+        firebaseFirestore.collection("users").document(userId).collection("drawings").document(drawingId).delete()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        firebaseFirestore.collection("drawings").document(drawingId).delete()
+                                .addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        drawingList.remove(drawing);
+                                        adapter.notifyDataSetChanged();
+                                        Toast.makeText(this, "Drawing deleted successfully", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(this, "Failed to delete from collection", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(this, "Failed to delete from saved drawings", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
