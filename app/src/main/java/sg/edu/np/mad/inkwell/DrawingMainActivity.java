@@ -36,7 +36,7 @@ import java.util.UUID;
 public class DrawingMainActivity extends AppCompatActivity {
 
     private DrawView paint;
-    private ImageButton save, color, stroke, undo, redo, eraser, reset, fill;
+    private ImageButton save, color, stroke, undo, redo, eraser, reset, fill, selectionMode, deleteSelection;
     private RangeSlider rangeSlider;
 
     // Custom color picker dialog views
@@ -47,6 +47,8 @@ public class DrawingMainActivity extends AppCompatActivity {
     private int currentColor;
     private boolean isEraserOn = false;
     private boolean isFillModeOn = false;
+
+    private boolean isSelectionModeOn = false;
 
     private FirebaseAuth firebaseAuth;  // Firebase authentication instance
     private FirebaseFirestore firebaseFirestore;  // Firebase Firestore instance
@@ -67,6 +69,9 @@ public class DrawingMainActivity extends AppCompatActivity {
         eraser = findViewById(R.id.btn_eraser);
         reset = findViewById(R.id.btn_reset);
         fill = findViewById(R.id.btn_fill);  // Add this line for fill button
+        selectionMode = findViewById(R.id.btn_selection_mode);
+        deleteSelection = findViewById(R.id.btn_delete_selection);
+
 
         // Initialize custom color picker dialog views
         colorPickerDialog = findViewById(R.id.color_picker_dialog);
@@ -92,6 +97,10 @@ public class DrawingMainActivity extends AppCompatActivity {
         reset.setOnClickListener(view -> resetDrawing());
 
         fill.setOnClickListener(view -> toggleFillMode());  // Add this line to toggle fill mode
+
+        selectionMode.setOnClickListener(view -> toggleSelectionMode());
+
+        deleteSelection.setOnClickListener(view -> showDeleteSelectionConfirmation());
 
         rangeSlider.addOnChangeListener((slider, value, fromUser) -> paint.setStrokeWidth((int) value));
 
@@ -324,5 +333,21 @@ public class DrawingMainActivity extends AppCompatActivity {
         isFillModeOn = !isFillModeOn;
         fill.setColorFilter(isFillModeOn ? Color.GREEN : Color.BLACK);  // Change button color to indicate fill mode status
         paint.setFillMode(isFillModeOn);
+    }
+
+    private void toggleSelectionMode() {
+        boolean isSelectionModeOn = !paint.isSelectionMode();
+        paint.setSelectionMode(isSelectionModeOn);
+        selectionMode.setColorFilter(isSelectionModeOn ? Color.GREEN : Color.BLACK);
+        deleteSelection.setVisibility(isSelectionModeOn ? View.VISIBLE : View.GONE);
+    }
+
+    private void showDeleteSelectionConfirmation() {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Delete")
+                .setMessage("Are you sure you want to delete the selected area?")
+                .setPositiveButton("Delete", (dialog, which) -> paint.deleteSelection())
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

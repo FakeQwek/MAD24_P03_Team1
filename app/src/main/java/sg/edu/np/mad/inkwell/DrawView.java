@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.Stack;  // Make sure this import is included
+import java.util.Stack;
 
 public class DrawView extends View {
 
@@ -16,8 +16,13 @@ public class DrawView extends View {
     private Canvas canvas;
     private Stack<Bitmap> undoStack = new Stack<>();
     private Stack<Bitmap> redoStack = new Stack<>();
-    private int currentColor;  // Added this line to define currentColor
-    private boolean isFillModeOn = false;  // Add a flag for fill mode
+    private int currentColor;
+    private boolean isFillModeOn = false;
+    private boolean isSelectionModeOn = false;
+
+    private Rect selectionBox;
+    private Paint selectionPaint;
+    private Paint selectionFillPaint;
 
     public DrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -28,11 +33,18 @@ public class DrawView extends View {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        currentColor = Color.BLACK;  // Initialize currentColor to default color
+        currentColor = Color.BLACK;
+
+        selectionBox = new Rect();
+        selectionPaint = new Paint();
+        selectionPaint.setColor(Color.RED);
+        selectionPaint.setStyle(Paint.Style.STROKE);
+        selectionPaint.setStrokeWidth(5);
+        selectionFillPaint = new Paint();
     }
 
     public void setColor(int color) {
-        currentColor = color;  // Update currentColor when color is set
+        currentColor = color;
         paint.setColor(color);
     }
 
@@ -51,26 +63,41 @@ public class DrawView extends View {
         super.onDraw(canvas);
         canvas.drawBitmap(bitmap, 0, 0, null);
         canvas.drawPath(path, paint);
+
+        if (isSelectionModeOn) {
+            canvas.drawRect(selectionBox, selectionPaint);
+            if (isFillModeOn) {
+                canvas.drawRect(selectionBox, selectionFillPaint);
+            }
+        }
     }
 
     private void startTouch(float x, float y) {
-        path.moveTo(x, y);
+        if (isSelectionModeOn) {
+            selectionBox.set((int) x, (int) y, (int) x, (int) y);
+        } else {
+            path.moveTo(x, y);
+        }
     }
 
     private void moveTouch(float x, float y) {
-        path.lineTo(x, y);
+        if (isSelectionModeOn) {
+            selectionBox.right = (int) x;
+            selectionBox.bottom = (int) y;
+        } else {
+            path.lineTo(x, y);
+        }
     }
 
     private void upTouch() {
-        // Draw the path with the current paint mode
-        if (paint.getXfermode() != null) {
-            // If eraser mode is on, the path is cleared
-            canvas.drawPath(path, paint);
-        } else {
-            // Otherwise, draw the path as normal
-            canvas.drawPath(path, paint);
+        if (!isSelectionModeOn) {
+            if (paint.getXfermode() != null) {
+                canvas.drawPath(path, paint);
+            } else {
+                canvas.drawPath(path, paint);
+            }
+            path.reset();
         }
-        path.reset();
     }
 
     @Override
@@ -89,10 +116,10 @@ public class DrawView extends View {
                 break;
             case MotionEvent.ACTION_UP:
                 upTouch();
-                if (isFillModeOn) {
+                if (isFillModeOn && !isSelectionModeOn) {
                     int targetColor = bitmap.getPixel((int) x, (int) y);
                     QueueLinearFloodFiller filler = new QueueLinearFloodFiller(bitmap, targetColor, currentColor);
-                    filler.setTolerance(10);  // Set tolerance value as needed
+                    filler.setTolerance(10);
                     filler.floodFill((int) x, (int) y);
                     invalidate();
                 }
@@ -144,14 +171,37 @@ public class DrawView extends View {
     public void setEraserMode(boolean isEraserOn) {
         if (isEraserOn) {
             paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-            paint.setColor(Color.TRANSPARENT);  // Set the eraser color to transparent
+            paint.setColor(Color.TRANSPARENT);
         } else {
             paint.setXfermode(null);
-            paint.setColor(currentColor);  // Reset color to the current drawing color
+            paint.setColor(currentColor);
         }
     }
 
     public void setFillMode(boolean isFillModeOn) {
         this.isFillModeOn = isFillModeOn;
+    }
+
+    public void setSelectionMode(boolean selectionMode) {
+        isSelectionModeOn = selectionMode;
+        if (!selectionMode) {
+            selectionBox.setEmpty();
+        }
+        invalidate();
+    }
+
+    public void deleteSelection() {
+        if (selectionBox.isEmpty()) return;
+
+        saveStateForUndo();
+        Paint clearPaint = new Paint();
+        clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        canvas.drawRect(selectionBox, clearPaint);
+        selectionBox.setEmpty();
+        invalidate();
+    }
+
+    public boolean isSelectionMode() {
+        return isSelectionModeOn;
     }
 }
