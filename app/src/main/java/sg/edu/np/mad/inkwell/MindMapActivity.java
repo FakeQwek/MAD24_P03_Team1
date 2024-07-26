@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -213,6 +214,8 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     QuerySnapshot querySnapshot = task.getResult();
                     if (querySnapshot != null && !querySnapshot.isEmpty()) {
                         List<String> titleNodes = new ArrayList<>();
+                        List<String> mindMapIds = new ArrayList<>();
+
                         for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                             Map<String, Object> mindMapData = doc.getData();
                             if (mindMapData != null) {
@@ -221,12 +224,15 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                                     Map<String, Object> firstNodeData = savedNodes.get(0);
                                     String text = (String) firstNodeData.get("text");
                                     titleNodes.add(text);
+                                    mindMapIds.add(doc.getId());
+
                                     Log.d(TAG, "MindMap ID: " + doc.getId() + " 0th Node Text: " + text);
                                 }
                             }
                         }
 
-                        recyclerView(titleNodes);
+                        // Pass both lists to the recyclerView method or wherever needed
+                        recyclerView(titleNodes, mindMapIds);
                         navigationBar();
                     } else {
                         Log.d(TAG, "No mind maps found for the user.");
@@ -490,6 +496,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                             lines.add(line);
                             mindMapContainer.addView(line);
                         }
+
+                        // Update the current mind map ID
+                        currentMindMapId = mindMapId;
                     }
                 } else {
                     Log.d(TAG, "No such mind map!");
@@ -625,17 +634,20 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         }
     }
 
-    private void recyclerView(List<String> allMindMaps) {
+    private void recyclerView(List<String> titles, List<String> ids) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        MindMapAdapter adapter = new MindMapAdapter(allMindMaps);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-
-        if (recyclerView != null) {
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setItemAnimator(new DefaultItemAnimator());
-            recyclerView.setAdapter(adapter);
-            recyclerView.getAdapter().notifyDataSetChanged();
-        }
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        MindMapAdapter adapter = new MindMapAdapter(this, titles, ids,
+                id -> {
+                    mindMapContainer.removeAllViews();
+                    nodes.clear();
+                    lines.clear();
+                    loadMindMap(db, currentUser.getUid(), id);
+                },
+                id -> {
+                    Toast.makeText(this, "Click and hold: " + id, Toast.LENGTH_SHORT).show();
+                });
+        recyclerView.setAdapter(adapter);
     }
 
 
