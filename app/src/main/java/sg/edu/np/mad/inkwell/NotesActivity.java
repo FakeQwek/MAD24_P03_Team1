@@ -405,6 +405,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
         menu.findItem(R.id.nav_home).setVisible(false);
         menu.findItem(R.id.nav_notes).setVisible(false);
+        menu.findItem(R.id.nav_mind_map).setVisible(false);
         menu.findItem(R.id.nav_todos).setVisible(false);
         menu.findItem(R.id.nav_flashcards).setVisible(false);
         menu.findItem(R.id.nav_calendar).setVisible(false);
@@ -426,6 +427,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                     if (menu.hasVisibleItems()) {
                         menu.findItem(R.id.nav_home).setVisible(false);
                         menu.findItem(R.id.nav_notes).setVisible(false);
+                        menu.findItem(R.id.nav_mind_map).setVisible(false);
                         menu.findItem(R.id.nav_todos).setVisible(false);
                         menu.findItem(R.id.nav_flashcards).setVisible(false);
                         menu.findItem(R.id.nav_calendar).setVisible(false);
@@ -440,6 +442,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                     } else {
                         menu.findItem(R.id.nav_home).setVisible(true);
                         menu.findItem(R.id.nav_notes).setVisible(true);
+                        menu.findItem(R.id.nav_mind_map).setVisible(true);
                         menu.findItem(R.id.nav_todos).setVisible(true);
                         menu.findItem(R.id.nav_flashcards).setVisible(true);
                         menu.findItem(R.id.nav_calendar).setVisible(true);

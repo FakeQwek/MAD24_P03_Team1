@@ -13,6 +13,10 @@
             android:icon="@drawable/note_outline"
             android:title="Notes" />
         <item
+            android:id="@+id/nav_mind_map"
+            android:icon="@drawable/mind_map_icon"
+            android:title="Mind Map" />
+        <item
             android:id="@+id/nav_todos"
             android:icon="@drawable/calendar_check"
             android:title="Todos" />
@@ -29,10 +33,6 @@
             android:icon="@drawable/calendar_clock"
             android:title="Timetable" />
         <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/cog"
-            android:title="Settings" />
-        <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/account"
             android:title="Profile" />
@@ -44,6 +44,10 @@
             android:id="@+id/nav_community"
             android:icon="@drawable/account_group"
             android:title="Community" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/cog"
+            android:title="Settings" />
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/logout"

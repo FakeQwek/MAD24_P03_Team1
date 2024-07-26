@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.checkerframework.checker.units.qual.Current;
-
 public class Navbar {
     private Activity CurrentActivity;
     private String currentActivityName;
@@ -34,6 +32,11 @@ public class Navbar {
         else if (id == R.id.nav_todos) {
             Intent newActivity = new Intent(CurrentActivity, TodoActivity.class);
             Log.d("Alert", "Opening todo list");
+            return newActivity;
+        }
+        else if (id == R.id.nav_mind_map) {
+            Intent newActivity = new Intent(CurrentActivity, MindMapActivity.class);
+            Log.d("Alert", "Opening mind map");
             return newActivity;
         }
         else if (id == R.id.nav_flashcards) {
@@ -75,11 +78,6 @@ public class Navbar {
         else if (id == R.id.nav_community) {
             Intent newActivity = new Intent(CurrentActivity, CommunityActivity.class);
             Log.d("Alert", "Opening profile");
-            return newActivity;
-        }
-        else if (id == R.id.nav_settings) {
-            Intent newActivity = new Intent(CurrentActivity, SettingsActivity.class);
-            Log.d("Alert", "Opening settings");
             return newActivity;
         }
         else {
