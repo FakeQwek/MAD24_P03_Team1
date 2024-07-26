@@ -329,6 +329,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     private void addChildNode() {
         NodeView parentNode = selectedNode != null ? selectedNode : titleNode;
         NodeView childNode = new NodeView(this, "Child Node " + (nodes.size() + 1), parentNode.getPosX() + 200, parentNode.getPosY() + 200);
+        childNode.setScale(scaleFactor);
         addNodeToContainer(childNode);
         addConnectionLine(parentNode, childNode);
 
@@ -470,7 +471,8 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     if (mindMapData != null) {
                         // Process and update nodes
                         List<Map<String, Object>> savedNodes = (List<Map<String, Object>>) mindMapData.get("nodes");
-                        for (Map<String, Object> nodeData : savedNodes) {
+                        for (int i = 0; i < savedNodes.size(); i++) {
+                            Map<String, Object> nodeData = savedNodes.get(i);
                             String text = (String) nodeData.get("text");
                             float posX = ((Number) nodeData.get("posX")).floatValue();
                             float posY = ((Number) nodeData.get("posY")).floatValue();
@@ -483,6 +485,11 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                             node.updateRect();
                             node.invalidate();
                             nodes.add(node);
+
+                            // Set text size for the 0th node
+                            if (i == 0) {
+                                node.setTextSize(60);
+                            }
                         }
 
                         // Process and update lines
