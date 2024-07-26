@@ -92,7 +92,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
     private String stringURLEndPoint = "https://api.openai.com/v1/chat/completions";
 
-    private String stringAPIKey = "API KEY";
+    private String stringAPIKey = "API KEY"; //sk-proj-Kl2DatFCXJDQoTrpkBwKT3BlbkFJDcUUQa1G1xScuoCtvuTo
 
     public static String promptResponse = "";
 
