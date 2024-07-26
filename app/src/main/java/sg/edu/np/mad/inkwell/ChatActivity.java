@@ -53,6 +53,7 @@ public class ChatActivity extends AppCompatActivity implements NavigationView.On
 
     ArrayList<Message> messageList;
 
+    // Method to set items in the recycler view
     private void recyclerView(ArrayList<Message> messageList) {
         messageList.sort(Comparator.comparingInt(Message::getId));
         RecyclerView recyclerView = findViewById(R.id.messageRecyclerView);
@@ -96,6 +97,7 @@ public class ChatActivity extends AppCompatActivity implements NavigationView.On
 
         ImageButton sendButton = findViewById(R.id.sendButton);
 
+        // send message content in the input text box when user clicks this button
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,6 +131,7 @@ public class ChatActivity extends AppCompatActivity implements NavigationView.On
     protected void onStart() {
         super.onStart();
 
+        // get data of messages from firebase
         db.collection("users").document(currentFirebaseUserUid).collection("friends").document(String.valueOf(FriendsActivity.selectedFriendId)).collection("messages")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override

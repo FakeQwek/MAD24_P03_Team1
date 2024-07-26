@@ -73,6 +73,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
     ArrayList<Friend> friendList;
 
+    // Method to set items in the recycler view
     private void recyclerView(ArrayList<Friend> friendList) {
         RecyclerView recyclerView = findViewById(R.id.friendRecyclerView);
         FriendAdapter adapter = new FriendAdapter(friendList, this);
@@ -113,6 +114,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
         ImageButton addFriendButton = findViewById(R.id.addFriendButton);
 
+        // bring up a bottom sheet to input a friend's email to add
         addFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,6 +127,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
 
                 Button doneButton = view.findViewById(R.id.doneButton);
 
+                // add a friend record in firebase
                 doneButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -194,6 +197,7 @@ public class FriendsActivity extends AppCompatActivity implements NavigationView
     protected void onStart() {
         super.onStart();
 
+        // get data of the user's friends from firebase
         db.collection("users").document(currentFirebaseUserUid).collection("friends")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override

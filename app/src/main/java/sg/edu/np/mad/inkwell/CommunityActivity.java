@@ -98,6 +98,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
     private String prompt = "output a string of an mcq question in this format. question; option A; option B; option C; option D; answer make sure to add the semicolons. only output the string. do this for 10 questions. separate the questions with semicolons as well. do not number the questions. label the options with A, B, C, D. do not have spaces after semicolons. The answer should be in this format A";
 
+    // function to call ChatGPT API to generate questions based on the community note content
     public void callAPI(String prompt) {
         JSONObject jsonObject = new JSONObject();
 
@@ -165,6 +166,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
         Volley.newRequestQueue(getApplicationContext()).add(jsonObjectRequest);
     }
 
+    // Method to set items in the recycler view
     private void recyclerView(ArrayList<CommunityNote> communityNoteList, ArrayList<CommunityNote> communityNotes) {
         RecyclerView recyclerView = findViewById(R.id.communityRecyclerView);
         CommunityNoteAdapter adapter = new CommunityNoteAdapter(communityNoteList, communityNotes, this);
@@ -175,6 +177,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
         recyclerView.getAdapter().notifyDataSetChanged();
     }
 
+    // method to filter the contents of the recycler view based on the search query
     private void filter(ArrayList<CommunityNote> communityNoteList, String query) {
         ArrayList<CommunityNote> filterList = new ArrayList<>();
         for (CommunityNote communityNote : communityNoteList){
@@ -222,6 +225,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         ImageButton swapButton = findViewById(R.id.swapButton);
 
+        // button to swap displayed child of view animator
         swapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -239,6 +243,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         TextView noteBody = findViewById(R.id.noteBody);
 
+        // button to allow user to add the community note to their own notes
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -258,6 +263,13 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                     newNoteData.put("dateUpdated", dateString);
 
                     db.collection("users").document(currentFirebaseUserUid).collection("notes").document(String.valueOf(noteCount)).set(newNoteData);
+
+                    Toast toast = new Toast(CommunityActivity.this);
+                    toast.setDuration(Toast.LENGTH_SHORT);
+                    LayoutInflater layoutInflater = (LayoutInflater) CommunityActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = layoutInflater.inflate(R.layout.toast_added, null);
+                    toast.setView(view);
+                    toast.show();
                 } else {
                     Toast toast = new Toast(CommunityActivity.this);
                     toast.setDuration(Toast.LENGTH_SHORT);
@@ -290,6 +302,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         TextView pageTitle = findViewById(R.id.pageTitle);
 
+        // allows user to remove their own community notes
         manageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -400,6 +413,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         ImageButton leaderboardButton = findViewById(R.id.leaderboardButton);
 
+        // go to leaderboard activity
         leaderboardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -419,6 +433,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
 
         Button quizButton = findViewById(R.id.quizButton);
 
+        // start ai generated quiz
         quizButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -440,6 +455,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
     protected void onStart() {
         super.onStart();
 
+        // get data of all community notes
         db.collection("community")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -481,6 +497,7 @@ public class CommunityActivity extends AppCompatActivity implements NavigationVi
                     }
                 });
 
+        // get data of the user's notes to store the data of their note count
         db.collection("users").document(currentFirebaseUserUid).collection("notes")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

@@ -126,6 +126,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
     int currentFlashcardCollectionId = 1;
 
+    // function to prompt ChatGPT API questions
     public void callAPI(String prompt) {
         JSONObject jsonObject = new JSONObject();
 
@@ -207,6 +208,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
         Volley.newRequestQueue(getApplicationContext()).add(jsonObjectRequest);
     }
 
+    // function to use ChatGPT API to generate flashcards and create flashcards in the flashcard activity
     public void callAPIForFlashcards(String prompt) {
         JSONObject jsonObject = new JSONObject();
 
@@ -628,6 +630,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
         ImageButton leftButton = findViewById(R.id.leftButton);
 
+        // go to the last visited note
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -643,6 +646,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
         ImageButton rightButton = findViewById(R.id.rightButton);
 
+        // go to the next note
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -658,6 +662,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
         ImageButton readOnlyButton = findViewById(R.id.readOnlyButton);
 
+        // make the notes read only
         readOnlyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -676,6 +681,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
         ViewAnimator viewAnimator = findViewById(R.id.viewAnimator);
         ImageButton aiButton = findViewById(R.id.aiButton);
 
+        // make view animator swap pages between the notes writing page and the ai chat page
         aiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -691,6 +697,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
         ImageButton aiOthersButton = findViewById(R.id.aiOthersButton);
 
+        // bring up a bottom sheet to give the user the option to use AI to generate flashcards
         aiOthersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -708,12 +715,22 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                             String prompt = noteBody.getText().toString().trim() + " output a string of a flashcard in this format. question; answer; make sure to add the semicolons. only output the string. do this for 10 flashcards. separate the questions with semicolons as well. do not number the questions. do not have spaces after semicolons. make sure it is 10 questions.";
 
                             callAPIForFlashcards(prompt);
+
+                            Toast toast = new Toast(NotesActivity.this);
+                            toast.setDuration(Toast.LENGTH_SHORT);
+                            LayoutInflater layoutInflater = (LayoutInflater) NotesActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            View view = layoutInflater.inflate(R.layout.toast_added, null);
+                            TextView toastMessage = view.findViewById(R.id.toastMessage);
+                            toastMessage.setText("Generating");
+                            toast.setView(view);
+                            toast.show();
                         }
                     });
                 }
             }
         });
 
+        // listener when scanning a QR code to get a copy of a note from someone else
         ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(),
                 result -> {
                     if (result.getContents() == null) {
@@ -759,6 +776,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
         ImageButton scanQRCodeButton = findViewById(R.id.scanQRCodeButton);
 
+        // enable the camera to scan a QR code
         scanQRCodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -772,6 +790,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
         TextInputEditText promptEditText = findViewById(R.id.promptEditText);
         ImageButton sendButton = findViewById(R.id.sendButton);
 
+        // sends prompt in text input text box to ChatGPT API and displays the message
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -800,6 +819,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
             }
         });
 
+        // get data of the user's friends from firebase
         db.collection("users").document(currentFirebaseUserUid).collection("friends")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

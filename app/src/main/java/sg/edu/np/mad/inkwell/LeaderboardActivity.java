@@ -58,6 +58,7 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
 
     TextView noteOwner;
 
+    // Method to set items in the recycler view
     private void recyclerView(ArrayList<LeaderboardRank> leaderboardRankList) {
         RecyclerView recyclerView = findViewById(R.id.leaderboardRecyclerView);
         LeaderboardRankAdapter adapter = new LeaderboardRankAdapter(leaderboardRankList, this);
@@ -105,6 +106,7 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
     protected void onStart() {
         super.onStart();
 
+        // get data of the scores for this community note quiz leaderboard from firebase
         db.collection("community").document(CommunityActivity.selectedNote.getId()).collection("leaderboard")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -143,6 +145,7 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
                     }
                 });
 
+        // get data of the community note from firebase
         db.collection("community").document(CommunityActivity.selectedNote.getId())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

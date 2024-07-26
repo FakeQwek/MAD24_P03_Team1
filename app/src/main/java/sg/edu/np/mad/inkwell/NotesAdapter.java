@@ -323,6 +323,7 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     Button qrCodeButton = view.findViewById(R.id.qrCodeButton);
                     qrCodeButton.setText("Generate QR Code To Share Note");
 
+                    // generate a QR code for others to scan and get a copy of the selected note
                     qrCodeButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

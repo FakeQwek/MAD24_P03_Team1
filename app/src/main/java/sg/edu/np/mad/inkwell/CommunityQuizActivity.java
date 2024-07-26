@@ -81,6 +81,7 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
 
         decorView.setSystemUiVisibility(uiOptions);
 
+        // split a string to get the questions for the quiz
         String[] questions = CommunityActivity.promptResponse.split(";", 0);
 
         CommunityActivity.promptResponse = "";
@@ -95,6 +96,7 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
 
         RadioButton option4 = findViewById(R.id.option4);
 
+        // set the text for the questions of the quiz
         question.setText(questions[0]);
         option1.setText(questions[1]);
         option2.setText(questions[2]);
@@ -107,6 +109,7 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
 
         TextView pointCounter = findViewById(R.id.pointCounter);
 
+        // on submitting an answer change the question text and update the score counter
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,6 +136,7 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
 
                     pointCounter.setText("Points: " + points);
 
+                    // if 10 questions have passed end the quiz and go to the leaderboard activity
                     if (questionCount < 10) {
                         question.setText(questions[6 * questionCount]);
                         option1.setText(questions[6 * questionCount + 1]);
@@ -146,6 +150,7 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
                     } else {
                         radioGroup.clearCheck();
 
+                        // add a new leaderboard record to firebase
                         Map<String, Object> newLeaderboardData = new HashMap<>();
                         newLeaderboardData.put("email", currentFirebaseUserEmail);
                         newLeaderboardData.put("points", points);

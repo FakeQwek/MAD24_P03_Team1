@@ -64,9 +64,11 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendViewHolder> {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
+        // if the current activity is a friend activity
         if (friendsActivity != null) {
             RecyclerView recyclerView = friendsActivity.findViewById(R.id.friendRecyclerView);
 
+            // when clicking on a friend go to chat activity of that friend
             holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -79,6 +81,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendViewHolder> {
                 }
             });
 
+            // bring up a bottom sheet on long click on a friend
             holder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -91,6 +94,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendViewHolder> {
 
                     deleteButton.setText("Delete");
 
+                    // delete the record of the friend from firebase
                     deleteButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -117,6 +121,9 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendViewHolder> {
                 }
             });
         } else {
+            // if the current activity is not a friend activity have a different functionality
+
+            // when clicking a friend send a copy of a note to them
             holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
