@@ -64,6 +64,8 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     private boolean isMovingNode;
     private boolean isPanning;
     private NodeView titleNode;
+    private List<String> mindMapIds = new ArrayList<>();
+    private int currentIndex = -1;
     private ScaleGestureDetector scaleGestureDetector;
     private float scaleFactor = 1.0f;
 
@@ -461,7 +463,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         });
     }
 
-    // Load a specific mind map from Firebase
     private void loadMindMap(FirebaseFirestore db, String userId, String mindMapId) {
         DocumentReference mindMapRef = db.collection("users").document(userId).collection("mindmaps").document(mindMapId);
         mindMapRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -477,6 +478,8 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                             String text = (String) nodeData.get("text");
                             float posX = ((Number) nodeData.get("posX")).floatValue();
                             float posY = ((Number) nodeData.get("posY")).floatValue();
+                            int color = ((Number) nodeData.get("color")).intValue(); // Retrieve color
+
                             NodeView node = new NodeView(MindMapActivity.this, text, posX, posY);
                             ZoomLayout.LayoutParams params = new ZoomLayout.LayoutParams(
                                     ZoomLayout.LayoutParams.WRAP_CONTENT,
@@ -487,10 +490,14 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                             node.invalidate();
                             nodes.add(node);
 
-                            // Set text size for the 0th node
+                            // set title node text
                             if (i == 0) {
                                 node.setTextSize(60);
+                                setSelectedNode(node);
                             }
+
+                            // set node colour
+                            node.setColor(color);
                         }
 
                         // Process and update lines
@@ -654,9 +661,30 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     loadMindMap(db, currentUser.getUid(), id);
                 },
                 id -> {
-                    Toast.makeText(this, "Click and hold: " + id, Toast.LENGTH_SHORT).show();
+                    // Show confirmation dialog for deletion
+                    new AlertDialog.Builder(MindMapActivity.this)
+                            .setTitle("Delete Mind Map")
+                            .setMessage("Are you sure you want to delete this mind map?")
+                            .setPositiveButton("Delete", (dialog, which) -> deleteMindMap(id))
+                            .setNegativeButton("Cancel", null)
+                            .show();
                 });
         recyclerView.setAdapter(adapter);
+    }
+
+    private void deleteMindMap(String mindMapId) {
+        if (currentUser != null) {
+            db.collection("users").document(currentUser.getUid()).collection("mindmaps")
+                    .document(mindMapId).delete()
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(MindMapActivity.this, "Mind map deleted", Toast.LENGTH_SHORT).show();
+                        fetchAllTitleNodes(currentUser.getUid()); // Refresh the list
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(MindMapActivity.this, "Error deleting mind map", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Error deleting mind map: ", e);
+                    });
+        }
     }
 
     // ensure title node is not deleted

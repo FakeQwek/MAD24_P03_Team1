@@ -8,6 +8,23 @@
     <color name="purple">#8692f7</color>
     <color name="lavender">#8692f7</color>
 
+    // time table colours
+    <color name="pastelCoral">#ffc09f</color>
+    <color name="pastelOrange">#f7d9c4</color>
+    <color name="pastelPurple">#dbcdf0</color>
+    <color name="pastelYellow">#fdffb6 </color>
+    <color name="pastelGreen">#adf7b6</color>
+    <color name="pastelBlue">#bde0fe</color>
+
+    // mind map colours
+    <color name="coral">#ffac77</color>
+    <color name="pink">#ff6fca</color>
+    <color name="hotPink">#ff236a</color>
+    <color name="oceanBlue">#37b6fd</color>
+    <color name="darkPurple">#a462d9</color>
+
+
+
     //onboarding colors
     <color name="background">#F0F4F3</color>
     <color name="buttontext">#50C2C9</color>

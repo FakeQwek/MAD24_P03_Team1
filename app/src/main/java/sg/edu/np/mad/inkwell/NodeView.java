@@ -82,8 +82,8 @@ public class NodeView extends View {
         colorLayout.setOrientation(LinearLayout.HORIZONTAL);
         dialogLayout.addView(colorLayout);
 
-        int[] colors = {R.color.pastelCoral, R.color.pastelBlue, R.color.pastelGreen, R.color.pastelPurple, R.color.pastelYellow, R.color.pastelOrange};
-        final int[] selectedColor = {R.color.pastelBlue};
+        int[] colors = {R.color.coral, R.color.pink, R.color.hotPink, R.color.oceanBlue, R.color.darkPurple, R.color.teal_200};
+        final int[] selectedColor = {R.color.pink};
 
         for (final int color : colors) {
             Button colorButton = new Button(getContext());
@@ -236,6 +236,13 @@ public class NodeView extends View {
     public void setIndex(int index) {
         this.index = index;
     }
+
+    public void setColor(int color) {
+        this.nodeColor = color;
+        paint.setColor(color);
+        invalidate();
+    }
+
 
     public void toggleSelection() {
         if (isSelected) {

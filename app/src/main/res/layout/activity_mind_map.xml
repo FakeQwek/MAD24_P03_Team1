@@ -74,39 +74,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/add_connection" />
 
-        <ImageButton
-            android:id="@+id/leftButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
-            android:backgroundTint="#00000000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/addNodeButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/arrow_left_thin" />
-
-        <ImageButton
-            android:id="@+id/rightButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
-            android:backgroundTint="#00000000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/addConnectionButton"
-            app:srcCompat="@drawable/arrow_right_thin" />
-
-        <ImageButton
-            android:id="@+id/readOnlyButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:backgroundTint="#00000000"
-            app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-            app:layout_constraintEnd_toEndOf="@+id/toolbar"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/book_open_blank_variant_outline" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>
