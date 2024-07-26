@@ -23,6 +23,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -198,7 +200,42 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             }
         });
 
-        navigationBar();
+        fetchAllTitleNodes(currentUser.getUid());
+    }
+
+    private void fetchAllTitleNodes(String userId) {
+        CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmaps");
+
+        mindMapCollection.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    QuerySnapshot querySnapshot = task.getResult();
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                        List<String> titleNodes = new ArrayList<>();
+                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                            Map<String, Object> mindMapData = doc.getData();
+                            if (mindMapData != null) {
+                                List<Map<String, Object>> savedNodes = (List<Map<String, Object>>) mindMapData.get("nodes");
+                                if (savedNodes != null && !savedNodes.isEmpty()) {
+                                    Map<String, Object> firstNodeData = savedNodes.get(0);
+                                    String text = (String) firstNodeData.get("text");
+                                    titleNodes.add(text);
+                                    Log.d(TAG, "MindMap ID: " + doc.getId() + " 0th Node Text: " + text);
+                                }
+                            }
+                        }
+
+                        recyclerView(titleNodes);
+                        navigationBar();
+                    } else {
+                        Log.d(TAG, "No mind maps found for the user.");
+                    }
+                } else {
+                    Log.d(TAG, "Error fetching mind maps: ", task.getException());
+                }
+            }
+        });
     }
 
     // Update node and line scales after zoom
@@ -334,6 +371,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
         touchX = x;
         touchY = y;
+
+        if (currentUser != null) {
+            saveMindMap(db, currentUser.getUid());
+        }
     }
 
     // Set selected node and bring to front
@@ -508,6 +549,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                         Log.d(TAG, "Error saving mind map: ", e);
                     }
                 });
+        fetchAllTitleNodes(userId);
     }
     // Navigation bar handling
     private void navigationBar() {
@@ -582,6 +624,20 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             });
         }
     }
+
+    private void recyclerView(List<String> allMindMaps) {
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        MindMapAdapter adapter = new MindMapAdapter(allMindMaps);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+
+        if (recyclerView != null) {
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(adapter);
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
+    }
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {

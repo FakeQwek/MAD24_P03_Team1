@@ -1,6 +1,5 @@
 package sg.edu.np.mad.inkwell;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,38 +11,28 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class MindMapAdapter extends RecyclerView.Adapter<MindMapAdapter.ViewHolder> {
+    private List<String> titleNodes;
 
-    private final Context context;
-    private final List<NodeView> nodes;
-    private final OnNodeClickListener listener;
-
-    public MindMapAdapter(Context context, List<NodeView> nodes, OnNodeClickListener listener) {
-        this.context = context;
-        this.nodes = nodes;
-        this.listener = listener;
+    public MindMapAdapter(List<String> titleNodes) {
+        this.titleNodes = titleNodes;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.mindmap, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mindmap, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        NodeView node = nodes.get(position);
-        holder.textView.setText(node.getText());
-        holder.itemView.setOnClickListener(v -> listener.onNodeClick(node));
+        String titleNode = titleNodes.get(position);
+        holder.textView.setText(titleNode);
     }
 
     @Override
     public int getItemCount() {
-        return nodes.size();
-    }
-
-    public interface OnNodeClickListener {
-        void onNodeClick(NodeView node);
+        return titleNodes.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
