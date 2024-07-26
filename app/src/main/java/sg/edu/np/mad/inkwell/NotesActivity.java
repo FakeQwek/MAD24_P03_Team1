@@ -102,7 +102,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
     private String stringURLEndPoint = "https://api.openai.com/v1/chat/completions";
 
-    private String stringAPIKey = "API KEY";
+    private String stringAPIKey = "API KEY"; //sk-proj-Kl2DatFCXJDQoTrpkBwKT3BlbkFJDcUUQa1G1xScuoCtvuTo
 
     private String promptResponse = "";
 
