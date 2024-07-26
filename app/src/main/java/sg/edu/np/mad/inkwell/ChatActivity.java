@@ -51,6 +51,8 @@ public class ChatActivity extends AppCompatActivity implements NavigationView.On
 
     private int currentMessageId;
 
+    ArrayList<Message> messageList;
+
     private void recyclerView(ArrayList<Message> messageList) {
         messageList.sort(Comparator.comparingInt(Message::getId));
         RecyclerView recyclerView = findViewById(R.id.messageRecyclerView);
@@ -88,36 +90,7 @@ public class ChatActivity extends AppCompatActivity implements NavigationView.On
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        ArrayList<Message> messageList = new ArrayList<>();
-
-        db.collection("users").document(currentFirebaseUserUid).collection("friends").document(String.valueOf(FriendsActivity.selectedFriendId)).collection("messages")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot snapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w("testing", "listen:error", e);
-                            return;
-                        }
-
-                        // Adds items to recycler view on create and everytime new data is added to firebase
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            if (Integer.parseInt(dc.getDocument().getId()) > currentMessageId) {
-                                currentMessageId = Integer.parseInt(dc.getDocument().getId());
-                            }
-                            String docMessageUid = String.valueOf(dc.getDocument().getData().get("uid"));
-                            String docMessageType = String.valueOf(dc.getDocument().getData().get("type"));
-                            if (dc.getType() == DocumentChange.Type.ADDED && docMessageUid.equals(currentFirebaseUserUid) && (docMessageType.equals("sent") || docMessageType.equals("received"))) {
-                                Message message = new Message(Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("message").toString(), dc.getDocument().getData().get("type").toString());
-                                messageList.add(message);
-                                recyclerView(messageList);
-                            }
-                            else if (dc.getType() == DocumentChange.Type.REMOVED && docMessageUid.equals(currentFirebaseUserUid)) {
-
-                            }
-                        }
-                    }
-                });
+        messageList = new ArrayList<>();
 
         TextInputEditText messageEditText = findViewById(R.id.messageEditText);
 
@@ -153,11 +126,47 @@ public class ChatActivity extends AppCompatActivity implements NavigationView.On
         friendEmail.setText(FriendsActivity.selectedFriendEmail);
     }
 
+    protected void onStart() {
+        super.onStart();
+
+        db.collection("users").document(currentFirebaseUserUid).collection("friends").document(String.valueOf(FriendsActivity.selectedFriendId)).collection("messages")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("testing", "listen:error", e);
+                            return;
+                        }
+
+                        // Adds items to recycler view on create and everytime new data is added to firebase
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            if (Integer.parseInt(dc.getDocument().getId()) > currentMessageId) {
+                                currentMessageId = Integer.parseInt(dc.getDocument().getId());
+                            }
+                            String docMessageUid = String.valueOf(dc.getDocument().getData().get("uid"));
+                            String docMessageType = String.valueOf(dc.getDocument().getData().get("type"));
+                            if (dc.getType() == DocumentChange.Type.ADDED && docMessageUid.equals(currentFirebaseUserUid) && (docMessageType.equals("sent") || docMessageType.equals("received"))) {
+                                Message message = new Message(Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("message").toString(), dc.getDocument().getData().get("type").toString());
+                                messageList.add(message);
+                                recyclerView(messageList);
+                            }
+                            else if (dc.getType() == DocumentChange.Type.REMOVED && docMessageUid.equals(currentFirebaseUserUid)) {
+
+                            }
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
     //Allows movement between activities upon clicking
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);

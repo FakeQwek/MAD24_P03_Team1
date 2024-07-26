@@ -1,7 +1,13 @@
 package sg.edu.np.mad.inkwell;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.View;
@@ -15,8 +21,9 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -26,8 +33,14 @@ import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.nl.translate.TranslateLanguage;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class LanguageTranslator extends AppCompatActivity {
@@ -36,11 +49,13 @@ public class LanguageTranslator extends AppCompatActivity {
 
     private Spinner fromSpinner, toSpinner;
     private TextInputEditText sourceText;
-    private ImageView micTV;
+    private ImageView micTV, cameraTV, clearText;
     private MaterialButton translateBtn;
     private TextView translateTV;
+    private RecyclerView recyclerView;
 
     private ActivityResultLauncher<Intent> speechRecognitionLauncher;
+    private ActivityResultLauncher<Intent> cameraLauncher;
 
     String[] fromLanguage = {"To", "English", "Afrikaans", "Arabic", "Belarusian", "Bulgarian", "Bengali", "Catalan", "Czech", "Welsh", "Hindi", "Chinese"};
     String[] toLanguage = {"To", "English", "Afrikaans", "Arabic", "Belarusian", "Bulgarian", "Bengali", "Catalan", "Czech", "Welsh", "Hindi", "Chinese"};
@@ -56,8 +71,13 @@ public class LanguageTranslator extends AppCompatActivity {
         toSpinner = findViewById(R.id.idToSpinner);
         sourceText = findViewById(R.id.idEditSource);
         micTV = findViewById(R.id.idIvMic);
+        cameraTV = findViewById(R.id.idIvCamera);
+        clearText = findViewById(R.id.idClearText);
         translateBtn = findViewById(R.id.idBtnTranslation);
         translateTV = findViewById(R.id.idTranslatedTV);
+        recyclerView = findViewById(R.id.idRecyclerView);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         speechRecognitionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -71,10 +91,27 @@ public class LanguageTranslator extends AppCompatActivity {
                 }
         );
 
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Bundle extras = result.getData().getExtras();
+                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        processImage(imageBitmap);
+                    }
+                }
+        );
+
+        clearText.setOnClickListener(v -> {
+            sourceText.setText("");
+            recyclerView.setVisibility(View.GONE);
+        });
+
         fromSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 fromLanguageCode = getLanguageCode(fromLanguage[i]);
+                Log.d("LanguageTranslator", "Selected from language: " + fromLanguageCode);
             }
 
             @Override
@@ -90,6 +127,7 @@ public class LanguageTranslator extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 toLanguageCode = getLanguageCode(toLanguage[i]);
+                Log.d("LanguageTranslator", "Selected to language: " + toLanguageCode);
             }
 
             @Override
@@ -118,6 +156,19 @@ public class LanguageTranslator extends AppCompatActivity {
             }
         });
 
+        cameraTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                try {
+                    cameraLauncher.launch(takePictureIntent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(LanguageTranslator.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         translateBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
@@ -134,6 +185,55 @@ public class LanguageTranslator extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void processImage(Bitmap imageBitmap) {
+        // Convert image to grayscale to improve accuracy
+        Bitmap grayBitmap = convertToGrayscale(imageBitmap);
+        // Resize the image to improve accuracy
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(grayBitmap, grayBitmap.getWidth() * 2, grayBitmap.getHeight() * 2, true);
+        InputImage image = InputImage.fromBitmap(resizedBitmap, 0);
+        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+        recognizer.process(image)
+                .addOnSuccessListener(new OnSuccessListener<Text>() {
+                    @Override
+                    public void onSuccess(Text visionText) {
+                        displayRecognizedText(visionText);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(LanguageTranslator.this, "Failed to recognize text!! Try again", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private Bitmap convertToGrayscale(Bitmap src) {
+        Bitmap grayBitmap = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(grayBitmap);
+        Paint paint = new Paint();
+        ColorMatrix colorMatrix = new ColorMatrix();
+        colorMatrix.setSaturation(0);
+        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
+        paint.setColorFilter(filter);
+        canvas.drawBitmap(src, 0, 0, paint);
+        return grayBitmap;
+    }
+
+    private void displayRecognizedText(Text visionText) {
+        List<Text.TextBlock> textBlocks = visionText.getTextBlocks();
+        if (!textBlocks.isEmpty()) {
+            TextBlockAdapter adapter = new TextBlockAdapter(textBlocks, text -> {
+                sourceText.append(text + " ");
+            });
+            recyclerView.setAdapter(adapter);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            Toast.makeText(this, "No text found", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void translateText(String fromLanguageCode, String toLanguageCode, String source) {
@@ -153,7 +253,7 @@ public class LanguageTranslator extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("LanguageTranslator", "Model downloaded successfully.");
-                        translateTV.setText("Translation...");
+                        translateTV.setText("Translating...");
                         translator.translate(source)
                                 .addOnSuccessListener(new OnSuccessListener<String>() {
                                     @Override

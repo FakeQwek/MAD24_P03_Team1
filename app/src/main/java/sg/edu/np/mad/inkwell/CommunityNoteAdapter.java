@@ -65,7 +65,9 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                communityNote.addLike(document.getId());
+                                if (!communityNote.getLikes().contains(document.getId())) {
+                                    communityNote.addLike(document.getId());
+                                }
                             }
                             holder.likeCounter.setText(String.valueOf(communityNote.getLikes().size()));
                         } else {

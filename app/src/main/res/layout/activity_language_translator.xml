@@ -44,7 +44,7 @@
             android:orientation="horizontal"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="10dp"
             android:weightSum="3"
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -80,12 +80,12 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="20dp"
             android:padding="5dp"
             app:hintEnabled="false"
             android:layout_width="match_parent"
-            android:layout_height="250dp">
+            android:layout_height="wrap_content">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -100,12 +100,30 @@
                 android:gravity="top"
                 android:background="@drawable/background"
                 android:textColorHint="@color/design_default_color_on_secondary"/>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/baseline_clear_24"
+                android:layout_gravity="end"
+                android:id="@+id/idClearText"/>
         </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/idRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"/>
 
         <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:id="@+id/idBtnTranslation"
             android:text="Translate"
             android:textSize="19sp"
@@ -138,19 +156,35 @@
             android:layout_gravity="center"
             android:layout_marginTop="20dp"/>
 
-        <ImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/voice"
-            android:padding="4dp"
-            android:id="@+id/idIvMic"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/voice"
+                android:padding="4dp"
+                android:id="@+id/idIvMic"
+                android:layout_gravity="center"/>
+
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/baseline_camera_alt_24"
+                android:padding="4dp"
+                android:id="@+id/idIvCamera"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"/>
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Say Something"
+            android:text="Say Something or Scan Text"
             android:textSize="16sp"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
