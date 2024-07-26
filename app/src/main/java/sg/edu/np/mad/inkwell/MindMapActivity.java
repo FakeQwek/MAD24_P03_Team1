@@ -233,6 +233,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
                         // Pass both lists to the recyclerView method or wherever needed
                         recyclerView(titleNodes, mindMapIds);
+                        search(titleNodes, mindMapIds);
                         navigationBar();
                     } else {
                         Log.d(TAG, "No mind maps found for the user.");
@@ -567,6 +568,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                 });
         fetchAllTitleNodes(userId);
     }
+
     // Navigation bar handling
     private void navigationBar() {
         SearchView searchView = findViewById(R.id.searchView);
@@ -657,6 +659,56 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         recyclerView.setAdapter(adapter);
     }
 
+    // ensure title node is not deleted
+    public void handleTitleNodeDeletion(NodeView node) {
+        new AlertDialog.Builder(this)
+                .setTitle("Cannot Delete Node")
+                .setMessage("The title node cannot be deleted!")
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    // method to search the items in recycler view
+    private void search(List<String> titles, List<String> ids) {
+        SearchView searchView = findViewById(R.id.searchView);
+
+        if (searchView != null) {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    filter(titles, ids, query);
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    filter(titles, ids, newText);
+                    return false;
+                }
+            });
+        }
+    }
+
+    // method to filter items already in the recycler view
+    private void filter(List<String> titles, List<String> ids, String query) {
+        ArrayList<String> filteredTitles = new ArrayList<>();
+        ArrayList<String> filteredIds = new ArrayList<>();
+
+        if (query.isEmpty()) {
+            recyclerView(titles, ids);
+        } else {
+            for (int i = 0; i < titles.size(); i++) {
+                String title = titles.get(i);
+                if (title.toLowerCase().contains(query.toLowerCase())) {
+
+                    filteredTitles.add(title);
+                    filteredIds.add(ids.get(i));
+                }
+            }
+            // Update RecyclerView with filtered data
+            recyclerView(filteredTitles, filteredIds);
+        }
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
