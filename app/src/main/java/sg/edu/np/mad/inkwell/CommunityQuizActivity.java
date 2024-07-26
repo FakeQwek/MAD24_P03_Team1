@@ -83,6 +83,8 @@ public class CommunityQuizActivity extends AppCompatActivity implements Navigati
 
         String[] questions = CommunityActivity.promptResponse.split(";", 0);
 
+        CommunityActivity.promptResponse = "";
+
         TextView question = findViewById(R.id.question);
 
         RadioButton option1 = findViewById(R.id.option1);
