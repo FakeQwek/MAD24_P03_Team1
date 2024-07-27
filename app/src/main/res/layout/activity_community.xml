@@ -90,6 +90,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
+                    android:layout_marginTop="30dp"
                     android:fontFamily="@font/inter_bold"
                     android:text="Community"
                     android:textSize="32sp"
@@ -100,7 +101,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/communityRecyclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="600dp"
+                    android:layout_height="700dp"
                     android:layout_marginTop="10dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/searchView" />
