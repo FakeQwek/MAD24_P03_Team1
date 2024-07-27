@@ -38,6 +38,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="secondary_white">#F0F0F0</color>
+    <color name="secondary_white2">#F0F0F0</color>
     <color name="primary_grey">#B0B0B0</color>
     <color name="primary_blue">#0029BA</color>
     <color name="secondary_blue">#ADD2E8</color>

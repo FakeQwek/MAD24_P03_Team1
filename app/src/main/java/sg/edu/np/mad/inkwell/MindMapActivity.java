@@ -607,6 +607,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         menu.findItem(R.id.nav_calculator).setVisible(false);
         menu.findItem(R.id.nav_essay).setVisible(false);
         menu.findItem(R.id.nav_drawing).setVisible(false);
+        menu.findItem(R.id.nav_dictionary).setVisible(false);
+        menu.findItem(R.id.nav_LanguageTranslator).setVisible(false);
+        menu.findItem(R.id.nav_readingList).setVisible(false);
 
         ImageButton swapButton = findViewById(R.id.swapButton);
 
@@ -632,6 +635,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                         menu.findItem(R.id.nav_calculator).setVisible(false);
                         menu.findItem(R.id.nav_essay).setVisible(false);
                         menu.findItem(R.id.nav_drawing).setVisible(false);
+                        menu.findItem(R.id.nav_dictionary).setVisible(false);
+                        menu.findItem(R.id.nav_LanguageTranslator).setVisible(false);
+                        menu.findItem(R.id.nav_readingList).setVisible(false);
                         searchView.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.VISIBLE);
                     } else {
@@ -650,6 +656,9 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                         menu.findItem(R.id.nav_calculator).setVisible(true);
                         menu.findItem(R.id.nav_essay).setVisible(true);
                         menu.findItem(R.id.nav_drawing).setVisible(true);
+                        menu.findItem(R.id.nav_dictionary).setVisible(true);
+                        menu.findItem(R.id.nav_LanguageTranslator).setVisible(true);
+                        menu.findItem(R.id.nav_readingList).setVisible(true);
                         searchView.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.GONE);
                     }
