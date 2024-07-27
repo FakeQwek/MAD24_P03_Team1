@@ -1,35 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:fitsSystemWindows="true"
+    tools:context=".IntermediateActivity">
 
-    <Button
-        android:id="@+id/btn_new_drawing"
-        android:layout_width="550dp"
-        android:layout_height="wrap_content"
-        android:text="New Drawing"
-        android:layout_centerHorizontal="true"
-        android:background="#000000"/>
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main"
+        app:menu="@menu/activity_main_drawer" />
 
-    <Button
-        android:id="@+id/btn_view_saved_drawings"
-        android:layout_width="550dp"
-        android:layout_height="wrap_content"
-        android:text="View Saved Drawings"
-        android:layout_below="@id/btn_new_drawing"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:background="#000000"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btn_view_other_drawings"
-        android:layout_width="550dp"
-        android:layout_height="wrap_content"
-        android:text="View Public Drawings"
-        android:layout_below="@id/btn_view_saved_drawings"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:background="#000000"/>
-</RelativeLayout>
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:layout_marginTop="?attr/actionBarSize">
+
+            <Button
+                android:id="@+id/btn_new_drawing"
+                android:layout_width="550dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:background="#000000"
+                android:text="New Drawing" />
+
+            <Button
+                android:id="@+id/btn_view_saved_drawings"
+                android:layout_width="550dp"
+                android:layout_height="wrap_content"
+                android:text="View Saved Drawings"
+                android:layout_below="@id/btn_new_drawing"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:background="#000000"/>
+
+            <Button
+                android:id="@+id/btn_view_other_drawings"
+                android:layout_width="550dp"
+                android:layout_height="wrap_content"
+                android:text="View Public Drawings"
+                android:layout_below="@id/btn_view_saved_drawings"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:background="#000000"/>
+        </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

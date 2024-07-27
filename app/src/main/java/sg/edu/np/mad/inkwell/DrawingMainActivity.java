@@ -18,6 +18,7 @@ import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.slider.RangeSlider;
 import com.google.firebase.auth.FirebaseAuth;
@@ -60,6 +61,13 @@ public class DrawingMainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawing_main);
+
+        // Setup toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         paint = findViewById(R.id.draw_view);
         rangeSlider = findViewById(R.id.rangebar);
@@ -369,5 +377,11 @@ public class DrawingMainActivity extends AppCompatActivity {
                 .setPositiveButton("Delete", (dialog, which) -> paint.deleteSelection())
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }
