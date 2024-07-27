@@ -36,13 +36,16 @@ import java.util.UUID;
 public class DrawingMainActivity extends AppCompatActivity {
 
     private DrawView paint;
-    private ImageButton save, color, stroke, undo, redo, eraser, reset, fill, selectionMode, deleteSelection;
+    private ImageButton save, color, stroke, undo, redo, eraser, reset, fill, selectionMode, deleteSelection, help;
     private RangeSlider rangeSlider;
 
     // Custom color picker dialog views
     private View colorPickerDialog;
     private LinearLayout colorPalette;
     private ImageButton closeColorPickerButton;
+
+    private View helpDialog;
+
 
     private int currentColor;
     private boolean isEraserOn = false;
@@ -71,12 +74,18 @@ public class DrawingMainActivity extends AppCompatActivity {
         fill = findViewById(R.id.btn_fill);  // Add this line for fill button
         selectionMode = findViewById(R.id.btn_selection_mode);
         deleteSelection = findViewById(R.id.btn_delete_selection);
+        help = findViewById(R.id.btn_help);
 
 
         // Initialize custom color picker dialog views
         colorPickerDialog = findViewById(R.id.color_picker_dialog);
         colorPalette = findViewById(R.id.color_palette);
         closeColorPickerButton = findViewById(R.id.btn_close_color_picker);
+
+        // Initialize help dialog views
+        helpDialog = findViewById(R.id.help_dialog);
+
+
 
         // Set colors for the color buttons
         setColorButtons();
@@ -101,6 +110,8 @@ public class DrawingMainActivity extends AppCompatActivity {
         selectionMode.setOnClickListener(view -> toggleSelectionMode());
 
         deleteSelection.setOnClickListener(view -> showDeleteSelectionConfirmation());
+
+        help.setOnClickListener(view -> toggleHelpImageVisibility());
 
         rangeSlider.addOnChangeListener((slider, value, fromUser) -> paint.setStrokeWidth((int) value));
 
@@ -131,6 +142,16 @@ public class DrawingMainActivity extends AppCompatActivity {
 
     private void showCustomColorPickerDialog() {
         colorPickerDialog.setVisibility(View.VISIBLE);
+    }
+
+    
+
+    private void toggleHelpImageVisibility() {
+        if (helpDialog.getVisibility() == View.VISIBLE) {
+            helpDialog.setVisibility(View.GONE);
+        } else {
+            helpDialog.setVisibility(View.VISIBLE);
+        }
     }
 
     private void saveDrawing() {
