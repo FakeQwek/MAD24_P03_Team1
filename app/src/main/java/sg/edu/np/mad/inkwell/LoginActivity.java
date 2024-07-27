@@ -52,7 +52,18 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView loginShowPassword;
     private boolean isPasswordVisible = false;
     private SharedPreferences sharedPreferences;
+   //Do not remove! This is necessary for homepage functionality
+    private void transferName() {
+        EditText emailText = findViewById(R.id.login_email);
+        String email = emailText.getText().toString();
+        String[] twoParts = email.split("@", 2);
+        //Log.d("Alert", "Email name is " + twoParts[0]);
+        SharedPreferences.Editor editor = getSharedPreferences("Username", MODE_PRIVATE).edit();
+        editor.putString("Username", twoParts[0]);
+        editor.apply();
 
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                                     Log.d(TAG, "Email verified: " + user.getEmail());
                                     // Store user ID in SharedPreferences
                                     sharedPreferences.edit().putString("loggedInUserId", user.getUid()).apply();
+                                    transferName();
                                     startActivity(new Intent(LoginActivity.this, Intro1.class));
                                     finish();
                                 } else {
