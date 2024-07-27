@@ -49,6 +49,8 @@ public class ViewFlashcardActivity extends AppCompatActivity implements Navigati
 
     private ArrayList<Flashcard> flashcards;
 
+    ArrayList<Flashcard> allFlashcards;
+
     // Method to set items in the recycler view
     private void recyclerView(ArrayList<Flashcard> allFlashcards, ArrayList<Flashcard> flashcards) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -97,34 +99,9 @@ public class ViewFlashcardActivity extends AppCompatActivity implements Navigati
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        ArrayList<Flashcard> allFlashcards = new ArrayList<>();
+        allFlashcards = new ArrayList<>();
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-
-        // Read from firebase and create flashcards on create
-        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document(String.valueOf(FlashcardActivity.selectedFlashcardCollectionId)).collection("flashcards")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot snapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w("testing", "listen:error", e);
-                            return;
-                        }
-
-                        // Adds items to recycler view on create and everytime new data is added to firebase
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            if (dc.getType() == DocumentChange.Type.ADDED) {
-                                if (Integer.parseInt(dc.getDocument().getId()) > currentFlashcardId) {
-                                    currentFlashcardId = Integer.parseInt(dc.getDocument().getId());
-                                }
-                                Flashcard flashcard = new Flashcard(dc.getDocument().getData().get("question").toString(), dc.getDocument().getData().get("answer").toString(), Integer.parseInt(dc.getDocument().getId()));
-                                allFlashcards.add(flashcard);
-                                filter(allFlashcards, "");
-                            }
-                        }
-                    }
-                });
 
         ImageButton addFlashcardButton = findViewById(R.id.addFlashcardButton);
 
@@ -199,8 +176,37 @@ public class ViewFlashcardActivity extends AppCompatActivity implements Navigati
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    //Allows movement between activities upon clicking
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        // Read from firebase and create flashcards on create
+        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document(String.valueOf(FlashcardActivity.selectedFlashcardCollectionId)).collection("flashcards")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("testing", "listen:error", e);
+                            return;
+                        }
+
+                        // Adds items to recycler view on create and everytime new data is added to firebase
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            if (dc.getType() == DocumentChange.Type.ADDED) {
+                                if (Integer.parseInt(dc.getDocument().getId()) > currentFlashcardId) {
+                                    currentFlashcardId = Integer.parseInt(dc.getDocument().getId());
+                                }
+                                Flashcard flashcard = new Flashcard(dc.getDocument().getData().get("question").toString(), dc.getDocument().getData().get("answer").toString(), Integer.parseInt(dc.getDocument().getId()));
+                                allFlashcards.add(flashcard);
+                                filter(allFlashcards, "");
+                            }
+                        }
+                    }
+                });
+    }
+
+    //Allows movement between activities upon clicking
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);

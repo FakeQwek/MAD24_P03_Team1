@@ -11,15 +11,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:cardBackgroundColor="@color/secondary_green"
+        app:cardBackgroundColor="@color/primary_red"
         app:cardCornerRadius="99dp"
         app:cardElevation="0dp">
 
         <TextView
-            android:id="@+id/toastMessage"
+            android:id="@+id/textView11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Added"
+            android:text="No note selected"
             android:fontFamily="@font/inter_regular"
             android:textColor="@color/white"
             android:paddingHorizontal="10dp"

@@ -72,6 +72,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.android.volley:volley:1.2.1")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation ("com.airbnb.android:lottie:3.4.0")
     implementation ("androidx.biometric:biometric:1.1.0")
     implementation ("androidx.biometric:biometric:1.2.0-alpha04")
@@ -110,7 +111,4 @@ dependencies {
     implementation ("androidx.camera:camera-camera2:1.0.0")
     implementation ("androidx.camera:camera-lifecycle:1.0.0")
     implementation ("androidx.camera:camera-core:1.0.0")
-
-
-
 }
