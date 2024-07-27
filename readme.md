@@ -61,7 +61,6 @@ Productivity
 - AI Helpbot - Chin Teck
 - Profile Page - Chin Teck
 - Markdown - Chin Teck
-- Upgraded Authentication (Biometric, persistent password,otp verification, security questions) -  Jin Xuan
 - Dictionary – Jin Xuan
 - Language Translator - Jin Xuan
 - Reading List - Jin Xuan
