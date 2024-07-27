@@ -48,6 +48,7 @@ import java.util.Map;
 
 public class MindMapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    // init
     private static final float MIN_ZOOM = 0.6f;
     private static final float MAX_ZOOM = 1.2f;
     private static final float MAX_PAN_LEFT = 0f;
@@ -64,8 +65,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
     private boolean isMovingNode;
     private boolean isPanning;
     private NodeView titleNode;
-    private List<String> mindMapIds = new ArrayList<>();
-    private int currentIndex = -1;
     private ScaleGestureDetector scaleGestureDetector;
     private float scaleFactor = 1.0f;
 
@@ -167,6 +166,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        // check if there's node at touched pos
                         NodeView nodeAtPosition = getNodeAtPosition(x, y);
                         if (nodeAtPosition != null) {
                             setSelectedNode(nodeAtPosition);
@@ -177,13 +177,16 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                                 selectedNode.invalidate();
                                 selectedNode = null;
                             }
+                            // allow panning
                             isPanning = true;
                         }
+                        // move node
                         touchX = x;
                         touchY = y;
                         isMovingNode = (selectedNode != null);
                         break;
 
+                        // moving node
                     case MotionEvent.ACTION_MOVE:
                         if (isMovingNode && selectedNode != null) {
                             moveNode(x, y);
@@ -201,9 +204,11 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             }
         });
 
+        // set up recyclerView for all mindmaps in user collection
         fetchAllTitleNodes(currentUser.getUid());
     }
 
+    // get all mindmap titles stored in user collection
     private void fetchAllTitleNodes(String userId) {
         CollectionReference mindMapCollection = db.collection("users").document(userId).collection("mindmaps");
 
@@ -307,6 +312,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
 
         mindMapContainer.addView(titleNode, params);
 
+        // get center of mindmap and set node there
         mindMapContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -322,6 +328,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
             }
         });
 
+        // add the node
         nodes.add(titleNode);
         setSelectedNode(titleNode);
     }
@@ -334,6 +341,10 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         addNodeToContainer(childNode);
         addConnectionLine(parentNode, childNode);
 
+        // ensure parent node is always in front of lineview
+        bringNodeToFront(parentNode);
+
+        // set new selected node to child node
         setSelectedNode(childNode);
 
         if (currentUser != null) {
@@ -511,6 +522,11 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                             mindMapContainer.addView(line);
                         }
 
+                        // Bring all nodes to front again to ensure they are on top of lines
+                        for (NodeView node : nodes) {
+                            node.bringToFront();
+                        }
+
                         // Update the current mind map ID
                         currentMindMapId = mindMapId;
                     }
@@ -667,6 +683,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+    // set up recyclerView in navbar to select diff mindmaps
     private void recyclerView(List<String> titles, List<String> ids) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -689,6 +706,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         recyclerView.setAdapter(adapter);
     }
 
+    // function to delete mindmap
     private void deleteMindMap(String mindMapId) {
         if (currentUser != null) {
             db.collection("users").document(currentUser.getUid()).collection("mindmaps")
@@ -755,6 +773,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         }
     }
 
+    // navigation
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
