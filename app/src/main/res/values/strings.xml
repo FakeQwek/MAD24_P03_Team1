@@ -54,4 +54,10 @@
     <string name="eventName">Enter event name</string>
     <string name="eventLocation">Enter location</string>
     <string name="markAs">Mark As</string>
+
+    <string-array name="reading_status">
+        <item>To Read</item>
+        <item>Reading</item>
+        <item>Completed</item>
+    </string-array>
 </resources>

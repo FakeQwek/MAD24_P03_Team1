@@ -83,6 +83,10 @@ public class TodoActivity extends AppCompatActivity implements NavigationView.On
 
     Date date;
 
+    ArrayList<Todo> allTodos;
+
+    TextView todoCounter;
+
     // Method to set items in the recycler view
     private void recyclerView(ArrayList<Todo> allTodos, ArrayList<Todo> todos) {
         RecyclerView recyclerView = findViewById(R.id.todoRecyclerView);
@@ -147,50 +151,13 @@ public class TodoActivity extends AppCompatActivity implements NavigationView.On
 
         createNotificationChannel();
 
-        ArrayList<Todo> allTodos = new ArrayList<>();
+        allTodos = new ArrayList<>();
 
         RecyclerView recyclerView = findViewById(R.id.todoRecyclerView);
 
-        TextView todoCounter = findViewById(R.id.todoCounter);
+        todoCounter = findViewById(R.id.todoCounter);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-        // Read from firebase and create todos on create
-        db.collection("users").document(currentFirebaseUserUid).collection("todos")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot snapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-                        if (e != null) {
-                            Log.w("testing", "listen:error", e);
-                            return;
-                        }
-
-                        // Adds items to recycler view on create and everytime new data is added to firebase
-                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            if (Integer.parseInt(dc.getDocument().getId()) > currentTodoId) {
-                                currentTodoId = Integer.parseInt(dc.getDocument().getId());
-                            }
-                            String docTodoUid = String.valueOf(dc.getDocument().getData().get("uid"));
-                            if (dc.getType() == DocumentChange.Type.ADDED && docTodoUid.equals(currentFirebaseUserUid)) {
-                                Todo todo = new Todo(dc.getDocument().getData().get("title").toString(), Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("description").toString(), dc.getDocument().getData().get("dateTime").toString(), dc.getDocument().getData().get("status").toString(), dc.getDocument().getData().get("notificationDateTime").toString());
-                                if (dc.getDocument().getData().get("status").toString().equals("todo")) {
-                                    todoCount++;
-                                }
-                                todoCounter.setText(String.format(getResources().getString(R.string.todo_counter), todoCount));
-
-                                allTodos.add(todo);
-                                filter(allTodos, "todo", "");
-                            }
-                            else if (dc.getType() == DocumentChange.Type.REMOVED && docTodoUid.equals(currentFirebaseUserUid)) {
-                                if (dc.getDocument().getData().get("status").toString().equals("todo")) {
-                                    todoCount--;
-                                }
-                                todoCounter.setText(String.format(getResources().getString(R.string.todo_counter), todoCount));
-                            }
-                        }
-                    }
-                });
 
         ImageButton addTodoButton = findViewById(R.id.addTodoButton);
 
@@ -402,6 +369,48 @@ public class TodoActivity extends AppCompatActivity implements NavigationView.On
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Read from firebase and create todos on create
+        db.collection("users").document(currentFirebaseUserUid).collection("todos")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("testing", "listen:error", e);
+                            return;
+                        }
+
+                        // Adds items to recycler view on create and everytime new data is added to firebase
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            if (Integer.parseInt(dc.getDocument().getId()) > currentTodoId) {
+                                currentTodoId = Integer.parseInt(dc.getDocument().getId());
+                            }
+                            String docTodoUid = String.valueOf(dc.getDocument().getData().get("uid"));
+                            if (dc.getType() == DocumentChange.Type.ADDED && docTodoUid.equals(currentFirebaseUserUid)) {
+                                Todo todo = new Todo(dc.getDocument().getData().get("title").toString(), Integer.parseInt(dc.getDocument().getId()), dc.getDocument().getData().get("description").toString(), dc.getDocument().getData().get("dateTime").toString(), dc.getDocument().getData().get("status").toString(), dc.getDocument().getData().get("notificationDateTime").toString());
+                                if (dc.getDocument().getData().get("status").toString().equals("todo")) {
+                                    todoCount++;
+                                }
+                                todoCounter.setText(String.format(getResources().getString(R.string.todo_counter), todoCount));
+
+                                allTodos.add(todo);
+                                filter(allTodos, "todo", "");
+                            }
+                            else if (dc.getType() == DocumentChange.Type.REMOVED && docTodoUid.equals(currentFirebaseUserUid)) {
+                                if (dc.getDocument().getData().get("status").toString().equals("todo")) {
+                                    todoCount--;
+                                }
+                                todoCounter.setText(String.format(getResources().getString(R.string.todo_counter), todoCount));
+                            }
+                        }
+                    }
+                });
     }
 
     //Allows movement between activities upon clicking

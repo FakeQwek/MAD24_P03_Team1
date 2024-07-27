@@ -38,7 +38,7 @@
             android:layout_marginEnd="10dp"
             android:backgroundTint="#00000000"
             app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/scanQRCodeButton"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             app:srcCompat="@drawable/book_open_blank_variant_outline" />
 
@@ -51,12 +51,24 @@
             app:layout_constraintBottom_toBottomOf="@+id/toolbar"
             app:layout_constraintEnd_toStartOf="@+id/readOnlyButton"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
-            app:srcCompat="@drawable/swap_horizontal" />
+            app:srcCompat="@drawable/robot_outline" />
+
+        <ImageButton
+            android:id="@+id/scanQRCodeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+            app:layout_constraintEnd_toEndOf="@+id/toolbar"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/qrcode_scan"
+            android:backgroundTint="#00000000" />
 
         <ViewAnimator
             android:id="@+id/viewAnimator"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:inAnimation="@android:anim/slide_in_left">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -164,9 +176,9 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/messageRecyclerView2"
                     android:layout_width="match_parent"
-                    android:layout_height="600dp"
+                    android:layout_height="800dp"
                     app:layout_constraintTop_toBottomOf="@+id/toolbar2"
-                    tools:layout_editor_absoluteX="-16dp" />
+                    tools:layout_editor_absoluteX="0dp" />
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardView4"
@@ -180,15 +192,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
+                        <ImageButton
+                            android:id="@+id/aiOthersButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="#00000000"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/textInputLayout"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:srcCompat="@drawable/dots_vertical" />
+
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/textInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="30dp"
                             android:layout_marginEnd="50dp"
                             android:padding="10dp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent">
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/promptEditText"

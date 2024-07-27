@@ -7,7 +7,7 @@
     android:layout_marginVertical="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="5dp"
-    app:cardBackgroundColor="@color/white">
+    android:background="@color/secondary_white">
 
     <LinearLayout
         android:id="@+id/colorIndicator"
@@ -88,7 +88,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/startTime"
             android:layout_width="60dp"
-            android:layout_height="40dp"
+            android:layout_height="35dp"
             app:cardBackgroundColor="@color/black">
 
             <LinearLayout
@@ -113,7 +113,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/endTime"
             android:layout_width="60dp"
-            android:layout_height="40dp"
+            android:layout_height="35dp"
             android:layout_marginEnd="20dp"
             app:cardBackgroundColor="@color/white"
             app:layout_constraintBottom_toBottomOf="@id/startTime"
