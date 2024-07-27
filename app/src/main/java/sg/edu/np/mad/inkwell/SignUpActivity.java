@@ -129,6 +129,11 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
+                    // Save a flag to indicate the user has signed up for the first time
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("isFirstLogin", true);
+                    editor.apply();
+
                     String username = email.split("@")[0];
                     saveUsernameToDatabase(username);
                     sendVerificationEmail();
@@ -144,6 +149,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void saveUsernameToDatabase(String username) {
         String userId = auth.getCurrentUser().getUid();

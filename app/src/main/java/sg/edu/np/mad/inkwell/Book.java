@@ -7,16 +7,20 @@ public class Book {
     private String status; // "To Read", "Reading", "Completed"
     private String notes;
     private String coverUrl;
+    private int totalPages;
+    private int currentPage;
 
     public Book() { }
 
-    public Book(String id, String title, String author, String status, String notes, String coverUrl) {
+    public Book(String id, String title, String author, String status, String notes, String coverUrl, int totalPages, int currentPage) {
         this.id = id;
         this.title = title;
         this.author = author;
         this.status = status;
         this.notes = notes;
         this.coverUrl = coverUrl;
+        this.totalPages = totalPages;
+        this.currentPage = currentPage;
     }
 
     // Getters and Setters
@@ -66,5 +70,25 @@ public class Book {
 
     public void setCoverUrl(String coverUrl) {
         this.coverUrl = coverUrl;
+    }
+
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public void setTotalPages(int totalPages) {
+        this.totalPages = totalPages;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public int getProgress() {
+        return totalPages == 0 ? 0 : (currentPage * 100) / totalPages;
     }
 }

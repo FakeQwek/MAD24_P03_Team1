@@ -1,184 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CalculatorActivity">
+    android:fitsSystemWindows="true">
 
-    <TextView
-        android:id="@+id/calValue"
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="135dp"
-        android:layout_marginEnd="90dp"
-        android:text="TextView"
-        android:textSize="40sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main"
+        app:menu="@menu/activity_main_drawer" />
 
-    <Button
-        android:id="@+id/calReturn"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="150dp"
-        android:layout_marginTop="275dp"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".CalculatorActivity">
 
-    <Button
-        android:id="@+id/calClear"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="275dp"
-        android:layout_marginEnd="10dp"
-        android:text="Button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/calReturn"
-        app:layout_constraintTop_toTopOf="parent" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/calOne"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="30dp"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calReturn" />
+        </androidx.appcompat.widget.Toolbar>
 
-    <Button
-        android:id="@+id/calTwo"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="30dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calOne"
-        app:layout_constraintTop_toBottomOf="@+id/calReturn" />
+        <TextView
+            android:id="@+id/calValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="135dp"
+            android:layout_marginEnd="90dp"
+            android:text="TextView"
+            android:textSize="40sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/calThree"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="30dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calTwo"
-        app:layout_constraintTop_toBottomOf="@+id/calClear" />
+        <Button
+            android:id="@+id/calReturn"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="150dp"
+            android:layout_marginTop="275dp"
+            android:text="Button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/addButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calThree"
-        app:layout_constraintTop_toBottomOf="@+id/calClear" />
+        <Button
+            android:id="@+id/calClear"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="275dp"
+            android:layout_marginEnd="10dp"
+            android:text="Button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/calReturn"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/calFour"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintEnd_toStartOf="@+id/calFive"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calOne" />
+        <Button
+            android:id="@+id/calOne"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="30dp"
+            android:text="Button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/calReturn" />
 
-    <Button
-        android:id="@+id/calFive"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calFour"
-        app:layout_constraintTop_toBottomOf="@+id/calTwo" />
+        <Button
+            android:id="@+id/calTwo"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="30dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calOne"
+            app:layout_constraintTop_toBottomOf="@+id/calReturn" />
 
-    <Button
-        android:id="@+id/calSix"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calFive"
-        app:layout_constraintTop_toBottomOf="@+id/calThree" />
+        <Button
+            android:id="@+id/calThree"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="30dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calTwo"
+            app:layout_constraintTop_toBottomOf="@+id/calClear" />
 
-    <Button
-        android:id="@+id/subtractButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calSix"
-        app:layout_constraintTop_toBottomOf="@+id/addButton" />
+        <Button
+            android:id="@+id/addButton"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="30dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calThree"
+            app:layout_constraintTop_toBottomOf="@+id/calClear" />
 
-    <Button
-        android:id="@+id/calSeven"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calFour" />
+        <Button
+            android:id="@+id/calFour"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintEnd_toStartOf="@+id/calFive"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/calOne" />
 
-    <Button
-        android:id="@+id/calEight"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calSeven"
-        app:layout_constraintTop_toBottomOf="@+id/calFive" />
+        <Button
+            android:id="@+id/calFive"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calFour"
+            app:layout_constraintTop_toBottomOf="@+id/calTwo" />
 
-    <Button
-        android:id="@+id/calNine"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calEight"
-        app:layout_constraintTop_toBottomOf="@+id/calSix" />
+        <Button
+            android:id="@+id/calSix"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calFive"
+            app:layout_constraintTop_toBottomOf="@+id/calThree" />
 
-    <Button
-        android:id="@+id/multiplyButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintStart_toEndOf="@+id/calNine"
-        app:layout_constraintTop_toBottomOf="@+id/subtractButton" />
+        <Button
+            android:id="@+id/subtractButton"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calSix"
+            app:layout_constraintTop_toBottomOf="@+id/addButton" />
 
-    <Button
-        android:id="@+id/divisionButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="320dp"
-        android:layout_marginTop="15dp"
-        android:text="Button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/multiplyButton" />
+        <Button
+            android:id="@+id/calSeven"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/calFour" />
 
-    <Button
-        android:id="@+id/equalsButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="30dp"
-        android:text="Button"
-        app:layout_constraintEnd_toStartOf="@+id/divisionButton"
-        app:layout_constraintTop_toBottomOf="@+id/calNine" />
+        <Button
+            android:id="@+id/calEight"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calSeven"
+            app:layout_constraintTop_toBottomOf="@+id/calFive" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/calNine"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calEight"
+            app:layout_constraintTop_toBottomOf="@+id/calSix" />
+
+        <Button
+            android:id="@+id/multiplyButton"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintStart_toEndOf="@+id/calNine"
+            app:layout_constraintTop_toBottomOf="@+id/subtractButton" />
+
+        <Button
+            android:id="@+id/divisionButton"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="320dp"
+            android:layout_marginTop="15dp"
+            android:text="Button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/multiplyButton" />
+
+        <Button
+            android:id="@+id/equalsButton"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="30dp"
+            android:text="Button"
+            app:layout_constraintEnd_toStartOf="@+id/divisionButton"
+            app:layout_constraintTop_toBottomOf="@+id/calNine" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
