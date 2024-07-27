@@ -80,6 +80,11 @@ public class Navbar {
             Log.d("Alert", "Opening profile");
             return newActivity;
         }
+        else if (id == R.id.nav_settings) {
+            Intent newActivity = new Intent(CurrentActivity, SettingsActivity.class);
+            Log.d("Alert", "Opening profile");
+            return newActivity;
+        }
         else {
            Log.d("Alert", "Unknown page!");
         }
