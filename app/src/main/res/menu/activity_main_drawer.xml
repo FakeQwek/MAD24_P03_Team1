@@ -39,6 +39,12 @@
             android:icon="@drawable/writing"
             android:title="Essay Tool" />
         <item
+
+            android:id="@+id/nav_calculator"
+            android:icon="@drawable/calculator"
+            android:title="Calculator" />
+        <item
+
             android:id="@+id/nav_profile"
             android:icon="@drawable/account"
             android:title="Profile" />

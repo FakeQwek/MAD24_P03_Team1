@@ -160,10 +160,6 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Inkwell.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".DrawingMainActivity"
@@ -173,17 +169,13 @@
             android:name=".MindMapActivity"
             android:exported="true"
             android:theme="@style/Theme.Inkwell.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".IntermediateActivity"></activity>
         <activity android:name=".ViewSavedDrawingsActivity"></activity>
         <activity android:name=".FullImageActivity"></activity>
         <activity android:name=".ViewPublicCollectionActivity"></activity>
                
-        <!-- Receivers --><!-- Receivers -->
+<!-- Receivers -->
         <receiver
             android:name=".EventAlarmReceiver"
             android:exported="false" />

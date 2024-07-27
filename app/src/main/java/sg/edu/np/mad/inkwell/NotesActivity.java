@@ -418,8 +418,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
         menu.findItem(R.id.nav_friends).setVisible(false);
         menu.findItem(R.id.nav_community).setVisible(false);
         menu.findItem(R.id.nav_essay).setVisible(false);
+        menu.findItem(R.id.nav_calculator).setVisible(false);
         menu.findItem(R.id.nav_drawing).setVisible(false);
-
         ImageButton swapButton = findViewById(R.id.swapButton);
 
         if (swapButton != null) {
@@ -442,6 +442,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                         menu.findItem(R.id.nav_friends).setVisible(false);
                         menu.findItem(R.id.nav_community).setVisible(false);
                         menu.findItem(R.id.nav_essay).setVisible(false);
+                        menu.findItem(R.id.nav_calculator).setVisible(false);
                         menu.findItem(R.id.nav_drawing).setVisible(false);
                         searchView.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.VISIBLE);
@@ -459,6 +460,7 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                         menu.findItem(R.id.nav_friends).setVisible(true);
                         menu.findItem(R.id.nav_community).setVisible(true);
                         menu.findItem(R.id.nav_essay).setVisible(true);
+                        menu.findItem(R.id.nav_calculator).setVisible(true);
                         menu.findItem(R.id.nav_drawing).setVisible(true);
                         searchView.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.GONE);

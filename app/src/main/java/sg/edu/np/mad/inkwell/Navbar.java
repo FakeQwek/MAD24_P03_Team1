@@ -95,6 +95,13 @@ public class Navbar {
             Log.d("Alert", "Opening essay tool");
             return newActivity;
         }
+        else if (id == R.id.nav_calculator){
+            Intent newActivity = new Intent(CurrentActivity, CalculatorActivity.class);
+            Log.d("Alert", "Opening calculator");
+            return newActivity;
+        }
+
+
         else {
            Log.d("Alert", "Unknown page!");
         }
