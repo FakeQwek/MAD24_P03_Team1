@@ -64,7 +64,7 @@ public class EssayActivity extends AppCompatActivity implements SpellCheckerSess
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        TextView titleText = findViewById(R.id.titleText);
+
         EditText essayText = findViewById(R.id.essayText);
         String essay = essayText.getText().toString();
 
@@ -82,7 +82,6 @@ public class EssayActivity extends AppCompatActivity implements SpellCheckerSess
         Button confirmButton = findViewById(R.id.checkButton);
         confirmButton.setText("Check Essay");
         essayDetails.setText("Essay Information");
-        titleText.setText("Essay Tool");
         //wordsTitle.setTypeface(wordsTitle.getTypeface(), Typeface.BOLD);
 
         confirmButton.setOnClickListener(new View.OnClickListener() {
@@ -153,7 +152,7 @@ public class EssayActivity extends AppCompatActivity implements SpellCheckerSess
                 Log.i("debug", "Words: " + words);
                 wordCount.setText("Words: " + words.length);
                 sentenceCount.setText("Sentences: " + sentences.length);
-                titleText.setText("Essay Tool");
+
                 fetchSuggestionsFor(essay);
             }
         });
