@@ -1,6 +1,8 @@
 package sg.edu.np.mad.inkwell;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.text.Editable;
 import android.util.Log;
@@ -11,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -22,6 +25,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
@@ -30,6 +35,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.StorageReference;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.jetbrains.annotations.ApiStatus;
 
@@ -177,6 +188,9 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     bottomSheetDialog.setContentView(view);
                     bottomSheetDialog.show();
 
+                    NotesActivity.longClickSelectedNoteTitle = file.getTitle();
+                    NotesActivity.longClickSelectedNoteBody = file.getBody();
+
                     // Get bottomSheetDeleteButton Button and set text
                     Button bottomSheetDeleteButton = view.findViewById(R.id.bottomSheetDeleteButton);
                     bottomSheetDeleteButton.setText(R.string.bottom_sheet_delete_button);
@@ -260,6 +274,82 @@ public class NotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                             communityNoteData.put("dateCreated", simpleDateFormat.format(Calendar.getInstance().getTime()));
 
                             db.collection("community").document().set(communityNoteData);
+
+                            bottomSheetDialog.dismiss();
+                        }
+                    });
+
+                    Button friendsShareButton = view.findViewById(R.id.friendsShareButton);
+                    friendsShareButton.setText("Share With Friends");
+
+                    friendsShareButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            bottomSheetDialog.dismiss();
+
+                            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(notesActivity);
+                            View view = LayoutInflater.from(notesActivity).inflate(R.layout.friends_bottom_sheet, null);
+                            bottomSheetDialog.setContentView(view);
+                            bottomSheetDialog.show();
+
+                            RecyclerView recyclerView = view.findViewById(R.id.notesFriendsRecyclerView);
+                            FriendAdapter adapter = new FriendAdapter(notesActivity.friendList, null);
+                            LinearLayoutManager layoutManager = new LinearLayoutManager(notesActivity);
+                            recyclerView.setLayoutManager(layoutManager);
+                            recyclerView.setItemAnimator(new DefaultItemAnimator());
+                            recyclerView.setAdapter(adapter);
+                            recyclerView.getAdapter().notifyDataSetChanged();
+
+                            Button doneButton = view.findViewById(R.id.doneButton);
+
+                            doneButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    bottomSheetDialog.dismiss();
+                                }
+                            });
+
+                            Button cancelButton = view.findViewById(R.id.cancelButton);
+
+                            cancelButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    bottomSheetDialog.dismiss();
+                                }
+                            });
+                        }
+                    });
+
+                    Button qrCodeButton = view.findViewById(R.id.qrCodeButton);
+                    qrCodeButton.setText("Generate QR Code To Share Note");
+
+                    // generate a QR code for others to scan and get a copy of the selected note
+                    qrCodeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            bottomSheetDialog.dismiss();
+
+                            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(notesActivity);
+                            View view = LayoutInflater.from(notesActivity).inflate(R.layout.qr_code_bottom_sheet, null);
+                            bottomSheetDialog.setContentView(view);
+                            bottomSheetDialog.show();
+
+                            ImageView imageView = view.findViewById(R.id.imageView);
+
+                            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+
+                            String fileText = file.getTitle() + ";" + file.getBody();
+
+                            try {
+                                BitMatrix bitMatrix = multiFormatWriter.encode(fileText, BarcodeFormat.QR_CODE, 500, 500);
+
+                                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                                Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+
+                                imageView.setImageBitmap(bitmap);
+                            } catch (WriterException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     });
                     return false;

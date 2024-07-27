@@ -1,12 +1,10 @@
-//This class holds functionality for redirecting to activities based on buttong clicked
+//This class holds functionality for redirecting to activities based on button clicked
 
 package sg.edu.np.mad.inkwell;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
-
-import org.checkerframework.checker.units.qual.Current;
 
 public class Navbar {
     private Activity CurrentActivity;
@@ -34,6 +32,11 @@ public class Navbar {
         else if (id == R.id.nav_todos) {
             Intent newActivity = new Intent(CurrentActivity, TodoActivity.class);
             Log.d("Alert", "Opening todo list");
+            return newActivity;
+        }
+        else if (id == R.id.nav_mind_map) {
+            Intent newActivity = new Intent(CurrentActivity, MindMapActivity.class);
+            Log.d("Alert", "Opening mind map");
             return newActivity;
         }
         else if (id == R.id.nav_flashcards) {
@@ -82,6 +85,7 @@ public class Navbar {
             Log.d("Alert", "Opening settings");
             return newActivity;
         }
+
         else if(id == R.id.nav_dictionary) {
             Intent newActivity = new Intent(CurrentActivity, KeywordSearchActivity.class);
             Log.d("Alert", "Opening Dictionary");
@@ -97,6 +101,24 @@ public class Navbar {
             Log.d("Alert","Opening ReadingList");
             return newActivity;
         }
+
+        else if (id == R.id.nav_drawing) {
+            Intent newActivity = new Intent(CurrentActivity, IntermediateActivity.class);
+            Log.d("Alert", "Opening drawing activity");
+            return newActivity;
+        }
+        else if (id == R.id.nav_essay) {
+            Intent newActivity = new Intent(CurrentActivity, EssayActivity.class);
+            Log.d("Alert", "Opening essay tool");
+            return newActivity;
+        }
+        else if (id == R.id.nav_calculator){
+            Intent newActivity = new Intent(CurrentActivity, CalculatorActivity.class);
+            Log.d("Alert", "Opening calculator");
+            return newActivity;
+        }
+
+
         else {
            Log.d("Alert", "Unknown page!");
         }

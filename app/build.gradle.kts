@@ -66,6 +66,9 @@ dependencies {
     implementation ("androidx.biometric:biometric:1.1.0")
     implementation("com.google.firebase:firebase-analytics")
     implementation ("com.google.firebase:firebase-core:21.0.0")
+    implementation ("androidx.recyclerview:recyclerview:1.2.1")
+
+
     implementation("com.google.firebase:firebase-auth")
     implementation ("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore")
@@ -73,6 +76,10 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.android.volley:volley:1.2.1")
+
+    implementation ("com.google.android.material:material:1.6.0")
+
+
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation ("com.airbnb.android:lottie:3.4.0")
     implementation ("androidx.biometric:biometric:1.1.0")
@@ -112,5 +119,8 @@ dependencies {
     implementation ("androidx.camera:camera-camera2:1.0.0")
     implementation ("androidx.camera:camera-lifecycle:1.0.0")
     implementation ("androidx.camera:camera-core:1.0.0")
+
     implementation ("com.itextpdf:itext7-core:7.1.15")
+
+
 }
