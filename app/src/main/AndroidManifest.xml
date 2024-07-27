@@ -41,7 +41,8 @@
             android:exported="true" />
         <activity
             android:name=".EssayActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <!-- Main launcher activity -->
         <activity
             android:name=".MainActivity"
@@ -166,7 +167,9 @@
         </activity>
         <activity
             android:name=".DrawingMainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
+        <activity
             android:name=".MindMapActivity"
             android:exported="true"
             android:theme="@style/Theme.Inkwell.NoActionBar">
@@ -180,8 +183,7 @@
         <activity android:name=".FullImageActivity"></activity>
         <activity android:name=".ViewPublicCollectionActivity"></activity>
                
-        <!-- Receivers -->
-            android:theme="@style/Theme.Inkwell.NoActionBar" /> <!-- Receivers -->
+        <!-- Receivers --><!-- Receivers -->
         <receiver
             android:name=".EventAlarmReceiver"
             android:exported="false" />
