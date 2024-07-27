@@ -112,8 +112,6 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         nodes = new ArrayList<>();
         lines = new ArrayList<>();
 
-        initializeTitleNode();
-
         addNodeButton.setOnClickListener(v -> addChildNode());
         addNewMindmap.setOnClickListener(v -> {
             // Clear the current mind map
@@ -451,6 +449,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                     if (querySnapshot != null && !querySnapshot.isEmpty()) {
                         DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
                         currentMindMapId = doc.getId();
+                        loadMindMap(db, userId, currentMindMapId);
                     } else {
                         // Create new mind map if none exists
                         initializeTitleNode();
@@ -605,6 +604,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
         menu.findItem(R.id.nav_logout).setVisible(false);
         menu.findItem(R.id.nav_friends).setVisible(false);
         menu.findItem(R.id.nav_community).setVisible(false);
+        menu.findItem(R.id.nav_essay).setVisible(false);
 
         ImageButton swapButton = findViewById(R.id.swapButton);
 
@@ -627,6 +627,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                         menu.findItem(R.id.nav_logout).setVisible(false);
                         menu.findItem(R.id.nav_friends).setVisible(false);
                         menu.findItem(R.id.nav_community).setVisible(false);
+                        menu.findItem(R.id.nav_essay).setVisible(false);
                         searchView.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.VISIBLE);
                     } else {
@@ -642,6 +643,7 @@ public class MindMapActivity extends AppCompatActivity implements NavigationView
                         menu.findItem(R.id.nav_logout).setVisible(true);
                         menu.findItem(R.id.nav_friends).setVisible(true);
                         menu.findItem(R.id.nav_community).setVisible(true);
+                        menu.findItem(R.id.nav_essay).setVisible(true);
                         searchView.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.GONE);
                     }
