@@ -24,7 +24,7 @@ public class DrawingsAdapter extends RecyclerView.Adapter<DrawingsAdapter.ViewHo
     private List<Map<String, Object>> drawingList;
     private Context context;
     private OnItemClickListener onItemClickListener;
-    private OnDeleteClickListener onDeleteClickListener; // Add delete listener
+    private OnDeleteClickListener onDeleteClickListener;
     private int deleteButtonVisibility = View.VISIBLE;
 
     public interface OnItemClickListener {
@@ -66,17 +66,17 @@ public class DrawingsAdapter extends RecyclerView.Adapter<DrawingsAdapter.ViewHo
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
             holder.imageView.setImageBitmap(bitmap);
         }).addOnFailureListener(exception -> {
-            // Handle any errors
+
         });
 
         holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(drawing));
         holder.deleteButton.setVisibility(deleteButtonVisibility);
-        holder.deleteButton.setOnClickListener(v -> onDeleteClickListener.onDeleteClick(drawing)); // Handle delete click
+        holder.deleteButton.setOnClickListener(v -> onDeleteClickListener.onDeleteClick(drawing));
     }
 
     public void setDeleteButtonVisibility(int visibility) {
         this.deleteButtonVisibility = visibility;
-        notifyDataSetChanged();  // Refresh the list to apply visibility changes
+        notifyDataSetChanged();
     }
 
     @Override
@@ -95,7 +95,7 @@ public class DrawingsAdapter extends RecyclerView.Adapter<DrawingsAdapter.ViewHo
             imageView = itemView.findViewById(R.id.image_view);
             titleTextView = itemView.findViewById(R.id.title_text_view);
             nameTextView = itemView.findViewById(R.id.name_text_view);
-            deleteButton = itemView.findViewById(R.id.btn_delete_drawing); // Initialize delete button
+            deleteButton = itemView.findViewById(R.id.btn_delete_drawing);
         }
     }
 }

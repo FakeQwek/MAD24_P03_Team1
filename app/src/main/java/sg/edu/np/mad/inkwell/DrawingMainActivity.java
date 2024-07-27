@@ -39,7 +39,6 @@ public class DrawingMainActivity extends AppCompatActivity {
     private ImageButton save, color, stroke, undo, redo, eraser, reset, fill, selectionMode, deleteSelection, help;
     private RangeSlider rangeSlider;
 
-    // Custom color picker dialog views
     private View colorPickerDialog;
     private LinearLayout colorPalette;
     private ImageButton closeColorPickerButton;
@@ -71,7 +70,7 @@ public class DrawingMainActivity extends AppCompatActivity {
         stroke = findViewById(R.id.btn_stroke);
         eraser = findViewById(R.id.btn_eraser);
         reset = findViewById(R.id.btn_reset);
-        fill = findViewById(R.id.btn_fill);  // Add this line for fill button
+        fill = findViewById(R.id.btn_fill);
         selectionMode = findViewById(R.id.btn_selection_mode);
         deleteSelection = findViewById(R.id.btn_delete_selection);
         help = findViewById(R.id.btn_help);
@@ -105,7 +104,7 @@ public class DrawingMainActivity extends AppCompatActivity {
 
         reset.setOnClickListener(view -> resetDrawing());
 
-        fill.setOnClickListener(view -> toggleFillMode());  // Add this line to toggle fill mode
+        fill.setOnClickListener(view -> toggleFillMode());
 
         selectionMode.setOnClickListener(view -> toggleSelectionMode());
 
@@ -126,15 +125,15 @@ public class DrawingMainActivity extends AppCompatActivity {
             }
         });
 
-        // Set default stroke width value
+
         rangeSlider.setValues(0.5f);
 
-        // Initialize the color picker dialog with default color
+
         currentColor = Color.BLACK;
         paint.setColor(currentColor);
         paint.setStrokeWidth(0.5f);
 
-        // Initialize Firebase instances
+
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
@@ -186,7 +185,7 @@ public class DrawingMainActivity extends AppCompatActivity {
         builder.setView(view);
         AlertDialog dialog = builder.create();
 
-        // Create Bitmap outside of the dialog methods to use it in both save and publish functions
+
         Bitmap bmp = paint.save();
 
         btnSave.setOnClickListener(v -> {
@@ -224,7 +223,7 @@ public class DrawingMainActivity extends AppCompatActivity {
     }
 
     private void saveDrawingToCollection(Bitmap bmp, String name, String title) {
-        // Call the saveDrawingToUserSpecificPath method first
+
         saveDrawingToUserSpecificPath(bmp, name, title);
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -340,9 +339,9 @@ public class DrawingMainActivity extends AppCompatActivity {
         isEraserOn = !isEraserOn;
         paint.setEraserMode(isEraserOn);
         if (isEraserOn) {
-            eraser.setColorFilter(Color.RED);  // Change icon color to red to indicate eraser mode
+            eraser.setColorFilter(Color.RED);
         } else {
-            eraser.clearColorFilter();  // Clear color filter to reset icon color
+            eraser.clearColorFilter();
         }
     }
 
@@ -352,7 +351,7 @@ public class DrawingMainActivity extends AppCompatActivity {
 
     private void toggleFillMode() {
         isFillModeOn = !isFillModeOn;
-        fill.setColorFilter(isFillModeOn ? Color.GREEN : Color.BLACK);  // Change button color to indicate fill mode status
+        fill.setColorFilter(isFillModeOn ? Color.GREEN : Color.BLACK);
         paint.setFillMode(isFillModeOn);
     }
 
