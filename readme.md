@@ -1,12 +1,10 @@
 # Inkwell #
 
 ## Introduction ##
-Inkwell is a productivity app that allows users to stay organised by notetaking and keeping regular schedules. 
-*Mindfulness is king* when it comes to Inkwell with its many useful features. Some of these features include the calender allows you to schedule for events and plan out your week, notepages which allow you to reflect and write down important details and
-the todo list, which allows you to keep track of tasks on a daily basis. *Stay organised today with Inkwell*
+Inkwell is a productivity app that allows users to stay organised by notetaking and keeping regular schedules. Other useful tools are also included in Inkwell to help users. Some of these features include the calender allows you to schedule for events and plan out your week, notepages which allow you to reflect and write down important details andthe todo list, which allows you to keep track of tasks on a daily basis. *Stay organised today with Inkwell*
 
 ## Objective ##
-Create an app that encourages productivity through organisation. The app should allow users to stay organised using multiple features in the app to stay efficient and improve quality of life.
+Create an app that encourages productivity through organisation and efficiency. The app should allow users to stay organised and efficient using multiple features in the app to stay efficient and improve quality of life.
 
 
 ## Category ##
@@ -56,29 +54,19 @@ Productivity
 **Stage 2**
 
 *Tasks and Features:*
-- Multimedia upload for notes – Tsun Yang
-- In App Calculator - Tsun Yang
-- Budget Tracker - Tsun Yang
+- In-app Calculator - Tsun Yang
+- Essay Tool - Tsun Yang
 - Sharing to collaborators  - Chin Teck
+- Friends and Community - Chin Teck
 - AI Helpbot - Chin Teck
 - Profile Page - Chin Teck
 - Markdown - Chin Teck
-- Upgraded Authentication (Biometric, persistent password,otp verification, security questions) -  Jin Xuan
-- Storyboard – Jin Xuan
+- Dictionary – Jin Xuan
 - Language Translator - Jin Xuan
-- Dictionary - Jin Xuan
+- Reading List - Jin Xuan
 - Mind Map - Rithika
-- Time tracking with work statistics and achievements  - Rithika
-- Goal setting and recurring tasks - Rithika
-- Widgets – Rithika
-- Accessibility features – Rithika 
 - Drawing tools with Stylus support - Jun Kai
-- Sync with Google Calendar - Jun Kai
-- Time Blocking and Focus features - Jun Kai
-- Text to Speech - Jun Kai
-- Time Zone Support - Jun Kai
 
-*New Concepts:* 
 
   
 *Other* 
@@ -132,7 +120,7 @@ The Settings page allows the user to configure Inkwell. Currently the user can t
 
 <img src="https://github.com/FakeQwek/MAD_P03_Team1/assets/133119964/e1791868-d115-4c60-95bd-95bde2dc09c2" width="200" height="400">
 
-The Notes page allows users to create written notes. Notes can be stored in folders and reside in the navbar. The notes and folder can be renamed and deleted.
+The Notes page allows users to create written notes. Notes can be stored in folders and reside in the navbar. The notes and folder can be renamed and deleted. Ai can be called for suggestions.
 
 
 **Flashcards**
@@ -147,6 +135,77 @@ The Flashcards allow users to memorise knowledge. Flashcards can be created and 
 <img src="https://github.com/FakeQwek/MAD_P03_Team1/assets/133119964/467fb970-d31b-42b1-8755-7d8c0961c0db" width="200" height="400">
 
 The Todo page allows users to add tasks. Tasks are organised into three categories and include title and description.
+
+
+**In App Calculator**
+
+<img src="https://github.com/user-attachments/assets/9426348e-7a2d-43af-b358-f593b7a24852" width="200" height="400">
+
+The In-app Calculator allows users to calculate straight from Inkwell. Users can compute basic equations.
+
+
+**Essay Tool**
+
+<img src="https://github.com/user-attachments/assets/053b60a7-d2e9-4c9e-8185-70fdb6e49b44" width="200" height="400">
+
+The Essay Tool helps users with their essay by counting words, sentences and characters. It also provides spelling suggestions.
+
+
+**Profile**
+
+<img src="https://github.com/user-attachments/assets/bfff8c40-da53-4286-9aaf-f1c83ffa7a9e" width="200" height="400">
+
+
+The Profile page allows users to customise their presence on Inkwell. Users can change their profile image and description
+
+**Friends**
+
+<img src="https://github.com/user-attachments/assets/c8171600-2a73-4adc-9ab0-14b6623f1938" width="200" height="400">
+
+The Friends page allows users to connect with others personally on Inkwell. Users can add friends through email.
+
+**Community**
+
+<img src="https://github.com/user-attachments/assets/41bbdb46-c2a4-4238-8dc1-e8d7c56e71b5" width="200" height="400">
+
+The Community page allows users to connect with the community in Inkwell. Users can compete in quizzes between others in the community.
+
+**Dictionary**
+
+<img src="https://github.com/user-attachments/assets/86510481-f5a0-4891-99f1-14be43444d0e" width="200" height="400">
+
+The Dictionary page allows users to look up the meaning of words and store them for later use. Users can also test for pronunciation accuracy and compete with other users
+
+**Language Translator**
+
+<img src="https://github.com/user-attachments/assets/7205e7c5-7946-4ea6-a3a6-0b0cc172e67a" width="200" height="400">
+
+The Language translator page allows users to translate words either through voice or text.
+
+**Reading List**
+
+<img src="https://github.com/user-attachments/assets/78d1dcb9-d4e5-4671-8671-0a413d82249d" width="200" height="400">
+
+The Reading List allows users to store books by title, author and cover.
+
+**Mindmap**
+
+<img src="https://github.com/user-attachments/assets/4f1c3fa9-89fb-4354-a566-ff4d695cfd6c" width="200" height="400">
+
+The Mind Map allows users to design their very own mindmap. Users can customise their mindmap by color and text.
+
+**Drawing Tool**
+
+<img src="https://github.com/user-attachments/assets/121fe918-385b-4ae2-bc0f-cdb850f1bd51" width="200" height="400">
+
+The Drawing tool allows users to create their own artworks. Users can create a new drawing, view saved drawings and view public drawings. Numerous tools are present in the drawing page.
+
+
+
+
+
+
+
 
 
 

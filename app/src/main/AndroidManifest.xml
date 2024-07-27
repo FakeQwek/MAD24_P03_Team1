@@ -192,10 +192,14 @@
         <!-- Receivers -->
            <!-- Receivers -->
 
-        <activity android:name=".IntermediateActivity"></activity>
-        <activity android:name=".ViewSavedDrawingsActivity"></activity>
-        <activity android:name=".FullImageActivity"></activity>
-        <activity android:name=".ViewPublicCollectionActivity"></activity>
+        <activity android:name=".IntermediateActivity"
+            android:theme="@style/Theme.Inkwell.NoActionBar"></activity>
+        <activity android:name=".ViewSavedDrawingsActivity"
+            android:theme="@style/Theme.Inkwell.NoActionBar"></activity>
+        <activity android:name=".FullImageActivity"
+            android:theme="@style/Theme.Inkwell.NoActionBar"></activity>
+        <activity android:name=".ViewPublicCollectionActivity"
+            android:theme="@style/Theme.Inkwell.NoActionBar"></activity>
                
 <!-- Receivers -->
 
