@@ -69,7 +69,7 @@
             android:id="@+id/nav_readingList"
             android:icon="@drawable/bookshelf"
             android:title="ReadingList"/>
-
+<item
             android:id="@+id/nav_drawing"
             android:icon="@drawable/pencil_outline"
             android:title="Drawing" />
