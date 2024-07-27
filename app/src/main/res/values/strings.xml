@@ -47,6 +47,7 @@
 
     <string name="add_new">Add</string>
     <string name="add_event">Add Event</string>
+    <string name="update_event">Update Event</string>
     <string name="timetable">Timetable</string>
     <string name="x_events">You have x events today</string>
     <string name="clear">Clear</string>
