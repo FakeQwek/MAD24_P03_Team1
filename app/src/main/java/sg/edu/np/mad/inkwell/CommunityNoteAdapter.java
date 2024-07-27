@@ -58,6 +58,7 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
         holder.profileImage.setImageBitmap(communityNote.getBitmap());
         holder.dateCreated.setText(communityNote.getDateCreated());
 
+        // get the data of the number of likes that a community note has
         db.collection("community").document(communityNote.getId()).collection("likes")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -65,7 +66,9 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                communityNote.addLike(document.getId());
+                                if (!communityNote.getLikes().contains(document.getId())) {
+                                    communityNote.addLike(document.getId());
+                                }
                             }
                             holder.likeCounter.setText(String.valueOf(communityNote.getLikes().size()));
                         } else {
@@ -82,6 +85,7 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
 
         RecyclerView recyclerView = communityActivity.findViewById(R.id.communityRecyclerView);
 
+        // change display of view animator when clicking on a community note
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,6 +101,7 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
             holder.deleteButton.setVisibility(View.VISIBLE);
         }
 
+        // remove the data of the community note from firebase
         holder.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,6 +137,7 @@ public class CommunityNoteAdapter extends RecyclerView.Adapter<CommunityNoteView
             }
         });
 
+        // create a record of the user liking a community note in firebase
         holder.likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

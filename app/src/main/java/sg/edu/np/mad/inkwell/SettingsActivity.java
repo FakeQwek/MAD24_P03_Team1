@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Switch;
 
 import androidx.annotation.NonNull;
@@ -43,23 +44,16 @@ public class SettingsActivity extends AppCompatActivity implements NavigationVie
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        Switch switch1 = findViewById(R.id.switch1);
+        ImageButton nightModeButton = findViewById(R.id.nightModeButton);
 
-        // Checks switch1 if night mode is on and vice versa
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
-            switch1.setChecked(true);
-        } else {
-            switch1.setChecked(false);
-        }
-
-        // Toggle night mode
-        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        // toggles between night mode and light mode
+        nightModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (switch1.isChecked()) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                } else {
+            public void onClick(View v) {
+                if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 }
             }
         });

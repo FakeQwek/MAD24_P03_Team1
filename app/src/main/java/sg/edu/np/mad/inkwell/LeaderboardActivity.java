@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -27,11 +28,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -44,6 +48,17 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
 
     String currentFirebaseUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    StorageReference storageRef = storage.getReference();
+
+    ArrayList<LeaderboardRank> leaderboardRankList;
+
+    TextView noteTitle;
+
+    TextView noteOwner;
+
+    // Method to set items in the recycler view
     private void recyclerView(ArrayList<LeaderboardRank> leaderboardRankList) {
         RecyclerView recyclerView = findViewById(R.id.leaderboardRecyclerView);
         LeaderboardRankAdapter adapter = new LeaderboardRankAdapter(leaderboardRankList, this);
@@ -80,12 +95,18 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
+        leaderboardRankList = new ArrayList<>();
 
-        StorageReference storageRef = storage.getReference();
+        noteTitle = findViewById(R.id.noteTitle);
 
-        ArrayList<LeaderboardRank> leaderboardRankList = new ArrayList<>();
+        noteOwner = findViewById(R.id.noteOwner);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // get data of the scores for this community note quiz leaderboard from firebase
         db.collection("community").document(CommunityActivity.selectedNote.getId()).collection("leaderboard")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -123,13 +144,25 @@ public class LeaderboardActivity extends AppCompatActivity implements Navigation
                         }
                     }
                 });
+
+        // get data of the community note from firebase
+        db.collection("community").document(CommunityActivity.selectedNote.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            noteTitle.setText(document.getData().get("title").toString());
+                            noteOwner.setText("By " + document.getData().get("email").toString());
+                        }
+                    }
+                });
     }
 
     //Allows movement between activities upon clicking
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);

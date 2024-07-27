@@ -54,6 +54,12 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
 
     String currentFirebaseUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    StorageReference storageRef = storage.getReference();
+
+    TextView description;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,29 +86,11 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
 
         decorView.setSystemUiVisibility(uiOptions);
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-
-        StorageReference storageRef = storage.getReference();
-
         Button changeProfileImageButton = findViewById(R.id.changeProfileImageButton);
 
         ImageView profileImage = findViewById(R.id.profileImage);
 
-        TextView description = findViewById(R.id.description);
-
-        db.collection("users").document(currentFirebaseUserUid).collection("profile").document("description")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                description.setText(document.getData().get("description").toString());
-                            }
-                        }
-                    }
-                });
+        description = findViewById(R.id.description);
 
         StorageReference imageRef = storageRef.child("users/" + currentFirebaseUserUid + "/profile.jpg");
 
@@ -179,11 +167,28 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        db.collection("users").document(currentFirebaseUserUid).collection("profile").document("description")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                description.setText(document.getData().get("description").toString());
+                            }
+                        }
+                    }
+                });
+    }
+
     //Allows movement between activities upon clicking
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);

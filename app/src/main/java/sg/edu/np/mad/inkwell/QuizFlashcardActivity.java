@@ -51,6 +51,14 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
 
     private int flashcardCount;
 
+    ArrayList<String> questionList;
+
+    ArrayList<String> answerList;
+
+    TextView question1;
+
+    TextView flashcardsLeft;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,41 +86,21 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
 
         ViewAnimator viewAnimator = findViewById(R.id.viewAnimator);
 
-        ArrayList<String> questionList = new ArrayList<>();
+        questionList = new ArrayList<>();
 
-        ArrayList<String> answerList = new ArrayList<>();
+        answerList = new ArrayList<>();
 
-        TextView question1 = findViewById(R.id.question1);
+        question1 = findViewById(R.id.question1);
 
         TextView question2 = findViewById(R.id.question2);
 
         TextView knownCount = findViewById(R.id.knownCount);
 
-        TextView flashcardsLeft = findViewById(R.id.flashcardsLeft);
+        flashcardsLeft = findViewById(R.id.flashcardsLeft);
 
         TextView stillLearningCount = findViewById(R.id.stillLearningCount);
 
         ProgressBar progressBar = findViewById(R.id.progressBar);
-
-        // Read from firebase and create flashcards on create
-        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document(String.valueOf(FlashcardActivity.selectedFlashcardCollectionId)).collection("flashcards")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                questionList.add(document.getData().get("question").toString());
-                                answerList.add(document.getData().get("answer").toString());
-                                flashcardCount += 1;
-                            }
-                        } else {
-                            Log.d("testing", "Error getting documents: ", task.getException());
-                        }
-                        question1.setText(questionList.get(currentFlashcardPosition));
-                        flashcardsLeft.setText(flashcardCount + " Left");
-                    }
-                });
 
         ImageButton answerButton1 = findViewById(R.id.answerButton1);
 
@@ -226,53 +214,38 @@ public class QuizFlashcardActivity extends AppCompatActivity implements Navigati
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        if (menuItem.getItemId() == R.id.nav_home) {
-            Intent notesActivity = new Intent(QuizFlashcardActivity.this, MainActivity.class);
-            startActivity(notesActivity);
-            return true;
-        }
-        else if (menuItem.getItemId() == R.id.nav_notes) {
-            Intent todoActivity = new Intent(QuizFlashcardActivity.this, NotesActivity.class);
-            startActivity(todoActivity);
-            return true;
-        }
-        else if (menuItem.getItemId() == R.id.nav_todos) {
-            Intent todoActivity = new Intent(QuizFlashcardActivity.this, TodoActivity.class);
-            startActivity(todoActivity);
-            return true;
-        }
-        else if (menuItem.getItemId() == R.id.nav_flashcards) {
-            Intent todoActivity = new Intent(QuizFlashcardActivity.this, FlashcardActivity.class);
-            startActivity(todoActivity);
-            return true;
-        }
-        else if (menuItem.getItemId() == R.id.nav_calendar) {
-            Intent todoActivity = new Intent(QuizFlashcardActivity.this, TimetableActivity.class);
-            startActivity(todoActivity);
-            return true;
-        }
-        else if (menuItem.getItemId() == R.id.nav_timetable) {
-            Intent todoActivity = new Intent(QuizFlashcardActivity.this, TimetableActivity.class);
-            startActivity(todoActivity);
-            return true;
-        }
-        else if (menuItem.getItemId() == R.id.nav_settings) {
-            Intent todoActivity = new Intent(QuizFlashcardActivity.this, SettingsActivity.class);
-            startActivity(todoActivity);
-            return true;
-        }
-        else if (menuItem.getItemId() == R.id.nav_logout) {
-            Log.d("Message", "Logout");
-        }
-        else {
-            Log.d("Message", "Unknown page!");
-        }
+    protected void onStart() {
+        super.onStart();
 
+        // Read from firebase and create flashcards on create
+        db.collection("users").document(currentFirebaseUserUid).collection("flashcardCollections").document(String.valueOf(FlashcardActivity.selectedFlashcardCollectionId)).collection("flashcards")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                questionList.add(document.getData().get("question").toString());
+                                answerList.add(document.getData().get("answer").toString());
+                                flashcardCount += 1;
+                            }
+                        } else {
+                            Log.d("testing", "Error getting documents: ", task.getException());
+                        }
+                        question1.setText(questionList.get(currentFlashcardPosition));
+                        flashcardsLeft.setText(flashcardCount + " Left");
+                    }
+                });
+    }
+
+    //Allows movement between activities upon clicking
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
         Navbar navbar = new Navbar(this);
         Intent newActivity = navbar.redirect(id);
         startActivity(newActivity);
+
         return true;
     }
 }
