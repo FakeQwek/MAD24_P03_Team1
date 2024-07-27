@@ -9,12 +9,21 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
-
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature
         android:name="android.hardware.camera.any"
         android:required="true" />
@@ -30,7 +39,7 @@
         android:theme="@style/Theme.Inkwell"
         tools:targetApi="31">
         <activity
-            android:name=".SubmitFormActivity"
+            android:name=".PracticeWordActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,25 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PreviewFormActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".FormBuilderActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".ObjectDetectionActivity"
+            android:name=".AnalyticsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -85,15 +76,21 @@
         <activity
             android:name=".VerifyEmailActivity"
             android:exported="true" /> <!-- Additional activities -->
+        <activity
+            android:name=".ReadingListActivity"
+            android:exported="true" />
+        <activity
+            android:name=".PronunciationActivity"
+            android:exported="true" />
+        <activity
+            android:name=".VoiceRecorderActivity"
+            android:exported="true" />
         <activity android:name=".BookmarkCollectionActivity" />
         <activity
             android:name=".Intro1"
             android:exported="true" />
         <activity
             android:name=".FingerPrintAuthentication"
-            android:exported="true" />
-        <activity
-            android:name=".ReadingListActivity"
             android:exported="true" />
         <activity
             android:name=".LanguageTranslator"

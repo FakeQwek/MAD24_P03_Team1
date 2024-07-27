@@ -61,7 +61,8 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
-
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.google.android.material:material:1.4.0")
     implementation ("androidx.biometric:biometric:1.1.0")
     implementation("com.google.firebase:firebase-analytics")
     implementation ("com.google.firebase:firebase-core:21.0.0")
@@ -72,6 +73,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.android.volley:volley:1.2.1")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation ("com.airbnb.android:lottie:3.4.0")
     implementation ("androidx.biometric:biometric:1.1.0")
     implementation ("androidx.biometric:biometric:1.2.0-alpha04")
@@ -110,7 +112,5 @@ dependencies {
     implementation ("androidx.camera:camera-camera2:1.0.0")
     implementation ("androidx.camera:camera-lifecycle:1.0.0")
     implementation ("androidx.camera:camera-core:1.0.0")
-
-
-
+    implementation ("com.itextpdf:itext7-core:7.1.15")
 }

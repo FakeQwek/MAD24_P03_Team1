@@ -9,12 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -29,22 +25,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.util.concurrent.Executor;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import com.google.firebase.auth.SignInMethodQueryResult;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
-    private static final String KEY_NAME = "your_key_name";
-
     private FirebaseAuth auth;
     private EditText loginEmail, loginPassword;
     private TextView signupRedirectText, forgotPassword;
@@ -108,30 +93,34 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = auth.getCurrentUser();
                             if (user != null) {
-                                Log.d(TAG, "User signed in: " + user.getEmail());
                                 if (user.isEmailVerified()) {
-                                    Log.d(TAG, "Email verified: " + user.getEmail());
-                                    // Store user ID in SharedPreferences
                                     sharedPreferences.edit().putString("loggedInUserId", user.getUid()).apply();
-                                    startActivity(new Intent(LoginActivity.this, Intro1.class));
+
+                                    boolean isFirstLogin = sharedPreferences.getBoolean("isFirstLogin", true);
+                                    if (isFirstLogin) {
+                                        startActivity(new Intent(LoginActivity.this, Intro1.class));
+                                    } else {
+                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                    }
                                     finish();
                                 } else {
-                                    Log.d(TAG, "Email not verified: " + user.getEmail());
-                                    Toast.makeText(LoginActivity.this, "Email not verified. Please verify your email address.", Toast.LENGTH_SHORT).show();
-                                    auth.signOut();
+                                    Intent intent = new Intent(LoginActivity.this, VerifyEmailActivity.class);
+                                    intent.putExtra("email", email);
+                                    intent.putExtra("password", pass);
+                                    startActivity(intent);
+                                    finish();
                                 }
                             } else {
-                                Log.d(TAG, "User is null after sign-in");
                                 Toast.makeText(LoginActivity.this, "Login failed: User not found", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Log.d(TAG, "Login failed: " + task.getException().getMessage());
                             Toast.makeText(LoginActivity.this, "Login Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
         });
+
 
         signupRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,21 +148,35 @@ public class LoginActivity extends AppCompatActivity {
         dialogView.findViewById(R.id.btnReset).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String userEmail = emailBox.getText().toString();
+                String userEmail = emailBox.getText().toString().trim();
 
                 if (TextUtils.isEmpty(userEmail) || !Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()) {
                     Toast.makeText(LoginActivity.this, "Enter your registered email id", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                auth.sendPasswordResetEmail(userEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
+                auth.fetchSignInMethodsForEmail(userEmail).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Check your email", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
+                            boolean isEmailRegistered = !task.getResult().getSignInMethods().isEmpty();
+                            if (isEmailRegistered) {
+                                auth.sendPasswordResetEmail(userEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(LoginActivity.this, "Check your email", Toast.LENGTH_SHORT).show();
+                                            dialog.dismiss();
+                                        } else {
+                                            Toast.makeText(LoginActivity.this, "Unable to send reset email", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Email address not registered", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            Toast.makeText(LoginActivity.this, "Unable to send, failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Failed to check email: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

@@ -45,6 +45,18 @@
             android:icon="@drawable/account_group"
             android:title="Community" />
         <item
+            android:id="@+id/nav_dictionary"
+            android:icon="@drawable/book_outline"
+            android:title="Dictionary"/>
+        <item
+            android:id="@+id/nav_LanguageTranslator"
+            android:icon="@drawable/translate1"
+            android:title="LanguageTranslator"/>
+        <item
+            android:id="@+id/nav_readingList"
+            android:icon="@drawable/bookshelf"
+            android:title="ReadingList"/>
+        <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/logout"
             android:title="Log out" />

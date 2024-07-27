@@ -7,6 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="purple">#8692f7</color>
     <color name="lavender">#8692f7</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="custom_red">#FF0000</color>
 
     <color name="pastelCoral">#ffc09f</color>
     <color name="pastelOrange">#f7d9c4</color>

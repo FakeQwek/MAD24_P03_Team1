@@ -1,0 +1,110 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Back icon -->
+
+    <!-- Practice More! title -->
+
+    <ImageView
+        android:id="@+id/back_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="-3dp"
+        android:layout_marginTop="-2dp"
+        android:contentDescription="Back"
+        android:padding="8dp"
+        android:src="@drawable/baseline_arrow_back_24" />
+
+    <TextView
+        android:id="@+id/practice_more_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:text="Practice More!"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="32dp"/>
+
+    <TextView
+        android:id="@+id/word_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:text="Word"
+        android:layout_below="@id/practice_more_title"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/average_accuracy_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/word_text_view"
+        android:layout_marginTop="32dp"
+        android:layout_centerHorizontal="true"
+        android:text="0.0%"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/current_accuracy_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/average_accuracy_text_view"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:text="0% / 100%"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+
+    <ImageView
+        android:id="@+id/mic_icon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:src="@drawable/baseline_mic_24"
+        android:contentDescription="Microphone"
+        android:layout_below="@id/current_accuracy_text_view"
+        android:layout_marginTop="32dp"
+        android:layout_centerHorizontal="true"
+        android:padding="0dp"/>
+
+    <TextView
+        android:id="@+id/feedback_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mic_icon"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:text=""
+        android:textSize="16sp"
+        android:textAlignment="center"/>
+
+    <Button
+        android:id="@+id/try_again_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Try Again"
+        android:layout_below="@id/feedback_text_view"
+        android:layout_marginTop="32dp"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/complete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Complete"
+        android:layout_below="@id/try_again_button"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
+
+</RelativeLayout>
+
+

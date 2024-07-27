@@ -2,16 +2,42 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="Dictionary">
-        <State />
-      </entry>
-      <entry key="FormBuilderActivity">
-        <State />
-      </entry>
-      <entry key="KeywordSearchActivity">
-        <State />
-      </entry>
       <entry key="LanguageTranslator">
+        <State />
+      </entry>
+      <entry key="LoginActivity">
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\65883\.android\avd\Pixel_8_API_33.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-07-27T09:18:49.782240200Z" />
+        </State>
+      </entry>
+      <entry key="MainActivity">
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\65883\.android\avd\Pixel_8_API_31.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-07-27T09:06:04.616448700Z" />
+        </State>
+      </entry>
+      <entry key="ReadingListActivity">
         <State />
       </entry>
       <entry key="SignUpActivity">
