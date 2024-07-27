@@ -35,6 +35,8 @@ import java.util.Locale;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EssayActivity extends AppCompatActivity implements SpellCheckerSession.SpellCheckerSessionListener, NavigationView.OnNavigationItemSelectedListener{
 
@@ -70,67 +72,85 @@ public class EssayActivity extends AppCompatActivity implements SpellCheckerSess
         TextView charCount = findViewById(R.id.charCount);
         TextView sentenceCount = findViewById(R.id.sentenceCount);
         TextView essayDetails = findViewById(R.id.essayDetails);
-        TextView wordsTitle = findViewById(R.id.wordsTitle);
-        TextView wordCounts = findViewById(R.id.wordCounts);
+        //TextView wordsTitle = findViewById(R.id.wordsTitle);
+
         charCount.setText("Chars: ");
         wordCount.setText("Words: ");
         sentenceCount.setText("Sentences: ");
-        wordsTitle.setText("Most used Words: ");
+        //wordsTitle.setText("Most used Words: ");
 
         Button confirmButton = findViewById(R.id.checkButton);
         confirmButton.setText("Check Essay");
         essayDetails.setText("Essay Information");
         titleText.setText("Essay Tool");
-        wordsTitle.setTypeface(wordsTitle.getTypeface(), Typeface.BOLD);
+        //wordsTitle.setTypeface(wordsTitle.getTypeface(), Typeface.BOLD);
+
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String essay = essayText.getText().toString();
-                if(essay.equals("")) {
+                Pattern pattern = Pattern.compile("^\\s*$");
+                Matcher match = pattern.matcher(essay);
+                if(essay.equals("") || match.find()) {
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(EssayActivity.this);
-                    alertBuilder.setMessage("Your essay cannot have no words!");
+                    alertBuilder.setMessage("Your essay cannot have no characters!");
                     alertBuilder.setCancelable(true);
                     AlertDialog emptyAlert = alertBuilder.create();
                     emptyAlert.show();
                     return;
                 }
+
                 charCount.setText("Chars: " + essay.length());
                 String[] words = essay.split(" ");
                 String[] sentences = essay.split("\\.");
-                String[] usedWords;
-                Dictionary<String, Integer> wordCounts = new Hashtable<>();
 
-                int count = 0;
+                Dictionary<String, Integer> usedWords = new Hashtable<>();
+                Dictionary<String, Float> wordCounts = new Hashtable<>();
+                /* Broken word count code
+                float count = 0;
                 String word = "";
                 //Goes through each word
                 for(int i=0; i < words.length; i++) {
                     //Assigns the word
                     word = words[i];
                     //Goes through each word to get count
+                    count = 0;
+                    if(usedWords.get(word) != null) {
+                        continue;
+                    }
                     for(int x=0; x < words.length; x++) {
                         //When it reaches selected word
                         if(word == words[x]) {
                             //And word has not already been counted
-                            if(wordCounts.get(word) != null) {
-                                continue;
-                            }
-                            count+= 1;
 
-
+                            count += 1;
+                            Log.d("Count", "Count is: " + count + "Word is: " + word);
                         }
+
                     }
+                    usedWords.put(word, 0);
 
-
-                    int wordPer = Math.round(count/words.length);
+                    Log.d("percentage", "perce"  + " " + words.length + " " + count + " " + count/words.length + " ");
+                    Float wordPer = new Float(count/words.length * 100);
 
                     wordCounts.put(word, wordPer);
                 }
+                */
+
+                /*
                 Enumeration<String> keys = wordCounts.keys();
                 String wordCountText = "";
-                while(keys.hasMoreElements()) {
+                int wordCountCount = 0;
+                while(keys.hasMoreElements() && wordCountCount < 6) {
                     String key = keys.nextElement();
-                    wordCountText += key + " " + wordCounts.get(key) + "%";
+                    wordCountText += key + " " + wordCounts.get(key) + "%" + "\n";
+                    wordCountCount += 1;
                 }
+                */
+
+                //TextView countText = findViewById(R.id.wordCounts);
+                //countText.setText(wordCountText);
+                Log.i("debug", "Words: " + words);
                 wordCount.setText("Words: " + words.length);
                 sentenceCount.setText("Sentences: " + sentences.length);
                 titleText.setText("Essay Tool");

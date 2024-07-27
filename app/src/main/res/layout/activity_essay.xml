@@ -43,6 +43,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <MultiAutoCompleteTextView
+            android:inputType="text"
             android:id="@+id/essayText"
             android:layout_width="320dp"
             android:layout_height="200dp"
@@ -72,16 +73,6 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="800dp">
-
-                <TextView
-                    android:id="@+id/wordCounts"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="55dp"
-                    android:layout_marginTop="25dp"
-                    android:text="TextView"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/wordsTitle" />
 
                 <TextView
                     android:id="@+id/recommended"
@@ -120,16 +111,6 @@
                     android:text="TextView"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/wordCount" />
-
-                <TextView
-                    android:id="@+id/wordsTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="55dp"
-                    android:layout_marginTop="25dp"
-                    android:text="TextView"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/sentenceCount" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
