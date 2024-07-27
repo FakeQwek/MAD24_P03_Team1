@@ -39,10 +39,6 @@
             android:icon="@drawable/writing"
             android:title="Essay Tool" />
         <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/cog"
-            android:title="Settings" />
-        <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/account"
             android:title="Profile" />
