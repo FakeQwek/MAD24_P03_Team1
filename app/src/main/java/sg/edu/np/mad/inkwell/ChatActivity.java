@@ -112,9 +112,9 @@ public class ChatActivity extends AppCompatActivity implements NavigationView.On
                     db.collection("users").document(currentFirebaseUserUid).collection("friends").document(String.valueOf(FriendsActivity.selectedFriendId)).collection("messages").document(String.valueOf(currentMessageId)).set(newMessage);
 
                     Map<String, Object> newMessage2 = new HashMap<>();
-                    newMessage.put("message", messageEditText.getText().toString());
-                    newMessage.put("uid", FriendsActivity.selectedFriendUid);
-                    newMessage.put("type", "received");
+                    newMessage2.put("message", messageEditText.getText().toString());
+                    newMessage2.put("uid", FriendsActivity.selectedFriendUid);
+                    newMessage2.put("type", "received");
 
                     db.collection("users").document(FriendsActivity.selectedFriendUid).collection("friends").document(currentFirebaseUserUid).collection("messages").document(String.valueOf(currentMessageId)).set(newMessage2);
 
