@@ -757,6 +757,9 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
 
                         String[] dataList = data.split(";");
 
+                        Log.d("apple", data);
+                        Log.d("apple", String.valueOf(dataList.length));
+
                         if (dataList.length == 2) {
                             currentNoteId++;
 
@@ -765,8 +768,8 @@ public class NotesActivity extends AppCompatActivity implements NavigationView.O
                             String dateString = simpleDateFormat.format(currentDate);
 
                             Map<String, Object> fileData = new HashMap<>();
-                            fileData.put("title", "Title");
-                            fileData.put("body", "Enter your text");
+                            fileData.put("title", dataList[0]);
+                            fileData.put("body", dataList[1]);
                             fileData.put("type", "file");
                             fileData.put("uid", currentFirebaseUserUid);
                             fileData.put("dateCreated", dateString);
