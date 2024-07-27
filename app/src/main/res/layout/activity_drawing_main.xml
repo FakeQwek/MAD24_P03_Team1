@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <sg.edu.np.mad.inkwell.DrawView
+        android:id="@+id/draw_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF" />
+
+    <LinearLayout
+        android:id="@+id/color_picker_dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="#DDDDDD"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/color_palette"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:padding="10dp"
+            android:layout_marginBottom="10dp">
+
+            <!-- Additional Color Buttons -->
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"/>
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btn_close_color_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#DDDDDD">
+
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/rangebar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0.1"
+            android:valueTo="50"
+            android:stepSize="0.1"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="5dp"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btn_help"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_help"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:contentDescription="Help" />
+
+            <ImageButton
+                android:id="@+id/btn_color"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@drawable/palette" />
+
+            <ImageButton
+                android:id="@+id/btn_stroke"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@drawable/pensize" />
+
+            <ImageButton
+                android:id="@+id/btn_undo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@drawable/undo" />
+
+            <ImageButton
+                android:id="@+id/btn_redo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@drawable/redo" />
+
+            <ImageButton
+                android:id="@+id/btn_save"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@android:drawable/ic_menu_save" />
+
+            <ImageButton
+                android:id="@+id/btn_eraser"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@drawable/eraser" />
+
+            <ImageButton
+                android:id="@+id/btn_fill"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@drawable/paintbucket"
+                android:background="?attr/selectableItemBackground" />
+
+            <!-- New reset button -->
+            <ImageButton
+                android:id="@+id/btn_reset"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@android:drawable/ic_menu_delete" />
+
+            <!-- Add this button for the selection mode -->
+            <ImageButton
+                android:id="@+id/btn_selection_mode"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@drawable/select"
+                android:contentDescription="Selection Mode" />
+
+            <!-- Add this button for deleting the selection -->
+            <ImageButton
+                android:id="@+id/btn_delete_selection"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:contentDescription="Delete Selection"
+                android:visibility="gone" /> <!-- Initially hidden -->
+        </LinearLayout>
+
+        <!-- Help Image Dialog -->
+        <LinearLayout
+            android:id="@+id/help_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="#AA000000"
+            android:gravity="center"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/help_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/help_image"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

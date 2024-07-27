@@ -5,7 +5,11 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -161,6 +165,8 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".DrawingMainActivity"
+            android:exported="true">
             android:name=".MindMapActivity"
             android:exported="true"
             android:theme="@style/Theme.Inkwell.NoActionBar">
@@ -169,6 +175,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".IntermediateActivity"></activity>
+        <activity android:name=".ViewSavedDrawingsActivity"></activity>
+        <activity android:name=".FullImageActivity"></activity>
+        <activity android:name=".ViewPublicCollectionActivity"></activity>
                
         <!-- Receivers -->
             android:theme="@style/Theme.Inkwell.NoActionBar" /> <!-- Receivers -->
