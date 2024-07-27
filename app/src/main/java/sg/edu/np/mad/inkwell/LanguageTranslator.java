@@ -1,15 +1,10 @@
 package sg.edu.np.mad.inkwell;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,44 +16,45 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.navigation.NavigationView;
 import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.nl.translate.TranslateLanguage;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
-import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.text.Text;
-import com.google.mlkit.vision.text.TextRecognition;
-import com.google.mlkit.vision.text.TextRecognizer;
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class LanguageTranslator extends AppCompatActivity {
-
-    private static final int REQUEST_PERMISSION_CODE = 1;
+public class LanguageTranslator extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Spinner fromSpinner, toSpinner;
     private TextInputEditText sourceText;
-    private ImageView micTV, cameraTV, clearText;
+    private ImageView micTV, clearText;
     private MaterialButton translateBtn;
     private TextView translateTV;
     private RecyclerView recyclerView;
 
     private ActivityResultLauncher<Intent> speechRecognitionLauncher;
-    private ActivityResultLauncher<Intent> cameraLauncher;
 
-    String[] fromLanguage = {"To", "English", "Afrikaans", "Arabic", "Belarusian", "Bulgarian", "Bengali", "Catalan", "Czech", "Welsh", "Hindi", "Chinese"};
-    String[] toLanguage = {"To", "English", "Afrikaans", "Arabic", "Belarusian", "Bulgarian", "Bengali", "Catalan", "Czech", "Welsh", "Hindi", "Chinese"};
+    String[] fromLanguage = {"From", "English", "Afrikaans", "Arabic", "Belarusian", "Bulgarian", "Bengali", "Catalan", "Czech", "Welsh", "Hindi", "Chinese",
+            "Danish", "Dutch", "French", "German", "Greek", "Gujarati", "Hebrew", "Hungarian", "Indonesian", "Irish", "Italian", "Japanese",
+            "Kannada", "Korean", "Lithuanian", "Malay", "Marathi", "Nepali", "Norwegian", "Polish", "Portuguese", "Punjabi", "Romanian",
+            "Russian", "Spanish", "Swedish", "Tamil", "Telugu", "Thai", "Turkish", "Ukrainian", "Urdu", "Vietnamese"};
+
+    String[] toLanguage = {"To", "English", "Afrikaans", "Arabic", "Belarusian", "Bulgarian", "Bengali", "Catalan", "Czech", "Welsh", "Hindi", "Chinese",
+            "Danish", "Dutch", "French", "German", "Greek", "Gujarati", "Hebrew", "Hungarian", "Indonesian", "Irish", "Italian", "Japanese",
+            "Kannada", "Korean", "Lithuanian", "Malay", "Marathi", "Nepali", "Norwegian", "Polish", "Portuguese", "Punjabi", "Romanian",
+            "Russian", "Spanish", "Swedish", "Tamil", "Telugu", "Thai", "Turkish", "Ukrainian", "Urdu", "Vietnamese"};
 
     String fromLanguageCode, toLanguageCode = "";
 
@@ -67,11 +63,24 @@ public class LanguageTranslator extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_language_translator);
 
+        // Set up toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Set up navigation drawer
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.bringToFront();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav, R.string.close_nav);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
         fromSpinner = findViewById(R.id.idFromSpinner);
         toSpinner = findViewById(R.id.idToSpinner);
         sourceText = findViewById(R.id.idEditSource);
         micTV = findViewById(R.id.idIvMic);
-        cameraTV = findViewById(R.id.idIvCamera);
         clearText = findViewById(R.id.idClearText);
         translateBtn = findViewById(R.id.idBtnTranslation);
         translateTV = findViewById(R.id.idTranslatedTV);
@@ -87,17 +96,6 @@ public class LanguageTranslator extends AppCompatActivity {
                         if (matches != null && !matches.isEmpty()) {
                             sourceText.setText(matches.get(0));
                         }
-                    }
-                }
-        );
-
-        cameraLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Bundle extras = result.getData().getExtras();
-                        Bitmap imageBitmap = (Bitmap) extras.get("data");
-                        processImage(imageBitmap);
                     }
                 }
         );
@@ -139,101 +137,33 @@ public class LanguageTranslator extends AppCompatActivity {
         toAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         toSpinner.setAdapter(toAdapter);
 
-        micTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say something to translate");
+        micTV.setOnClickListener(view -> {
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say something to translate");
 
-                try {
-                    speechRecognitionLauncher.launch(intent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(LanguageTranslator.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+            try {
+                speechRecognitionLauncher.launch(intent);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(LanguageTranslator.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        cameraTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                try {
-                    cameraLauncher.launch(takePictureIntent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(LanguageTranslator.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+        translateBtn.setOnClickListener(view -> {
+            translateTV.setVisibility(View.VISIBLE);
+            translateTV.setText("");
+            if (sourceText.getText().toString().isEmpty()) {
+                Toast.makeText(LanguageTranslator.this, "Please enter text to translate", Toast.LENGTH_SHORT).show();
+            } else if (fromLanguageCode.isEmpty()) {
+                Toast.makeText(LanguageTranslator.this, "Please select Source Language", Toast.LENGTH_SHORT).show();
+            } else if (toLanguageCode.isEmpty()) {
+                Toast.makeText(LanguageTranslator.this, "Please select the language to make translation", Toast.LENGTH_SHORT).show();
+            } else {
+                translateText(fromLanguageCode, toLanguageCode, sourceText.getText().toString());
             }
         });
-
-        translateBtn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                translateTV.setVisibility(View.VISIBLE);
-                translateTV.setText("");
-                if (sourceText.getText().toString().isEmpty()){
-                    Toast.makeText(LanguageTranslator.this, "Please enter text to translate", Toast.LENGTH_SHORT).show();
-                }else if(fromLanguageCode.isEmpty()){
-                    Toast.makeText(LanguageTranslator.this, "Please select Source Language", Toast.LENGTH_SHORT).show();
-                }else if(toLanguageCode.isEmpty()){
-                    Toast.makeText(LanguageTranslator.this, "Please select the language to make translation", Toast.LENGTH_SHORT).show();
-                }else {
-                    translateText(fromLanguageCode, toLanguageCode, sourceText.getText().toString());
-                }
-            }
-        });
-    }
-
-    private void processImage(Bitmap imageBitmap) {
-        // Convert image to grayscale to improve accuracy
-        Bitmap grayBitmap = convertToGrayscale(imageBitmap);
-        // Resize the image to improve accuracy
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(grayBitmap, grayBitmap.getWidth() * 2, grayBitmap.getHeight() * 2, true);
-        InputImage image = InputImage.fromBitmap(resizedBitmap, 0);
-        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-
-        recognizer.process(image)
-                .addOnSuccessListener(new OnSuccessListener<Text>() {
-                    @Override
-                    public void onSuccess(Text visionText) {
-                        displayRecognizedText(visionText);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(LanguageTranslator.this, "Failed to recognize text!! Try again", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private Bitmap convertToGrayscale(Bitmap src) {
-        Bitmap grayBitmap = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(grayBitmap);
-        Paint paint = new Paint();
-        ColorMatrix colorMatrix = new ColorMatrix();
-        colorMatrix.setSaturation(0);
-        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
-        paint.setColorFilter(filter);
-        canvas.drawBitmap(src, 0, 0, paint);
-        return grayBitmap;
-    }
-
-    private void displayRecognizedText(Text visionText) {
-        List<Text.TextBlock> textBlocks = visionText.getTextBlocks();
-        if (!textBlocks.isEmpty()) {
-            TextBlockAdapter adapter = new TextBlockAdapter(textBlocks, text -> {
-                sourceText.append(text + " ");
-            });
-            recyclerView.setAdapter(adapter);
-            recyclerView.setVisibility(View.VISIBLE);
-        } else {
-            Toast.makeText(this, "No text found", Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void translateText(String fromLanguageCode, String toLanguageCode, String source) {
@@ -249,34 +179,22 @@ public class LanguageTranslator extends AppCompatActivity {
         DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
 
         translator.downloadModelIfNeeded(conditions)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("LanguageTranslator", "Model downloaded successfully.");
-                        translateTV.setText("Translating...");
-                        translator.translate(source)
-                                .addOnSuccessListener(new OnSuccessListener<String>() {
-                                    @Override
-                                    public void onSuccess(String s) {
-                                        Log.d("LanguageTranslator", "Translation successful: " + s);
-                                        translateTV.setText(s);
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.e("LanguageTranslator", "Translation failed: " + e.getMessage());
-                                        Toast.makeText(LanguageTranslator.this, "Failed to translate!! Try again", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    }
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("LanguageTranslator", "Model downloaded successfully.");
+                    translateTV.setText("Translating...");
+                    translator.translate(source)
+                            .addOnSuccessListener(s -> {
+                                Log.d("LanguageTranslator", "Translation successful: " + s);
+                                translateTV.setText(s);
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("LanguageTranslator", "Translation failed: " + e.getMessage());
+                                Toast.makeText(LanguageTranslator.this, "Failed to translate!! Try again", Toast.LENGTH_SHORT).show();
+                            });
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("LanguageTranslator", "Model download failed: " + e.getMessage());
-                        Toast.makeText(LanguageTranslator.this, "Failed to download model!! Check your internet connection.", Toast.LENGTH_SHORT).show();
-                    }
+                .addOnFailureListener(e -> {
+                    Log.e("LanguageTranslator", "Model download failed: " + e.getMessage());
+                    Toast.makeText(LanguageTranslator.this, "Failed to download model!! Check your internet connection.", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -304,8 +222,81 @@ public class LanguageTranslator extends AppCompatActivity {
                 return TranslateLanguage.HINDI;
             case "Chinese":
                 return TranslateLanguage.CHINESE;
+            case "Danish":
+                return TranslateLanguage.DANISH;
+            case "Dutch":
+                return TranslateLanguage.DUTCH;
+            case "French":
+                return TranslateLanguage.FRENCH;
+            case "German":
+                return TranslateLanguage.GERMAN;
+            case "Greek":
+                return TranslateLanguage.GREEK;
+            case "Gujarati":
+                return TranslateLanguage.GUJARATI;
+            case "Hebrew":
+                return TranslateLanguage.HEBREW;
+            case "Hungarian":
+                return TranslateLanguage.HUNGARIAN;
+            case "Indonesian":
+                return TranslateLanguage.INDONESIAN;
+            case "Irish":
+                return TranslateLanguage.IRISH;
+            case "Italian":
+                return TranslateLanguage.ITALIAN;
+            case "Japanese":
+                return TranslateLanguage.JAPANESE;
+            case "Kannada":
+                return TranslateLanguage.KANNADA;
+            case "Korean":
+                return TranslateLanguage.KOREAN;
+            case "Lithuanian":
+                return TranslateLanguage.LITHUANIAN;
+            case "Malay":
+                return TranslateLanguage.MALAY;
+            case "Marathi":
+                return TranslateLanguage.MARATHI;
+
+            case "Norwegian":
+                return TranslateLanguage.NORWEGIAN;
+            case "Polish":
+                return TranslateLanguage.POLISH;
+            case "Portuguese":
+                return TranslateLanguage.PORTUGUESE;
+
+            case "Romanian":
+                return TranslateLanguage.ROMANIAN;
+            case "Russian":
+                return TranslateLanguage.RUSSIAN;
+            case "Spanish":
+                return TranslateLanguage.SPANISH;
+            case "Swedish":
+                return TranslateLanguage.SWEDISH;
+            case "Tamil":
+                return TranslateLanguage.TAMIL;
+            case "Telugu":
+                return TranslateLanguage.TELUGU;
+            case "Thai":
+                return TranslateLanguage.THAI;
+            case "Turkish":
+                return TranslateLanguage.TURKISH;
+            case "Ukrainian":
+                return TranslateLanguage.UKRAINIAN;
+            case "Urdu":
+                return TranslateLanguage.URDU;
+            case "Vietnamese":
+                return TranslateLanguage.VIETNAMESE;
             default:
                 return "";
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int id = menuItem.getItemId();
+        Navbar navbar = new Navbar(this);
+        Intent newActivity = navbar.redirect(id);
+        startActivity(newActivity);
+        return true;
     }
 }

@@ -2,16 +2,32 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="CommunityActivity">
+      <entry key="CalculatorActivity">
         <State />
       </entry>
       <entry key="LoginActivity">
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\65883\.android\avd\Pixel_8_API_33.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-07-27T09:18:49.782240200Z" />
+        </State>
+      </entry>
+      <entry key="ProfileActivity">
         <State />
       </entry>
       <entry key="ReadingListActivity">
-       <State />
+        <State />
       </entry>
-      <entry key="CalculatorActivity">
+      <entry key="CommunityActivity">
         <State />
       </entry>
       <entry key="EssayActivity">

@@ -1,24 +1,18 @@
 package sg.edu.np.mad.inkwell;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 
-
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.core.content.ContextCompat;
-
-
-
 
 public class Intro1 extends AppCompatActivity {
 
@@ -53,6 +47,12 @@ public class Intro1 extends AppCompatActivity {
                 if (getitem(0) < viewPagerAdapter.getCount() - 1) {
                     mSLideViewPager.setCurrentItem(getitem(1), true);
                 } else {
+                    // Update SharedPreferences to indicate the intro has been seen
+                    SharedPreferences sharedPreferences = getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("isFirstLogin", false);
+                    editor.apply();
+
                     Intent i = new Intent(Intro1.this, MainActivity.class);
                     startActivity(i);
                     finish();
@@ -63,6 +63,12 @@ public class Intro1 extends AppCompatActivity {
         skipbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Update SharedPreferences to indicate the intro has been seen
+                SharedPreferences sharedPreferences = getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("isFirstLogin", false);
+                editor.apply();
+
                 Intent i = new Intent(Intro1.this, MainActivity.class);
                 startActivity(i);
                 finish();

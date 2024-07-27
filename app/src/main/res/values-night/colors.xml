@@ -7,6 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="purple">#8692f7</color>
     <color name="lavender">#8692f7</color>
+    <color name="custom_red">#FF0000</color>
 
     // time table colours
     <color name="pastelCoral">#ffc09f</color>

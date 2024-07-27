@@ -85,6 +85,23 @@ public class Navbar {
             Log.d("Alert", "Opening settings");
             return newActivity;
         }
+
+        else if(id == R.id.nav_dictionary) {
+            Intent newActivity = new Intent(CurrentActivity, KeywordSearchActivity.class);
+            Log.d("Alert", "Opening Dictionary");
+            return newActivity;
+        }
+        else if(id == R.id.nav_LanguageTranslator){
+            Intent newActivity = new Intent(CurrentActivity, LanguageTranslator.class);
+            Log.d("Alert", "Opening LanguageTranslator");
+            return newActivity;
+        }
+        else if(id == R.id.nav_readingList){
+            Intent newActivity = new Intent(CurrentActivity, ReadingListActivity.class);
+            Log.d("Alert","Opening ReadingList");
+            return newActivity;
+        }
+
         else if (id == R.id.nav_drawing) {
             Intent newActivity = new Intent(CurrentActivity, IntermediateActivity.class);
             Log.d("Alert", "Opening drawing activity");

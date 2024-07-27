@@ -1,17 +1,22 @@
 package sg.edu.np.mad.inkwell;
 
+import android.app.AlertDialog;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder> {
@@ -46,8 +51,8 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         TextView bookTitleTextView;
         TextView bookAuthorTextView;
         Spinner statusSpinner;
-        EditText notesEditText;
-        Button removeBookButton;
+        ProgressBar progressBar;
+        TextView progressText;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -55,37 +60,13 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             bookTitleTextView = itemView.findViewById(R.id.bookTitleTextView);
             bookAuthorTextView = itemView.findViewById(R.id.bookAuthorTextView);
             statusSpinner = itemView.findViewById(R.id.statusSpinner);
-            notesEditText = itemView.findViewById(R.id.notesEditText);
-            removeBookButton = itemView.findViewById(R.id.removeBookButton);
+            progressBar = itemView.findViewById(R.id.progressBar);
+            progressText = itemView.findViewById(R.id.progressText);
 
-            removeBookButton.setOnClickListener(view -> {
+            itemView.setOnClickListener(view -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    onBookChangeListener.onBookRemoved(books.get(position));
-                }
-            });
-
-            statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    int pos = getAdapterPosition();
-                    if (pos != RecyclerView.NO_POSITION) {
-                        books.get(pos).setStatus(parent.getItemAtPosition(position).toString());
-                        onBookChangeListener.onBookUpdated(books.get(pos));
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) { }
-            });
-
-            notesEditText.setOnFocusChangeListener((view, hasFocus) -> {
-                if (!hasFocus) {
-                    int pos = getAdapterPosition();
-                    if (pos != RecyclerView.NO_POSITION) {
-                        books.get(pos).setNotes(notesEditText.getText().toString());
-                        onBookChangeListener.onBookUpdated(books.get(pos));
-                    }
+                    showEditBookDialog(books.get(position));
                 }
             });
         }
@@ -93,8 +74,8 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         public void bind(Book book) {
             bookTitleTextView.setText(book.getTitle());
             bookAuthorTextView.setText(book.getAuthor());
-            notesEditText.setText(book.getNotes());
             Glide.with(itemView.getContext()).load(book.getCoverUrl()).into(bookCoverImageView);
+            updateProgressBar(book);
 
             switch (book.getStatus()) {
                 case "To Read":
@@ -107,6 +88,82 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
                     statusSpinner.setSelection(2);
                     break;
             }
+        }
+
+        private void showEditBookDialog(Book book) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+            LayoutInflater inflater = LayoutInflater.from(itemView.getContext());
+            View dialogView = inflater.inflate(R.layout.dialog_edit_book, null);
+            builder.setView(dialogView);
+
+            EditText editTitleEditText = dialogView.findViewById(R.id.editTitleEditText);
+            EditText editAuthorEditText = dialogView.findViewById(R.id.editAuthorEditText);
+            EditText editCoverUrlEditText = dialogView.findViewById(R.id.editCoverUrlEditText);
+            EditText editNotesEditText = dialogView.findViewById(R.id.editNotesEditText);
+            Spinner pagesSpinner = dialogView.findViewById(R.id.pagesSpinner);
+            Spinner doneSpinner = dialogView.findViewById(R.id.doneSpinner);
+            Button removeBookButton = dialogView.findViewById(R.id.removeBookButton);
+            Button saveBookButton = dialogView.findViewById(R.id.saveBookButton);
+
+            editTitleEditText.setText(book.getTitle());
+            editAuthorEditText.setText(book.getAuthor());
+            editCoverUrlEditText.setText(book.getCoverUrl());
+            editNotesEditText.setText(book.getNotes());
+
+            // Populate spinners
+            ArrayAdapter<Integer> pagesAdapter = new ArrayAdapter<>(itemView.getContext(),
+                    android.R.layout.simple_spinner_item, generateNumberList(1, 1000));
+            pagesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            pagesSpinner.setAdapter(pagesAdapter);
+            pagesSpinner.setSelection(book.getTotalPages() - 1);
+
+            ArrayAdapter<Integer> doneAdapter = new ArrayAdapter<>(itemView.getContext(),
+                    android.R.layout.simple_spinner_item, generateNumberList(0, book.getTotalPages()));
+            doneAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            doneSpinner.setAdapter(doneAdapter);
+            doneSpinner.setSelection(book.getCurrentPage());
+
+            builder.setTitle("Edit Reading List");
+            AlertDialog dialog = builder.create();
+
+            removeBookButton.setOnClickListener(v -> {
+                onBookChangeListener.onBookRemoved(book);
+                dialog.dismiss();
+            });
+
+            saveBookButton.setOnClickListener(v -> {
+                book.setTitle(editTitleEditText.getText().toString());
+                book.setAuthor(editAuthorEditText.getText().toString());
+                book.setCoverUrl(editCoverUrlEditText.getText().toString());
+                book.setNotes(editNotesEditText.getText().toString());
+                book.setTotalPages(pagesSpinner.getSelectedItemPosition() + 1);
+                book.setCurrentPage(doneSpinner.getSelectedItemPosition());
+
+                updateProgressBar(book);
+                onBookChangeListener.onBookUpdated(book);
+                dialog.dismiss();
+            });
+
+            dialog.show();
+        }
+
+        private void updateProgressBar(Book book) {
+            int progress = book.getProgress();
+            progressBar.setProgress(progress);
+            progressText.setText(String.format("%d%%/100%%", progress));
+            if (progress == 100) {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.GREEN));
+            } else {
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.GRAY));
+            }
+        }
+
+        private List<Integer> generateNumberList(int start, int end) {
+            List<Integer> list = new ArrayList<>();
+            for (int i = start; i <= end; i++) {
+                list.add(i);
+            }
+            return list;
         }
     }
 
