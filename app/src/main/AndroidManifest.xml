@@ -53,28 +53,36 @@
         <activity android:name=".BookmarkCollectionActivity" />
         <activity
             android:name=".Intro1"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".FingerPrintAuthentication"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".ReadingListActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".LanguageTranslator"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".KeywordSearchActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".Dictionary"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".LeaderboardActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".CommunityQuizActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".CommunityActivity"
             android:exported="true"
@@ -93,10 +101,12 @@
             android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".calendarpage"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".mainscreen"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
             android:name=".QuizFlashcardActivity"
             android:exported="true"
@@ -152,13 +162,13 @@
         </activity>
         <activity
             android:name=".MindMapActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-            android:theme="@style/Theme.Inkwell.NoActionBar"/>
                
         <!-- Receivers -->
             android:theme="@style/Theme.Inkwell.NoActionBar" /> <!-- Receivers -->
