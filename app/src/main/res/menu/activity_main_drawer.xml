@@ -57,6 +57,10 @@
             android:icon="@drawable/account_group"
             android:title="Community" />
         <item
+            android:id="@+id/nav_drawing"
+            android:icon="@drawable/pencil_outline"
+            android:title="Drawing" />
+        <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/cog"
             android:title="Settings" />
