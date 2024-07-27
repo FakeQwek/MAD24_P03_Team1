@@ -44,8 +44,6 @@
 
             android:exported="true" />
 
-            android:exported="true"
-            android:theme="@style/Theme.Inkwell.NoActionBar" />
 
         <!-- Main launcher activity -->
         <activity
@@ -85,6 +83,19 @@
             android:exported="true"
             android:theme="@style/Theme.Inkwell.NoActionBar" />
         <activity
+            android:name=".PronunciationActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
+        <activity
+            android:name=".AnalyticsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
+        <activity
+            android:name=".PracticeWordActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Inkwell.NoActionBar" />
+        <activity
+
             android:name=".LeaderboardActivity"
             android:exported="false"
             android:theme="@style/Theme.Inkwell.NoActionBar" />
